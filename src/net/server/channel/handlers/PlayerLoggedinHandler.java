@@ -86,6 +86,17 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         boolean allowLogin = true;
         Channel cserv = c.getChannelServer();
 
+        for (MapleCharacter character : c.getWorldServer().getPlayerStorage().getAllCharacters())
+        {
+            if (character.getAccountID() - c.getAccID() == 0)
+            {
+                if(!character.getName().equalsIgnoreCase(c.getPlayer().getName()))
+                {
+                    allowLogin = false;
+                }
+            }
+        }
+
         if (state == MapleClient.LOGIN_SERVER_TRANSITION || state == MapleClient.LOGIN_NOTLOGGEDIN) {
             for (String charName : c.loadCharacterNames(c.getWorld())) {
                 for (Channel ch : c.getWorldServer().getChannels()) {

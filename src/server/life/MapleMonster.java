@@ -310,57 +310,64 @@ public class MapleMonster extends AbstractLoadedMapleLife
     {
         //Get how much mesos this monster drops
         final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
-        final MonsterDropEntry mesoDropEntry = mi.retrieveDrop(this.getId()).get(0);
+        final List<MonsterDropEntry> drops = mi.retrieveDrop(this.getId());
 
-        Map<Integer, Integer> nxDist = new HashMap<>();
-        Map<Integer, Integer> partyNx = new HashMap<>();
-
-        int mesoValue = Randomizer.nextInt(mesoDropEntry.Maximum - mesoDropEntry.Minimum) + mesoDropEntry.Minimum * map.getCharacterById(killerId).getMesoRate();
-        if (mesoValue <= 0) mesoValue = Integer.MAX_VALUE;
-
-        int nxValue = (int)(mesoValue * 1.5);
-
-        // 80% of pool is split amongst all the damagers
-        for (Entry<Integer, AtomicInteger> damageEntry : takenDamage.entrySet())
+        for (MonsterDropEntry drop : drops)
         {
-            nxDist.put(damageEntry.getKey(), (int) (0.80f * nxValue * damageEntry.getValue().get() / this.hp));
-        }
-
-        Collection<MapleCharacter> characters = map.getCharacters();
-
-        for (MapleCharacter character : characters)
-        {
-            if (nxDist.containsKey(character.getId()))
+            if (drop.getItemId() == 0)
             {
-                boolean isKiller = character.getId() == killerId;
-                int nx = nxDist.get(character.getId());
+                Map<Integer, Integer> nxDist = new HashMap<>();
+                Map<Integer, Integer> partyNx = new HashMap<>();
 
-                if (isKiller)
+                int mesoValue =  Randomizer.nextInt(drop.Maximum - drop.Minimum) + drop.Minimum * map.getCharacterById(killerId).getMesoRate();
+                if (mesoValue <= 0) mesoValue = Integer.MAX_VALUE;
+
+                int nxValue = (int)(mesoValue * 1.5);
+
+                // 80% of pool is split amongst all the damagers
+                for (Entry<Integer, AtomicInteger> damageEntry : takenDamage.entrySet())
                 {
-                    nx += nxValue / 5;
+                    nxDist.put(damageEntry.getKey(), (int) ((0.80 * nxValue) * (damageEntry.getValue().get() / stats.getHp())));
                 }
 
-                MapleParty p = character.getParty();
+                Collection<MapleCharacter> characters = map.getCharacters();
 
-                if (p != null)
+                for (MapleCharacter character : characters)
                 {
-                    int partyID = p.getId();
-                    int partyNX = nx + (partyNx.getOrDefault(partyID, 0));
+                    if (nxDist.containsKey(character.getId()))
+                    {
+                        boolean isKiller = character.getId() == killerId;
+                        int nx = nxDist.get(character.getId());
 
-                    partyNx.put(partyID, partyNX);
+                        if (isKiller)
+                        {
+                            nx += nxValue / 5;
+                        }
+
+                        MapleParty p = character.getParty();
+
+                        if (p != null)
+                        {
+                            int partyID = p.getId();
+                            int partyNX = nx + (partyNx.getOrDefault(partyID, 0));
+
+                            partyNx.put(partyID, partyNX);
+                        }
+                        else
+                        {
+                            giveNXToCharacter(character, nx, isKiller, 1);
+                        }
+                    }
                 }
-                else
+
+                for (Entry<Integer, Integer> partyMember : partyNx.entrySet())
                 {
-                    giveNXToCharacter(character, nx, isKiller, 1);
+                    distributeNXToParty(partyMember.getKey(), partyMember.getValue(), killerId, nxDist);
                 }
+
+                return;
             }
         }
-
-        for (Entry<Integer, Integer> partyMember : partyNx.entrySet())
-        {
-            distributeNXToParty(partyMember.getKey(), partyMember.getValue(), killerId, nxDist);
-        }
-
     }
 
     private void distributeNXToParty(Integer partyID, Integer partyNX, int killerId, Map<Integer, Integer> nxDist)
