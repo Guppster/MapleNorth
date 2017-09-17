@@ -19,11 +19,13 @@ package server.life;
 
 import constants.GameConstants;
 
-public class ChangeableStats extends OverrideMonsterStats {
+public class ChangeableStats extends OverrideMonsterStats
+{
 
     public int watk, matk, wdef, mdef, level;
 
-    public ChangeableStats(MapleMonsterStats stats, OverrideMonsterStats ostats) {
+    public ChangeableStats(MapleMonsterStats stats, OverrideMonsterStats ostats)
+    {
         hp = ostats.getHp();
         exp = ostats.getExp();
         mp = ostats.getMp();
@@ -34,7 +36,8 @@ public class ChangeableStats extends OverrideMonsterStats {
         level = stats.getLevel();
     }
 
-    public ChangeableStats(MapleMonsterStats stats, int newLevel, boolean pqMob) { // here we go i think
+    public ChangeableStats(MapleMonsterStats stats, int newLevel, boolean pqMob)
+    { // here we go i think
         final double mod = (double) newLevel / (double) stats.getLevel();
         final double hpRatio = (double) stats.getHp() / (double) stats.getExp();
         final double pqMod = (pqMob ? 1.5 : 1.0); // god damn
@@ -48,7 +51,8 @@ public class ChangeableStats extends OverrideMonsterStats {
         level = newLevel;
     }
 
-    public ChangeableStats(MapleMonsterStats stats, float statModifier, boolean pqMob) {
-        this(stats, (int)(statModifier * stats.getLevel()), pqMob);
+    public ChangeableStats(MapleMonsterStats stats, float statModifier, boolean pqMob)
+    {
+        this(stats, (int) (statModifier * stats.getLevel()), pqMob);
     }
 }

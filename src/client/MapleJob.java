@@ -21,7 +21,8 @@
 */
 package client;
 
-public enum MapleJob {
+public enum MapleJob
+{
     BEGINNER(0),
 
     WARRIOR(100),
@@ -57,37 +58,40 @@ public enum MapleJob {
     THUNDERBREAKER1(1500), THUNDERBREAKER2(1510), THUNDERBREAKER3(1511), THUNDERBREAKER4(1512),
 
     LEGEND(2000), EVAN(2001),
-    ARAN1(2100),ARAN2(2110), ARAN3(2111), ARAN4(2112),
-	
+    ARAN1(2100), ARAN2(2110), ARAN3(2111), ARAN4(2112),
+
     EVAN1(2200), EVAN2(2210), EVAN3(2211), EVAN4(2212), EVAN5(2213), EVAN6(2214),
     EVAN7(2215), EVAN8(2216), EVAN9(2217), EVAN10(2218);
 
-    final int jobid;
     final static int maxId = 22;    // maxId = (EVAN / 100);
+    final int jobid;
 
-    private MapleJob(int id) {
+    private MapleJob(int id)
+    {
         jobid = id;
     }
-    
-    public static int getMax() {
+
+    public static int getMax()
+    {
         return maxId;
     }
 
-    public int getId() {
-        return jobid;
-    }
-
-    public static MapleJob getById(int id) {
-        for (MapleJob l : MapleJob.values()) {
-            if (l.getId() == id) {
+    public static MapleJob getById(int id)
+    {
+        for (MapleJob l : MapleJob.values())
+        {
+            if (l.getId() == id)
+            {
                 return l;
             }
         }
         return null;
     }
 
-    public static MapleJob getBy5ByteEncoding(int encoded) {
-        switch (encoded) {
+    public static MapleJob getBy5ByteEncoding(int encoded)
+    {
+        switch (encoded)
+        {
             case 2:
                 return WARRIOR;
             case 4:
@@ -115,16 +119,24 @@ public enum MapleJob {
         }
     }
 
-    public boolean isBeginner(MapleJob beginners) {
-    	return MAGICIAN == beginners || WARRIOR == beginners || THIEF == beginners || PIRATE == beginners || BOWMAN == beginners || ARAN1 == beginners || THUNDERBREAKER1 == beginners
-    			|| DAWNWARRIOR1 == beginners || NIGHTWALKER1 == beginners || BLAZEWIZARD1 == beginners;
-     }
-    
-    public boolean isA(MapleJob basejob) {        
+    public int getId()
+    {
+        return jobid;
+    }
+
+    public boolean isBeginner(MapleJob beginners)
+    {
+        return MAGICIAN == beginners || WARRIOR == beginners || THIEF == beginners || PIRATE == beginners || BOWMAN == beginners || ARAN1 == beginners || THUNDERBREAKER1 == beginners
+               || DAWNWARRIOR1 == beginners || NIGHTWALKER1 == beginners || BLAZEWIZARD1 == beginners;
+    }
+
+    public boolean isA(MapleJob basejob)
+    {
         return getId() >= basejob.getId() && getId() / 100 == basejob.getId() / 100;
     }
-    
-    public int getJobNiche() {
+
+    public int getJobNiche()
+    {
         return (jobid / 100) % 10;
         
         /*

@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 function init() {
     em.getChannelServer().getMapFactory().getMap(222020100).resetReactors();
     em.getChannelServer().getMapFactory().getMap(222020200).resetReactors();
-    
+
     scheduleNew();
 }
 
 function scheduleNew() {
     em.setProperty("goingUp", "false");
     em.setProperty("goingDown", "true");
-    
+
     em.getChannelServer().getMapFactory().getMap(222020100).resetReactors();
     em.getChannelServer().getMapFactory().getMap(222020200).setReactorState();
     em.schedule("goingUpNow", 50000);
@@ -47,7 +47,7 @@ function goingUpNow() {
     em.getChannelServer().getMapFactory().getMap(222020110).warpEveryone(222020111);
     em.setProperty("goingUp", "true");
     em.schedule("isUpNow", 55000);
-    
+
     em.getChannelServer().getMapFactory().getMap(222020100).setReactorState();
 }
 
@@ -55,7 +55,7 @@ function goingDownNow() {
     em.getChannelServer().getMapFactory().getMap(222020210).warpEveryone(222020211);
     em.setProperty("goingDown", "true");
     em.schedule("isDownNow", 55000);
-    
+
     em.getChannelServer().getMapFactory().getMap(222020200).setReactorState();
 }
 
@@ -71,10 +71,10 @@ function isDownNow() {
     em.setProperty("goingUp", "false"); // clear
     em.getChannelServer().getMapFactory().getMap(222020100).resetReactors();
     em.getChannelServer().getMapFactory().getMap(222020211).warpEveryone(222020100, 4);
-    
+
     goUp();
 }
 
 function cancelSchedule() {
-    
+
 }

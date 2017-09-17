@@ -21,7 +21,8 @@
 */
 package client;
 
-public class BuddylistEntry {
+public class BuddylistEntry
+{
     private String name;
     private String group;
     private int cid;
@@ -29,13 +30,13 @@ public class BuddylistEntry {
     private boolean visible;
 
     /**
-     *
      * @param name
      * @param characterId
-     * @param channel should be -1 if the buddy is offline
+     * @param channel     should be -1 if the buddy is offline
      * @param visible
      */
-    public BuddylistEntry(String name, String group, int characterId, int channel, boolean visible) {
+    public BuddylistEntry(String name, String group, int characterId, int channel, boolean visible)
+    {
         this.name = name;
         this.group = group;
         this.cid = characterId;
@@ -46,44 +47,54 @@ public class BuddylistEntry {
     /**
      * @return the channel the character is on. If the character is offline returns -1.
      */
-    public int getChannel() {
+    public int getChannel()
+    {
         return channel;
     }
 
-    public void setChannel(int channel) {
+    public void setChannel(int channel)
+    {
         this.channel = channel;
     }
 
-    public boolean isOnline() {
+    public boolean isOnline()
+    {
         return channel >= 0;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public String getGroup() {
+    public String getGroup()
+    {
         return group;
     }
 
-    public int getCharacterId() {
+    public int getCharacterId()
+    {
         return cid;
     }
 
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
-
-    public boolean isVisible() {
+    public boolean isVisible()
+    {
         return visible;
     }
 
-    public void changeGroup(String group) {
+    public void setVisible(boolean visible)
+    {
+        this.visible = visible;
+    }
+
+    public void changeGroup(String group)
+    {
         this.group = group;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + cid;
@@ -91,18 +102,23 @@ public class BuddylistEntry {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
             return true;
         }
-        if (obj == null) {
+        if (obj == null)
+        {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
+        {
             return false;
         }
         final BuddylistEntry other = (BuddylistEntry) obj;
-        if (cid != other.cid) {
+        if (cid != other.cid)
+        {
             return false;
         }
         return true;

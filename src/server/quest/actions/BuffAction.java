@@ -29,25 +29,28 @@ import server.quest.MapleQuest;
 import server.quest.MapleQuestActionType;
 
 /**
- *
  * @author Tyler (Twdtwd)
  */
-public class BuffAction extends MapleQuestAction {
-	int itemEffect;
-	
-	public BuffAction(MapleQuest quest, MapleData data) {
-		super(MapleQuestActionType.BUFF, quest);
-		processData(data);
-	}
-	
-	
-	@Override
-	public void processData(MapleData data) {
-		itemEffect = MapleDataTool.getInt(data);
-	}
-	
-	@Override
-	public void run(MapleCharacter chr, Integer extSelection) {
-		MapleItemInformationProvider.getInstance().getItemEffect(itemEffect).applyTo(chr);
-	}
+public class BuffAction extends MapleQuestAction
+{
+    int itemEffect;
+
+    public BuffAction(MapleQuest quest, MapleData data)
+    {
+        super(MapleQuestActionType.BUFF, quest);
+        processData(data);
+    }
+
+
+    @Override
+    public void processData(MapleData data)
+    {
+        itemEffect = MapleDataTool.getInt(data);
+    }
+
+    @Override
+    public void run(MapleCharacter chr, Integer extSelection)
+    {
+        MapleItemInformationProvider.getInstance().getItemEffect(itemEffect).applyTo(chr);
+    }
 } 

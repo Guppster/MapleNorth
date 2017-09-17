@@ -21,7 +21,8 @@
 */
 package client;
 
-public class SkillMacro {
+public class SkillMacro
+{
     private int skill1;
     private int skill2;
     private int skill3;
@@ -29,7 +30,8 @@ public class SkillMacro {
     private int shout;
     private int position;
 
-    public SkillMacro(int skill1, int skill2, int skill3, String name, int shout, int position) {
+    public SkillMacro(int skill1, int skill2, int skill3, String name, int shout, int position)
+    {
         this.skill1 = skill1;
         this.skill2 = skill2;
         this.skill3 = skill3;
@@ -38,27 +40,33 @@ public class SkillMacro {
         this.position = position;
     }
 
-    public int getSkill1() {
+    public int getSkill1()
+    {
         return skill1;
     }
 
-    public int getSkill2() {
+    public int getSkill2()
+    {
         return skill2;
     }
 
-    public int getSkill3() {
+    public int getSkill3()
+    {
         return skill3;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public int getShout() {
+    public int getShout()
+    {
         return shout;
     }
 
-    public int getPosition() {
+    public int getPosition()
+    {
         return position;
     }
 }

@@ -22,34 +22,42 @@
 package server.movement;
 
 import java.awt.Point;
+
 import tools.data.output.LittleEndianWriter;
 
-public class AbsoluteLifeMovement extends AbstractLifeMovement {
+public class AbsoluteLifeMovement extends AbstractLifeMovement
+{
     private Point pixelsPerSecond;
     private int unk;
 
-    public AbsoluteLifeMovement(int type, Point position, int duration, int newstate) {
+    public AbsoluteLifeMovement(int type, Point position, int duration, int newstate)
+    {
         super(type, position, duration, newstate);
     }
 
-    public Point getPixelsPerSecond() {
+    public Point getPixelsPerSecond()
+    {
         return pixelsPerSecond;
     }
 
-    public void setPixelsPerSecond(Point wobble) {
+    public void setPixelsPerSecond(Point wobble)
+    {
         this.pixelsPerSecond = wobble;
     }
 
-    public int getUnk() {
+    public int getUnk()
+    {
         return unk;
     }
 
-    public void setUnk(int unk) {
+    public void setUnk(int unk)
+    {
         this.unk = unk;
     }
 
     @Override
-    public void serialize(LittleEndianWriter lew) {
+    public void serialize(LittleEndianWriter lew)
+    {
         lew.write(getType());
         lew.writeShort(getPosition().x);
         lew.writeShort(getPosition().y);

@@ -27,55 +27,69 @@ import java.io.RandomAccessFile;
 /**
  * Provides an abstract layer to a byte stream. This layer can be accessed
  * randomly.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323
  */
-public class RandomAccessByteStream implements SeekableInputStreamBytestream {
+public class RandomAccessByteStream implements SeekableInputStreamBytestream
+{
     private RandomAccessFile raf;
     private long read = 0;
 
-    public RandomAccessByteStream(RandomAccessFile raf) {
+    public RandomAccessByteStream(RandomAccessFile raf)
+    {
         super();
         this.raf = raf;
     }
 
     @Override
-    public int readByte() {
+    public int readByte()
+    {
         int temp;
-        try {
+        try
+        {
             temp = raf.read();
-            if (temp == -1) {
+            if (temp == -1)
+            {
                 throw new RuntimeException("EOF");
             }
             read++;
             return temp;
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void seek(long offset) throws IOException {
+    public void seek(long offset) throws IOException
+    {
         raf.seek(offset);
     }
 
     @Override
-    public long getPosition() throws IOException {
+    public long getPosition() throws IOException
+    {
         return raf.getFilePointer();
     }
 
     @Override
-    public long getBytesRead() {
+    public long getBytesRead()
+    {
         return read;
     }
 
     @Override
-    public long available() {
-        try {
+    public long available()
+    {
+        try
+        {
             return raf.length() - raf.getFilePointer();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             System.out.println("ERROR " + e);
             return 0;

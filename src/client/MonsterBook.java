@@ -32,129 +32,181 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
-public final class MonsterBook {
+public final class MonsterBook
+{
     private int specialCard = 0;
     private int normalCard = 0;
     private int bookLevel = 1;
     private Map<Integer, Integer> cards = new LinkedHashMap<>();
     private Lock lock = new ReentrantLock();
 
-    private Set<Entry<Integer, Integer>> getCardSet() {
+    private Set<Entry<Integer, Integer>> getCardSet()
+    {
         lock.lock();
-        try {
+        try
+        {
             return Collections.unmodifiableSet(cards.entrySet());
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
-    
-    public void addCard(final MapleClient c, final int cardid) {
+
+    public void addCard(final MapleClient c, final int cardid)
+    {
         c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showForeignCardEffect(c.getPlayer().getId()), false);
-        
+
         Integer qty;
         lock.lock();
-        try {
+        try
+        {
             qty = cards.get(cardid);
-            
-            if(qty != null) {
-                if(qty < 5) {
+
+            if (qty != null)
+            {
+                if (qty < 5)
+                {
                     cards.put(cardid, qty + 1);
                 }
-            } else {
+            }
+            else
+            {
                 cards.put(cardid, 1);
                 qty = 0;
-                
-                if (cardid / 1000 >= 2388) {
+
+                if (cardid / 1000 >= 2388)
+                {
                     specialCard++;
-                } else {
+                }
+                else
+                {
                     normalCard++;
                 }
             }
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
-        
-        if(qty < 5) {
+
+        if (qty < 5)
+        {
             calculateLevel();   // current leveling system only accounts unique cards...
-            
+
             c.announce(MaplePacketCreator.addCard(false, cardid, qty + 1));
             c.announce(MaplePacketCreator.showGainCard());
-        } else {
+        }
+        else
+        {
             c.announce(MaplePacketCreator.addCard(true, cardid, 5));
         }
     }
 
-    private void calculateLevel() {
+    private void calculateLevel()
+    {
         lock.lock();
-        try {
+        try
+        {
             bookLevel = (int) Math.max(1, Math.sqrt((normalCard + specialCard) / 5));
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public int getBookLevel() {
+    public int getBookLevel()
+    {
         lock.lock();
-        try {
+        try
+        {
             return bookLevel;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public Map<Integer, Integer> getCards() {
+    public Map<Integer, Integer> getCards()
+    {
         lock.lock();
-        try {
+        try
+        {
             return Collections.unmodifiableMap(cards);
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public int getTotalCards() {
+    public int getTotalCards()
+    {
         lock.lock();
-        try {
+        try
+        {
             return specialCard + normalCard;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public int getNormalCard() {
+    public int getNormalCard()
+    {
         lock.lock();
-        try {
+        try
+        {
             return normalCard;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public int getSpecialCard() {
+    public int getSpecialCard()
+    {
         lock.lock();
-        try {
+        try
+        {
             return specialCard;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public void loadCards(final int charid) throws SQLException {
+    public void loadCards(final int charid) throws SQLException
+    {
         lock.lock();
-        try {
+        try
+        {
             Connection con = DatabaseConnection.getConnection();
-            try (PreparedStatement ps = con.prepareStatement("SELECT cardid, level FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
+            try (PreparedStatement ps = con.prepareStatement("SELECT cardid, level FROM monsterbook WHERE charid = ? ORDER BY cardid ASC"))
+            {
                 ps.setInt(1, charid);
-                try (ResultSet rs = ps.executeQuery()) {
+                try (ResultSet rs = ps.executeQuery())
+                {
                     int cardid, level;
-                    while (rs.next()) {
+                    while (rs.next())
+                    {
                         cardid = rs.getInt("cardid");
                         level = rs.getInt("level");
-                        if (cardid / 1000 >= 2388) {
+                        if (cardid / 1000 >= 2388)
+                        {
                             specialCard++;
-                        } else {
+                        }
+                        else
+                        {
                             normalCard++;
                         }
                         cards.put(cardid, level);
@@ -163,20 +215,25 @@ public final class MonsterBook {
             }
 
             con.close();
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
-        
+
         calculateLevel();
     }
 
-    public void saveCards(final int charid) {
+    public void saveCards(final int charid)
+    {
         Set<Entry<Integer, Integer>> cardSet = getCardSet();
-        
-        if (cardSet.isEmpty()) {
+
+        if (cardSet.isEmpty())
+        {
             return;
         }
-        try {
+        try
+        {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("DELETE FROM monsterbook WHERE charid = ?");
             ps.setInt(1, charid);
@@ -184,11 +241,15 @@ public final class MonsterBook {
             ps.close();
             boolean first = true;
             StringBuilder query = new StringBuilder();
-            for (Entry<Integer, Integer> all : cardSet) {
-                if (first) {
+            for (Entry<Integer, Integer> all : cardSet)
+            {
+                if (first)
+                {
                     query.append("INSERT INTO monsterbook VALUES (");
                     first = false;
-                } else {
+                }
+                else
+                {
                     query.append(",(");
                 }
                 query.append(charid);
@@ -202,7 +263,9 @@ public final class MonsterBook {
             ps.execute();
             ps.close();
             con.close();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             e.printStackTrace();
         }
     }

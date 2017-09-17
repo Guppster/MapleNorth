@@ -36,88 +36,117 @@ import tools.FilePrinter;
 import tools.MaplePacketCreator;
 
 /**
- *
  * @author Matze
  */
-public class NPCScriptManager extends AbstractScriptManager {
+public class NPCScriptManager extends AbstractScriptManager
+{
 
+    private static NPCScriptManager instance = new NPCScriptManager();
     private Map<MapleClient, NPCConversationManager> cms = new HashMap<>();
     private Map<MapleClient, Invocable> scripts = new HashMap<>();
-    private static NPCScriptManager instance = new NPCScriptManager();
 
-    public synchronized static NPCScriptManager getInstance() {
+    public synchronized static NPCScriptManager getInstance()
+    {
         return instance;
     }
 
-    public boolean start(MapleClient c, int npc, MapleCharacter chr) {
+    public boolean start(MapleClient c, int npc, MapleCharacter chr)
+    {
         return start(c, npc, null, chr);
     }
-    
-    public boolean start(MapleClient c, int npc, int oid, MapleCharacter chr) {
+
+    public boolean start(MapleClient c, int npc, int oid, MapleCharacter chr)
+    {
         return start(c, npc, oid, null, chr);
     }
-    
-    public boolean start(MapleClient c, int npc, String fileName, MapleCharacter chr) {
+
+    public boolean start(MapleClient c, int npc, String fileName, MapleCharacter chr)
+    {
         return start(c, npc, -1, fileName, chr);
     }
 
-    public boolean start(MapleClient c, int npc, int oid, String fileName, MapleCharacter chr) {
-        try {
+    public boolean start(MapleClient c, int npc, int oid, String fileName, MapleCharacter chr)
+    {
+        try
+        {
             NPCConversationManager cm = new NPCConversationManager(c, npc, oid, fileName);
-            if (cms.containsKey(c)) {
+            if (cms.containsKey(c))
+            {
                 dispose(c);
             }
-            if (c.canClickNPC()) {
+            if (c.canClickNPC())
+            {
                 cms.put(c, cm);
                 Invocable iv = null;
-                if (fileName != null) {
+                if (fileName != null)
+                {
                     iv = getInvocable("npc/" + fileName + ".js", c);
                 }
-                if (iv == null) {
+                if (iv == null)
+                {
                     iv = getInvocable("npc/" + npc + ".js", c);
                 }
-                if (iv == null || NPCScriptManager.getInstance() == null) {
+                if (iv == null || NPCScriptManager.getInstance() == null)
+                {
                     dispose(c);
                     return false;
                 }
                 engine.put("cm", cm);
                 scripts.put(c, iv);
                 c.setClickedNPC();
-                try {
+                try
+                {
                     iv.invokeFunction("start");
-                } catch (final NoSuchMethodException nsme) {
-                    try {
+                }
+                catch (final NoSuchMethodException nsme)
+                {
+                    try
+                    {
                         iv.invokeFunction("start", chr);
-                    } catch (final NoSuchMethodException nsma) {
+                    }
+                    catch (final NoSuchMethodException nsma)
+                    {
                         nsma.printStackTrace();
                     }
                 }
-            } else {
+            }
+            else
+            {
                 c.announce(MaplePacketCreator.enableActions());
             }
-            
+
             return true;
-        } catch (final UndeclaredThrowableException | ScriptException ute) {
+        }
+        catch (final UndeclaredThrowableException | ScriptException ute)
+        {
             FilePrinter.printError(FilePrinter.NPC + npc + ".txt", ute);
             dispose(c);
-            
+
             return false;
-        } catch (final Exception e) {
+        }
+        catch (final Exception e)
+        {
             FilePrinter.printError(FilePrinter.NPC + npc + ".txt", e);
             dispose(c);
-            
+
             return false;
         }
     }
 
-    public void action(MapleClient c, byte mode, byte type, int selection) {
+    public void action(MapleClient c, byte mode, byte type, int selection)
+    {
         Invocable iv = scripts.get(c);
-        if (iv != null) {
-            try {
+        if (iv != null)
+        {
+            try
+            {
                 c.setClickedNPC();
                 iv.invokeFunction("action", mode, type, selection);
-            } catch (ScriptException | NoSuchMethodException t) {
-                if (getCM(c) != null) {
+            }
+            catch (ScriptException | NoSuchMethodException t)
+            {
+                if (getCM(c) != null)
+                {
                     FilePrinter.printError(FilePrinter.NPC + getCM(c).getNpc() + ".txt", t);
                 }
                 dispose(c);
@@ -125,27 +154,34 @@ public class NPCScriptManager extends AbstractScriptManager {
         }
     }
 
-    public void dispose(NPCConversationManager cm) {
+    public void dispose(NPCConversationManager cm)
+    {
         MapleClient c = cm.getClient();
         c.getPlayer().setCS(false);
         c.getPlayer().setNpcCooldown(System.currentTimeMillis());
         cms.remove(c);
         scripts.remove(c);
-        
-        if(cm.getScriptName() != null) {
+
+        if (cm.getScriptName() != null)
+        {
             resetContext("npc/" + cm.getScriptName() + ".js", c);
-        } else {
+        }
+        else
+        {
             resetContext("npc/" + cm.getNpc() + ".js", c);
         }
     }
 
-    public void dispose(MapleClient c) {
-        if (cms.get(c) != null) {
+    public void dispose(MapleClient c)
+    {
+        if (cms.get(c) != null)
+        {
             dispose(cms.get(c));
         }
     }
 
-    public NPCConversationManager getCM(MapleClient c) {
+    public NPCConversationManager getCM(MapleClient c)
+    {
         return cms.get(c);
     }
 

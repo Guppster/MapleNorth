@@ -23,13 +23,15 @@ package net.server.world;
 
 import client.MapleCharacter;
 
-public class MapleMessengerCharacter {
+public class MapleMessengerCharacter
+{
     private String name;
     private int id, position;
     private int channel;
     private boolean online;
 
-    public MapleMessengerCharacter(MapleCharacter maplechar, int position) {
+    public MapleMessengerCharacter(MapleCharacter maplechar, int position)
+    {
         this.name = maplechar.getName();
         this.channel = maplechar.getClient().getChannel();
         this.id = maplechar.getId();
@@ -37,32 +39,39 @@ public class MapleMessengerCharacter {
         this.position = position;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public int getChannel() {
+    public int getChannel()
+    {
         return channel;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public boolean isOnline() {
+    public boolean isOnline()
+    {
         return online;
     }
 
-    public int getPosition() {
+    public int getPosition()
+    {
         return position;
     }
 
-    public void setPosition(int position) {
+    public void setPosition(int position)
+    {
         this.position = position;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -70,22 +79,30 @@ public class MapleMessengerCharacter {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
             return true;
         }
-        if (obj == null) {
+        if (obj == null)
+        {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
+        {
             return false;
         }
         final MapleMessengerCharacter other = (MapleMessengerCharacter) obj;
-        if (name == null) {
-            if (other.name != null) {
+        if (name == null)
+        {
+            if (other.name != null)
+            {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        }
+        else if (!name.equals(other.name))
+        {
             return false;
         }
         return true;

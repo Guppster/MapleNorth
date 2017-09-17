@@ -26,13 +26,14 @@ import java.io.IOException;
 /**
  * Provides an abstract accessor to a generic Little Endian byte stream. This
  * accessor is seekable.
- * 
+ *
  * @author Frz
  * @version 1.0
- * @since Revision 323
  * @see tools.data.input.GenericLittleEndianAccessor
+ * @since Revision 323
  */
-public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAccessor implements SeekableLittleEndianAccessor {
+public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAccessor implements SeekableLittleEndianAccessor
+{
     private SeekableInputStreamBytestream bs;
 
     /**
@@ -41,7 +42,8 @@ public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAcce
      *
      * @param bs The byte stream to wrap this around.
      */
-    public GenericSeekableLittleEndianAccessor(SeekableInputStreamBytestream bs) {
+    public GenericSeekableLittleEndianAccessor(SeekableInputStreamBytestream bs)
+    {
         super(bs);
         this.bs = bs;
     }
@@ -53,10 +55,14 @@ public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAcce
      * @see tools.data.input.SeekableInputStreamBytestream#seek
      */
     @Override
-    public void seek(long offset) {
-        try {
+    public void seek(long offset)
+    {
+        try
+        {
             bs.seek(offset);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             System.out.println("Seek failed " + e);
         }
@@ -69,10 +75,14 @@ public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAcce
      * @see tools.data.input.SeekableInputStreamBytestream#getPosition
      */
     @Override
-    public long getPosition() {
-        try {
+    public long getPosition()
+    {
+        try
+        {
             return bs.getPosition();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             System.out.println("getPosition failed" + e);
             return -1;
@@ -85,7 +95,8 @@ public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAcce
      * @param num The number of bytes to skip.
      */
     @Override
-    public void skip(int num) {
+    public void skip(int num)
+    {
         seek(getPosition() + num);
     }
 }

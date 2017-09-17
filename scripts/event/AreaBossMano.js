@@ -20,11 +20,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Mano Spawner
--- Edited by --------------------------------------------------------------------------------------
-	ThreeStep (based on xQuasar's King Clang spawner)
-**/
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ Mano Spawner
+ -- Edited by --------------------------------------------------------------------------------------
+ ThreeStep (based on xQuasar's King Clang spawner)
+ **/
 
 importPackage(Packages.client);
 
@@ -44,15 +44,15 @@ function cancelSchedule() {
 function start() {
     var thicketAroundTheBeach3 = em.getChannelServer().getMapFactory().getMap(104000400);
     var mano = Packages.server.life.MapleLifeFactory.getMonster(2220000);
-    if(thicketAroundTheBeach3.getMonsterById(2220000) != null) {
-		em.schedule("start", 3 * 60 *60 * 1000);
-		return;
-	}
-	
-	var posX;
+    if (thicketAroundTheBeach3.getMonsterById(2220000) != null) {
+        em.schedule("start", 3 * 60 * 60 * 1000);
+        return;
+    }
+
+    var posX;
     var posY = 455;
-    posX =  Math.floor((Math.random() * 605) + 110);
+    posX = Math.floor((Math.random() * 605) + 110);
     thicketAroundTheBeach3.spawnMonsterOnGroundBelow(mano, new Packages.java.awt.Point(posX, posY));
     thicketAroundTheBeach3.broadcastMessage(Packages.tools.MaplePacketCreator.serverNotice(6, "A cool breeze was felt when Mano appeared."));
-	em.schedule("start", 3 * 60 *60 * 1000);
+    em.schedule("start", 3 * 60 * 60 * 1000);
 }

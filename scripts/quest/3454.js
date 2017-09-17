@@ -19,6 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*	
 	Author : 		Ronan
 	NPC Name: 	        Dr. Kim
@@ -28,26 +29,26 @@
 */
 
 function end(mode, type, selection) {
-	if(qm.getPlayer().getInventory(Packages.client.inventory.MapleInventoryType.ETC).getNumFreeSlot() < 1) {
-		qm.sendOk("Make room on your ETC inventory first.");
-		qm.dispose();		
-		return;
-	}
+    if (qm.getPlayer().getInventory(Packages.client.inventory.MapleInventoryType.ETC).getNumFreeSlot() < 1) {
+        qm.sendOk("Make room on your ETC inventory first.");
+        qm.dispose();
+        return;
+    }
 
-	qm.gainItem(4000125, -1);
-	qm.gainItem(4031926, -10);
-	qm.gainItem(4000119, -30);
-	qm.gainItem(4000118, -30);
+    qm.gainItem(4000125, -1);
+    qm.gainItem(4031926, -10);
+    qm.gainItem(4000119, -30);
+    qm.gainItem(4000118, -30);
 
-	rnd = Math.random();
-	if(rnd < 1.0) {
-		qm.gainItem(4031928, 1);
-	}
-	else {
-		qm.gainItem(4031927, 1);
-	}
+    rnd = Math.random();
+    if (rnd < 1.0) {
+        qm.gainItem(4031928, 1);
+    }
+    else {
+        qm.gainItem(4031927, 1);
+    }
 
-	qm.sendOk("Now, go meet Alien Gray and use this undercover to read through their plans. If this fails, we will need to gather some materials once again.");
-	qm.forceCompleteQuest();
-	qm.dispose();
+    qm.sendOk("Now, go meet Alien Gray and use this undercover to read through their plans. If this fails, we will need to gather some materials once again.");
+    qm.forceCompleteQuest();
+    qm.dispose();
 }

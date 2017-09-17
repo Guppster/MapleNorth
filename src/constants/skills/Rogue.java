@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Rogue {
+public class Rogue
+{
     public static final int NIMBLE_BODY = 4001000;
     public static final int DARK_SIGHT = 4001003;
     public static final int DISORDER = 4001002;

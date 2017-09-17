@@ -27,15 +27,18 @@ import net.server.world.World;
 /**
  * @author Ronan
  */
-public class MountTirednessWorker implements Runnable {
+public class MountTirednessWorker implements Runnable
+{
     private World wserv;
-    
-    @Override
-    public void run() {
-        wserv.runMountSchedule();
-    }
-    
-    public MountTirednessWorker(World world) {
+
+    public MountTirednessWorker(World world)
+    {
         wserv = world;
+    }
+
+    @Override
+    public void run()
+    {
+        wserv.runMountSchedule();
     }
 }

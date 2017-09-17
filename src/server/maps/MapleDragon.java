@@ -26,40 +26,46 @@ import client.MapleCharacter;
 import client.MapleClient;
 
 
-
-public class MapleDragon extends AbstractAnimatedMapleMapObject {
+public class MapleDragon extends AbstractAnimatedMapleMapObject
+{
 
     private MapleCharacter owner;
 
-    public MapleDragon(MapleCharacter chr) {
+    public MapleDragon(MapleCharacter chr)
+    {
         super();
         this.owner = chr;
         this.setPosition(chr.getPosition());
-		this.setStance(chr.getStance());
+        this.setStance(chr.getStance());
         sendSpawnData(chr.getClient());
     }
 
     @Override
-    public MapleMapObjectType getType() {
+    public MapleMapObjectType getType()
+    {
         return MapleMapObjectType.DRAGON;
     }
 
     @Override
-    public void sendSpawnData(MapleClient c) {
-        c.announce(MaplePacketCreator.spawnDragon(this));     
+    public void sendSpawnData(MapleClient c)
+    {
+        c.announce(MaplePacketCreator.spawnDragon(this));
     }
 
     @Override
-    public int getObjectId() {
+    public int getObjectId()
+    {
         return owner.getId();
     }
 
     @Override
-    public void sendDestroyData(MapleClient c) {
+    public void sendDestroyData(MapleClient c)
+    {
         c.announce(MaplePacketCreator.removeDragon(owner.getId()));
     }
-    
-    public MapleCharacter getOwner() {
-    	return owner;
+
+    public MapleCharacter getOwner()
+    {
+        return owner;
     }
 }

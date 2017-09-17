@@ -35,10 +35,13 @@ import tools.data.input.SeekableLittleEndianAccessor;
 /**
  * @author Matze
  */
-public final class UseItemHandler extends AbstractMaplePacketHandler {
+public final class UseItemHandler extends AbstractMaplePacketHandler
+{
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (!c.getPlayer().isAlive()) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
+        if (!c.getPlayer().isAlive())
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
@@ -47,50 +50,64 @@ public final class UseItemHandler extends AbstractMaplePacketHandler {
         short slot = slea.readShort();
         int itemId = slea.readInt();
         Item toUse = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
-        if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemId) {
-            if (itemId == 2022178 || itemId == 2050004) {
+        if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemId)
+        {
+            if (itemId == 2022178 || itemId == 2050004)
+            {
                 c.getPlayer().dispelDebuffs();
                 remove(c, slot);
                 return;
             }
-            else if (itemId == 2050001) {
-		c.getPlayer().dispelDebuff(MapleDisease.DARKNESS);
-                remove(c, slot);
-                return;
-	    } else if (itemId == 2050002) {
-		c.getPlayer().dispelDebuff(MapleDisease.WEAKEN);
-                c.getPlayer().dispelDebuff(MapleDisease.SLOW);
-                remove(c, slot);
-                return;
-            } else if (itemId == 2050003) {
-                c.getPlayer().dispelDebuff(MapleDisease.SEAL);
-		c.getPlayer().dispelDebuff(MapleDisease.CURSE);
+            else if (itemId == 2050001)
+            {
+                c.getPlayer().dispelDebuff(MapleDisease.DARKNESS);
                 remove(c, slot);
                 return;
             }
-            else if (ItemConstants.isTownScroll(itemId)) {
-                if (ii.getItemEffect(toUse.getItemId()).applyTo(c.getPlayer())) {
+            else if (itemId == 2050002)
+            {
+                c.getPlayer().dispelDebuff(MapleDisease.WEAKEN);
+                c.getPlayer().dispelDebuff(MapleDisease.SLOW);
+                remove(c, slot);
+                return;
+            }
+            else if (itemId == 2050003)
+            {
+                c.getPlayer().dispelDebuff(MapleDisease.SEAL);
+                c.getPlayer().dispelDebuff(MapleDisease.CURSE);
+                remove(c, slot);
+                return;
+            }
+            else if (ItemConstants.isTownScroll(itemId))
+            {
+                if (ii.getItemEffect(toUse.getItemId()).applyTo(c.getPlayer()))
+                {
                     remove(c, slot);
                 }
                 return;
             }
-            else if (ItemConstants.isAntibanishScroll(itemId)) {
-                if (ii.getItemEffect(toUse.getItemId()).applyTo(c.getPlayer())) {
+            else if (ItemConstants.isAntibanishScroll(itemId))
+            {
+                if (ii.getItemEffect(toUse.getItemId()).applyTo(c.getPlayer()))
+                {
                     remove(c, slot);
-                } else {
+                }
+                else
+                {
                     c.getPlayer().dropMessage(5, "You cannot recover from a banish state at the moment.");
                 }
                 return;
             }
-            
+
             remove(c, slot);
-            
+
             ii.getItemEffect(toUse.getItemId()).applyTo(c.getPlayer());
             c.getPlayer().checkBerserk(c.getPlayer().isHidden());
         }
     }
 
-    private void remove(MapleClient c, short slot) {
+    private void remove(MapleClient c, short slot)
+    {
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
         c.announce(MaplePacketCreator.enableActions());
     }

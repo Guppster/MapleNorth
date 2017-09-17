@@ -51,20 +51,20 @@ function action(mode, type, selection) {
             status++;
         else
             status--;
-        
-        if(!cm.isQuestStarted(100200)) {
+
+        if (!cm.isQuestStarted(100200)) {
             cm.sendOk("Beware, for the power of olde has not been forgotten... ");
             cm.dispose();
             return;
         }
-        
+
         em = cm.getEventManager("ZakumPQ");
-        if(em == null) {
+        if (em == null) {
             cm.sendOk("The Zakum PQ has encountered an error.");
             cm.dispose();
             return;
         }
-        
+
         if (status == 0) {
             cm.sendSimple("#e#b<Party Quest: Zakum Campaign>\r\n#k#n" + em.getProperty("party") + "\r\n\r\nBeware, for the power of olde has not been forgotten... #b\r\n#L0#Enter the Unknown Dead Mine (Stage 1)#l\r\n#L1#Face the Breath of Lava (Stage 2)#l\r\n#L2#Forging the Eyes of Fire (Stage 3)#l");
         }
@@ -73,13 +73,13 @@ function action(mode, type, selection) {
                 if (cm.getParty() == null) {
                     cm.sendOk("You can participate in the party quest only if you are in a party.");
                     cm.dispose();
-                } else if(!cm.isLeader()) {
+                } else if (!cm.isLeader()) {
                     cm.sendOk("Your party leader must talk to me to start this party quest.");
                     cm.dispose();
                 } else {
                     var eli = em.getEligibleParty(cm.getParty());
-                    if(eli.size() > 0) {
-                        if(!em.startInstance(cm.getParty(), cm.getPlayer().getMap(), 1)) {
+                    if (eli.size() > 0) {
+                        if (!em.startInstance(cm.getParty(), cm.getPlayer().getMap(), 1)) {
                             cm.sendOk("Another party has already entered the #rParty Quest#k in this channel. Please try another channel, or wait for the current party to finish.");
                         }
                     }
@@ -89,18 +89,18 @@ function action(mode, type, selection) {
 
                     cm.dispose();
                 }
-            } else if(selection == 1) {
+            } else if (selection == 1) {
                 if (cm.haveItem(4031061) && !cm.haveItem(4031062))
                     cm.sendYesNo("Would you like to attempt the #bBreath of Lava#k?  If you fail, there is a very real chance you will die.");
                 else {
                     if (cm.haveItem(4031062)) cm.sendNext("You've already got the #bBreath of Lava#k, you don't need to do this stage.");
                     else cm.sendNext("Please complete the earlier trials first.");
-                    
+
                     cm.dispose();
                 }
             } else {
-                if(cm.haveItem(4031061) && cm.haveItem(4031062)) {
-                    if(!cm.haveItem(4000082, 30)) {
+                if (cm.haveItem(4031061) && cm.haveItem(4031062)) {
+                    if (!cm.haveItem(4000082, 30)) {
                         cm.sendOk("You have completed the trials, however there still the need of #b30 #t4000082##k to forge the #t4001017#.");
                     } else {
                         cm.completeQuest(100201);
@@ -111,7 +111,7 @@ function action(mode, type, selection) {
                         cm.gainItem(4001017, 1);
                         cm.sendNext("You have completed the trials, from now on having my approval to challenge Zakum.");
                     }
-                    
+
                     cm.dispose();
                 } else {
                     cm.sendOk("You lack some of the required items to forge the #b#t4001017##k.");

@@ -25,6 +25,6 @@ Vs Pink Bean - Clear stage portal
 */
 
 function enter(pi) {
-        pi.warp(270050000);
-        return true;
+    pi.warp(270050000);
+    return true;
 }

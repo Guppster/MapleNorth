@@ -24,43 +24,50 @@ package server;
 import client.inventory.Item;
 
 /**
- *
  * @author Matze
  */
-public class MaplePlayerShopItem {
+public class MaplePlayerShopItem
+{
     private Item item;
     private short bundles;
     private int price;
     private boolean doesExist;
 
-    public MaplePlayerShopItem(Item item, short bundles, int price) {
+    public MaplePlayerShopItem(Item item, short bundles, int price)
+    {
         this.item = item;
         this.bundles = bundles;
         this.price = price;
         this.doesExist = true;
     }
 
-    public void setDoesExist(boolean tf) {
+    public void setDoesExist(boolean tf)
+    {
         this.doesExist = tf;
     }
 
-    public boolean isExist() {
+    public boolean isExist()
+    {
         return doesExist;
     }
 
-    public Item getItem() {
+    public Item getItem()
+    {
         return item;
     }
 
-    public short getBundles() {
+    public short getBundles()
+    {
         return bundles;
     }
 
-    public int getPrice() {
-        return price;
+    public void setBundles(short bundles)
+    {
+        this.bundles = bundles;
     }
 
-    public void setBundles(short bundles) {
-        this.bundles = bundles;
+    public int getPrice()
+    {
+        return price;
     }
 }

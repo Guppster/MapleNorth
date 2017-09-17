@@ -36,39 +36,49 @@ import constants.ServerConstants;
 import tools.FilePrinter;
 
 /**
- *
  * @author Matze
  */
-public abstract class AbstractScriptManager {
+public abstract class AbstractScriptManager
+{
 
     protected ScriptEngine engine;
     private ScriptEngineManager sem;
 
-    protected AbstractScriptManager() {
+    protected AbstractScriptManager()
+    {
         sem = new ScriptEngineManager();
     }
 
-    protected Invocable getInvocable(String path, MapleClient c) {
+    protected Invocable getInvocable(String path, MapleClient c)
+    {
         path = "scripts/" + path;
         engine = null;
-        if (c != null) {
+        if (c != null)
+        {
             engine = c.getScriptEngine(path);
         }
-        if (engine == null) {
+        if (engine == null)
+        {
             File scriptFile = new File(path);
-            if (!scriptFile.exists()) {
+            if (!scriptFile.exists())
+            {
                 return null;
             }
             engine = sem.getEngineByName("javascript");
-            if (c != null) {
+            if (c != null)
+            {
                 c.setScriptEngine(path, engine);
             }
-            try (FileReader fr = new FileReader(scriptFile)) {
-            	if (ServerConstants.JAVA_8){
-            		engine.eval("load('nashorn:mozilla_compat.js');");
-            	}
+            try (FileReader fr = new FileReader(scriptFile))
+            {
+                if (ServerConstants.JAVA_8)
+                {
+                    engine.eval("load('nashorn:mozilla_compat.js');");
+                }
                 engine.eval(fr);
-            } catch (final ScriptException | IOException t) {
+            }
+            catch (final ScriptException | IOException t)
+            {
                 FilePrinter.printError(FilePrinter.INVOCABLE + path.substring(12, path.length()), t, path);
                 return null;
             }
@@ -77,7 +87,8 @@ public abstract class AbstractScriptManager {
         return (Invocable) engine;
     }
 
-    protected void resetContext(String path, MapleClient c) {
+    protected void resetContext(String path, MapleClient c)
+    {
         c.removeScriptEngine("scripts/" + path);
     }
 }

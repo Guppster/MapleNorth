@@ -22,74 +22,96 @@
 package scripting.portal;
 
 import client.MapleClient;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import scripting.AbstractPlayerInteraction;
 import server.MaplePortal;
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
-public class PortalPlayerInteraction extends AbstractPlayerInteraction {
+public class PortalPlayerInteraction extends AbstractPlayerInteraction
+{
 
     private MaplePortal portal;
 
-    public PortalPlayerInteraction(MapleClient c, MaplePortal portal) {
+    public PortalPlayerInteraction(MapleClient c, MaplePortal portal)
+    {
         super(c);
         this.portal = portal;
     }
 
-    public MaplePortal getPortal() {
+    public MaplePortal getPortal()
+    {
         return portal;
     }
 
-    public boolean hasLevel30Character() {
+    public boolean hasLevel30Character()
+    {
         PreparedStatement ps = null;
         ResultSet rs = null;
         Connection con = null;
-        try {
+        try
+        {
             con = DatabaseConnection.getConnection();
             ps = con.prepareStatement("SELECT `level` FROM `characters` WHERE accountid = ?");
             ps.setInt(1, getPlayer().getAccountID());
             rs = ps.executeQuery();
-            while (rs.next()) {
-                if (rs.getInt("level") >= 30) {
+            while (rs.next())
+            {
+                if (rs.getInt("level") >= 30)
+                {
                     ps.close();
                     rs.close();
                     return true;
                 }
             }
-        } catch (SQLException sqle) {
+        }
+        catch (SQLException sqle)
+        {
             sqle.printStackTrace();
-        } finally {
-            try {
-                if (ps != null && !ps.isClosed()) {
+        }
+        finally
+        {
+            try
+            {
+                if (ps != null && !ps.isClosed())
+                {
                     ps.close();
                 }
-                if (rs != null && !rs.isClosed()) {
+                if (rs != null && !rs.isClosed())
+                {
                     rs.close();
                 }
-                if (con != null && !con.isClosed()) {
+                if (con != null && !con.isClosed())
+                {
                     con.close();
                 }
-            } catch (SQLException ex) {
+            }
+            catch (SQLException ex)
+            {
                 ex.printStackTrace();
             }
         }
-        
+
         return getPlayer().getLevel() >= 30;
     }
 
-    public void blockPortal() {
+    public void blockPortal()
+    {
         c.getPlayer().blockPortal(getPortal().getScriptName());
     }
 
-    public void unblockPortal() {
+    public void unblockPortal()
+    {
         c.getPlayer().unblockPortal(getPortal().getScriptName());
     }
 
-    public void playPortalSound() {
+    public void playPortalSound()
+    {
         c.announce(MaplePacketCreator.playPortalSound());
     }
 }

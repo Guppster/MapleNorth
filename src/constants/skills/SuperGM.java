@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class SuperGM {
+public class SuperGM
+{
     public static final int HEAL_PLUS_DISPEL = 9101000;
     public static final int HASTE = 9101001;
     public static final int HOLY_SYMBOL = 9101002;

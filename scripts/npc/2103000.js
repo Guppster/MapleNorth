@@ -19,6 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /* NPC Base
 	Map Name (Map ID)
 	Extra NPC info.
@@ -38,12 +39,12 @@ function action(mode, type, selection) {
         else
             status--;
         if (status == 0 && mode == 1) {
-			if(cm.isQuestStarted(3900) && cm.getPlayer().getQuestInfo(3900) != 5) {
-				cm.sendOk("#b(You drink the water from the oasis and feel refreshed.)", 2);
-				//TODO: Update quest progress.
-				cm.getPlayer().updateQuestInfo(3900, "5");
-			}
-			cm.dispose();
-		}
+            if (cm.isQuestStarted(3900) && cm.getPlayer().getQuestInfo(3900) != 5) {
+                cm.sendOk("#b(You drink the water from the oasis and feel refreshed.)", 2);
+                //TODO: Update quest progress.
+                cm.getPlayer().updateQuestInfo(3900, "5");
+            }
+            cm.dispose();
+        }
     }
 }

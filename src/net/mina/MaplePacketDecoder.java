@@ -28,32 +28,36 @@ import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import tools.MapleAESOFB;
 
-public class MaplePacketDecoder extends CumulativeProtocolDecoder {
+public class MaplePacketDecoder extends CumulativeProtocolDecoder
+{
     private static final String DECODER_STATE_KEY = MaplePacketDecoder.class.getName() + ".STATE";
 
-    private static class DecoderState {
-        public int packetlength = -1;
-    }
-
     @Override
-    protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+    protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception
+    {
         final MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
         DecoderState decoderState = (DecoderState) session.getAttribute(DECODER_STATE_KEY);
-        if (decoderState == null) {
+        if (decoderState == null)
+        {
             decoderState = new DecoderState();
             session.setAttribute(DECODER_STATE_KEY, decoderState);
         }
-        if (in.remaining() >= 4 && decoderState.packetlength == -1) {
+        if (in.remaining() >= 4 && decoderState.packetlength == -1)
+        {
             int packetHeader = in.getInt();
-            if (!client.getReceiveCrypto().checkPacket(packetHeader)) {
+            if (!client.getReceiveCrypto().checkPacket(packetHeader))
+            {
                 session.close(true);
                 return false;
             }
             decoderState.packetlength = MapleAESOFB.getPacketLength(packetHeader);
-        } else if (in.remaining() < 4 && decoderState.packetlength == -1) {
+        }
+        else if (in.remaining() < 4 && decoderState.packetlength == -1)
+        {
             return false;
         }
-        if (in.remaining() >= decoderState.packetlength) {
+        if (in.remaining() >= decoderState.packetlength)
+        {
             byte decryptedPacket[] = new byte[decoderState.packetlength];
             in.get(decryptedPacket, 0, decoderState.packetlength);
             decoderState.packetlength = -1;
@@ -63,5 +67,10 @@ public class MaplePacketDecoder extends CumulativeProtocolDecoder {
             return true;
         }
         return false;
+    }
+
+    private static class DecoderState
+    {
+        public int packetlength = -1;
     }
 }

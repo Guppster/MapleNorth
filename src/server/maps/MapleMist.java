@@ -40,10 +40,10 @@ import server.life.MobSkill;
 import tools.MaplePacketCreator;
 
 /**
- *
  * @author LaiLaiNoob
  */
-public class MapleMist extends AbstractMapleMapObject {
+public class MapleMist extends AbstractMapleMapObject
+{
     private Rectangle mistPosition;
     private MapleCharacter owner = null;
     private MapleMonster mob = null;
@@ -52,7 +52,8 @@ public class MapleMist extends AbstractMapleMapObject {
     private boolean isMobMist, isPoisonMist, isRecoveryMist;
     private int skillDelay;
 
-    public MapleMist(Rectangle mistPosition, MapleMonster mob, MobSkill skill) {
+    public MapleMist(Rectangle mistPosition, MapleMonster mob, MobSkill skill)
+    {
         this.mistPosition = mistPosition;
         this.mob = mob;
         this.skill = skill;
@@ -62,7 +63,8 @@ public class MapleMist extends AbstractMapleMapObject {
         skillDelay = 0;
     }
 
-    public MapleMist(Rectangle mistPosition, MapleCharacter owner, MapleStatEffect source) {
+    public MapleMist(Rectangle mistPosition, MapleCharacter owner, MapleStatEffect source)
+    {
         this.mistPosition = mistPosition;
         this.owner = owner;
         this.source = source;
@@ -70,10 +72,11 @@ public class MapleMist extends AbstractMapleMapObject {
         this.isMobMist = false;
         this.isRecoveryMist = false;
         this.isPoisonMist = false;
-        switch (source.getSourceId()) {
-        	case Evan.RECOVERY_AURA:
-        		isRecoveryMist = true;
-        		break;
+        switch (source.getSourceId())
+        {
+            case Evan.RECOVERY_AURA:
+                isRecoveryMist = true;
+                break;
             case Shadower.SMOKE_SCREEN: // Smoke Screen
                 isPoisonMist = false;
                 break;
@@ -86,81 +89,100 @@ public class MapleMist extends AbstractMapleMapObject {
     }
 
     @Override
-    public MapleMapObjectType getType() {
+    public MapleMapObjectType getType()
+    {
         return MapleMapObjectType.MIST;
     }
 
     @Override
-    public Point getPosition() {
+    public Point getPosition()
+    {
         return mistPosition.getLocation();
     }
 
-    public Skill getSourceSkill() {
-        return SkillFactory.getSkill(source.getSourceId());
-    }
-
-    public boolean isMobMist() {
-        return isMobMist;
-    }
-
-    public boolean isPoisonMist() {
-        return isPoisonMist;
-    }
-
-    public boolean isRecoveryMist() {
-    	return isRecoveryMist;
-    }
-    
-    public int getSkillDelay() {
-        return skillDelay;
-    }
-
-    public MapleMonster getMobOwner() {
-        return mob;
-    }
-
-    public MapleCharacter getOwner() {
-        return owner;
-    }
-
-    public Rectangle getBox() {
-        return mistPosition;
-    }
-
     @Override
-    public void setPosition(Point position) {
+    public void setPosition(Point position)
+    {
         throw new UnsupportedOperationException();
     }
 
-    public final byte[] makeDestroyData() {
+    public Skill getSourceSkill()
+    {
+        return SkillFactory.getSkill(source.getSourceId());
+    }
+
+    public boolean isMobMist()
+    {
+        return isMobMist;
+    }
+
+    public boolean isPoisonMist()
+    {
+        return isPoisonMist;
+    }
+
+    public boolean isRecoveryMist()
+    {
+        return isRecoveryMist;
+    }
+
+    public int getSkillDelay()
+    {
+        return skillDelay;
+    }
+
+    public MapleMonster getMobOwner()
+    {
+        return mob;
+    }
+
+    public MapleCharacter getOwner()
+    {
+        return owner;
+    }
+
+    public Rectangle getBox()
+    {
+        return mistPosition;
+    }
+
+    public final byte[] makeDestroyData()
+    {
         return MaplePacketCreator.removeMist(getObjectId());
     }
 
-    public final byte[] makeSpawnData() {
-        if (owner != null) {
+    public final byte[] makeSpawnData()
+    {
+        if (owner != null)
+        {
             return MaplePacketCreator.spawnMist(getObjectId(), owner.getId(), getSourceSkill().getId(), owner.getSkillLevel(SkillFactory.getSkill(source.getSourceId())), this);
         }
         return MaplePacketCreator.spawnMist(getObjectId(), mob.getId(), skill.getSkillId(), skill.getSkillLevel(), this);
     }
 
-    public final byte[] makeFakeSpawnData(int level) {
-        if (owner != null) {
+    public final byte[] makeFakeSpawnData(int level)
+    {
+        if (owner != null)
+        {
             return MaplePacketCreator.spawnMist(getObjectId(), owner.getId(), getSourceSkill().getId(), level, this);
         }
         return MaplePacketCreator.spawnMist(getObjectId(), mob.getId(), skill.getSkillId(), skill.getSkillLevel(), this);
     }
 
     @Override
-    public void sendSpawnData(MapleClient client) {
+    public void sendSpawnData(MapleClient client)
+    {
         client.announce(makeSpawnData());
     }
 
     @Override
-    public void sendDestroyData(MapleClient client) {
+    public void sendDestroyData(MapleClient client)
+    {
         client.announce(makeDestroyData());
     }
 
-    public boolean makeChanceResult() {
+    public boolean makeChanceResult()
+    {
         return source.makeChanceResult();
     }
 }

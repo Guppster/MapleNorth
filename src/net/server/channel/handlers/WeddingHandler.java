@@ -14,24 +14,27 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
- *
  * @author Kevin
  */
-public class WeddingHandler extends AbstractMaplePacketHandler {
+public class WeddingHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         //System.out.println("Wedding Packet: " + slea);
         MapleCharacter chr = c.getPlayer();
         byte operation = slea.readByte();
-        switch (operation) {
+        switch (operation)
+        {
             case 0x06://Add an item to the Wedding Registry
                 short slot = slea.readShort();
                 int itemid = slea.readInt();
                 short quantity = slea.readShort();
                 MapleInventoryType type = MapleItemInformationProvider.getInstance().getInventoryType(itemid);
                 Item item = chr.getInventory(type).getItem(slot);
-                if (itemid == item.getItemId() && quantity <= item.getQuantity()) {
+                if (itemid == item.getItemId() && quantity <= item.getQuantity())
+                {
                     c.announce(MaplePacketCreator.addItemToWeddingRegistry(chr, item));
                 }
         }

@@ -28,27 +28,30 @@ import server.quest.MapleQuest;
 import server.quest.MapleQuestRequirementType;
 
 /**
- *
  * @author Tyler (Twdtwd)
  */
-public class MinLevelRequirement extends MapleQuestRequirement {
-	private int minLevel;
-	
-	
-	public MinLevelRequirement(MapleQuest quest, MapleData data) {
-		super(MapleQuestRequirementType.MIN_LEVEL);
-		processData(data);
-	}
-	
-	
-	@Override
-	public void processData(MapleData data) {
-		minLevel = MapleDataTool.getInt(data);
-	}
-	
-	
-	@Override
-	public boolean check(MapleCharacter chr, Integer npcid) {
-		return chr.getLevel() >= minLevel;
-	}
+public class MinLevelRequirement extends MapleQuestRequirement
+{
+    private int minLevel;
+
+
+    public MinLevelRequirement(MapleQuest quest, MapleData data)
+    {
+        super(MapleQuestRequirementType.MIN_LEVEL);
+        processData(data);
+    }
+
+
+    @Override
+    public void processData(MapleData data)
+    {
+        minLevel = MapleDataTool.getInt(data);
+    }
+
+
+    @Override
+    public boolean check(MapleCharacter chr, Integer npcid)
+    {
+        return chr.getLevel() >= minLevel;
+    }
 }

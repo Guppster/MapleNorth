@@ -20,14 +20,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	VIP Cab - Victoria Road : Ellinia (101000000)
--- By ---------------------------------------------------------------------------------------------
-	Xterminator
--- Version Info -----------------------------------------------------------------------------------
-    1.0 - First Version by Xterminator
----------------------------------------------------------------------------------------------------
-**/
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ VIP Cab - Victoria Road : Ellinia (101000000)
+ -- By ---------------------------------------------------------------------------------------------
+ Xterminator
+ -- Version Info -----------------------------------------------------------------------------------
+ 1.0 - First Version by Xterminator
+ ---------------------------------------------------------------------------------------------------
+ **/
 
 var status = 0;
 var cost = 10000;
@@ -38,8 +38,8 @@ function start() {
 
 function action(mode, type, selection) {
     status++;
-    if (mode == -1){
-        if(mode == 0)
+    if (mode == -1) {
+        if (mode == 0)
             cm.sendNext("This town also has a lot to offer. Find us if and when you feel the need to go to the Ant Tunnel Park.");
         cm.dispose();
         return;

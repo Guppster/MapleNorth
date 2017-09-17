@@ -48,33 +48,33 @@ function monsterValue(eim, mobId) {
 }
 
 
-
 function setup(eim) {
     var instanceName = "CathedralWedding" + instanceId;
     var eim = em.newInstance(instanceName);
     instanceId++;
 
     var eim = em.newInstance(instanceName);
-	
+
     var mf = eim.getMapFactory();
-	
-	
+
+
     var map = mf.getMap(680000200);//wutt
     //Lets make the clock continue through all maps xD
     em.schedule("playerAltar", 3 * 60000);
     eim.setProperty("hclicked", 0);
     eim.setProperty("wclicked", 0);
-    eim.setProperty("entryTimestamp",System.currentTimeMillis() + (3 * 60000));
-	
+    eim.setProperty("entryTimestamp", System.currentTimeMillis() + (3 * 60000));
+
     return eim;
 }
 
-function afterSetup(eim) {}
+function afterSetup(eim) {
+}
 
 function playerEntry(eim, player) {
     var map = eim.getMapInstance(680000200);
     player.changeMap(map, map.getPortal(0));
-	
+
     //1st - 20 min 2nd - 5 min 3rd 5 min xD
     //player.getClient().getSession().write(net.sf.odinms.tools.MaplePacketCreator.getClock(1200));
     //player.getClient().getSession().write(net.sf.odinms.tools.MaplePacketCreator.getClock(180));
@@ -99,7 +99,8 @@ function leftParty(eim, player) {	//this doesnt fucking matter...
 function disbandParty(eim) {
 }
 
-function playerUnregistered(eim, player) {}
+function playerUnregistered(eim, player) {
+}
 
 function playerExit(eim, player) {
     eim.unregisterPlayer(player);
@@ -107,10 +108,10 @@ function playerExit(eim, player) {
 }
 
 function playerWarpAltar(eim, player) {
-    if ((player.getName() != eim.getProperty("husband")) && (player.getName() != eim.getProperty("wife"))){
+    if ((player.getName() != eim.getProperty("husband")) && (player.getName() != eim.getProperty("wife"))) {
         player.changeMap(altarMap, altarMap.getPortal(0));
         player.getClient().getSession().write(net.sf.odinms.tools.MaplePacketCreator.getClock(300));
-    }else{
+    } else {
         player.changeMap(altarMap, altarMap.getPortal(2));
         player.getClient().getSession().write(net.sf.odinms.tools.MaplePacketCreator.getClock(300));
         player.getClient().getSession().write(net.sf.odinms.tools.MaplePacketCreator.serverNotice(6, "Please talk to High Priest John now!"));
@@ -133,7 +134,7 @@ function playerAltar(eim, player) {
             }
         }
         em.schedule("playerCake", 5 * 60000);
-    //eim.dispose();
+        //eim.dispose();
     }
 }
 
@@ -148,7 +149,7 @@ function playerCake(eim, player) {
             }
         }
         em.schedule("timeOut", 5 * 60000);
-    //eim.dispose();
+        //eim.dispose();
     }
 }
 
@@ -168,11 +169,14 @@ function clearPQ(eim) {
     eim.dispose();
 }
 
-function monsterKilled(mob, eim) {}
+function monsterKilled(mob, eim) {
+}
 
-function allMonstersDead(eim) {}
+function allMonstersDead(eim) {
+}
 
-function cancelSchedule() {}
+function cancelSchedule() {
+}
 
 function timeOut() {
     var iter = em.getInstances().iterator();

@@ -26,19 +26,21 @@ import java.nio.charset.Charset;
 
 /**
  * Provides a generic writer of a little-endian sequence of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323
  */
-public class GenericLittleEndianWriter implements LittleEndianWriter {
+public class GenericLittleEndianWriter implements LittleEndianWriter
+{
     private static Charset ASCII = Charset.forName("US-ASCII");
     private ByteOutputStream bos;
 
     /**
      * Class constructor - Protected to prevent instantiation with no arguments.
      */
-    protected GenericLittleEndianWriter() {
+    protected GenericLittleEndianWriter()
+    {
         // Blah!
     }
 
@@ -47,7 +49,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      *
      * @param bos The new output stream to set.
      */
-    void setByteOutputStream(ByteOutputStream bos) {
+    void setByteOutputStream(ByteOutputStream bos)
+    {
         this.bos = bos;
     }
 
@@ -57,8 +60,10 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param b The bytes to write.
      */
     @Override
-    public void write(byte[] b) {
-        for (int x = 0; x < b.length; x++) {
+    public void write(byte[] b)
+    {
+        for (int x = 0; x < b.length; x++)
+        {
             bos.writeByte(b[x]);
         }
     }
@@ -69,7 +74,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param b The byte to write.
      */
     @Override
-    public void write(byte b) {
+    public void write(byte b)
+    {
         bos.writeByte(b);
     }
 
@@ -79,12 +85,14 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param b The byte as an <code>Integer</code> to write.
      */
     @Override
-    public void write(int b) {
+    public void write(int b)
+    {
         bos.writeByte((byte) b);
     }
 
     @Override
-    public void skip(int b) {
+    public void skip(int b)
+    {
         write(new byte[b]);
     }
 
@@ -94,7 +102,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param i The short integer to write.
      */
     @Override
-    public void writeShort(int i) {
+    public void writeShort(int i)
+    {
         bos.writeByte((byte) (i & 0xFF));
         bos.writeByte((byte) ((i >>> 8) & 0xFF));
     }
@@ -105,7 +114,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param i The integer to write.
      */
     @Override
-    public void writeInt(int i) {
+    public void writeInt(int i)
+    {
         bos.writeByte((byte) (i & 0xFF));
         bos.writeByte((byte) ((i >>> 8) & 0xFF));
         bos.writeByte((byte) ((i >>> 16) & 0xFF));
@@ -118,7 +128,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param s The ASCII string to write.
      */
     @Override
-    public void writeAsciiString(String s) {
+    public void writeAsciiString(String s)
+    {
         write(s.getBytes(ASCII));
     }
 
@@ -128,7 +139,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param s The ASCII string to use maple-convention to write.
      */
     @Override
-    public void writeMapleAsciiString(String s) {
+    public void writeMapleAsciiString(String s)
+    {
         writeShort((short) s.length());
         writeAsciiString(s);
     }
@@ -139,17 +151,20 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param s The ASCII string to write.
      */
     @Override
-    public void writeNullTerminatedAsciiString(String s) {
+    public void writeNullTerminatedAsciiString(String s)
+    {
         writeAsciiString(s);
         write(0);
     }
 
     /**
      * Write a long integer to the stream.
+     *
      * @param l The long integer to write.
      */
     @Override
-    public void writeLong(long l) {
+    public void writeLong(long l)
+    {
         bos.writeByte((byte) (l & 0xFF));
         bos.writeByte((byte) ((l >>> 8) & 0xFF));
         bos.writeByte((byte) ((l >>> 16) & 0xFF));
@@ -166,7 +181,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param s The Point position to write.
      */
     @Override
-    public void writePos(Point s) {
+    public void writePos(Point s)
+    {
         writeShort(s.x);
         writeShort(s.y);
     }
@@ -177,7 +193,8 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      * @param b The boolean to write.
      */
     @Override
-    public void writeBool(final boolean b) {
+    public void writeBool(final boolean b)
+    {
         write(b ? 1 : 0);
     }
 }

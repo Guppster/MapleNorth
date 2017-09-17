@@ -28,19 +28,23 @@ import server.maps.MapleMapObject;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
- *
  * @author Matze
  * @author Ronan
  */
-public final class DoorHandler extends AbstractMaplePacketHandler {
+public final class DoorHandler extends AbstractMaplePacketHandler
+{
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         int ownerid = slea.readInt();
         boolean mode = (slea.readByte() == 0); // specifies if backwarp or not, 1 town to target, 0 target to town
-        for (MapleMapObject obj : c.getPlayer().getMap().getMapObjects()) {
-            if (obj instanceof MapleDoorObject) {
+        for (MapleMapObject obj : c.getPlayer().getMap().getMapObjects())
+        {
+            if (obj instanceof MapleDoorObject)
+            {
                 MapleDoorObject door = (MapleDoorObject) obj;
-                if (door.getOwnerId() == ownerid) {
+                if (door.getOwnerId() == ownerid)
+                {
                     door.warp(c.getPlayer(), mode);
                     return;
                 }

@@ -27,11 +27,14 @@ import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class UseChairHandler extends AbstractMaplePacketHandler {
+public final class UseChairHandler extends AbstractMaplePacketHandler
+{
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         int itemId = slea.readInt();
-        if (c.getPlayer().getInventory(MapleInventoryType.SETUP).findById(itemId) == null) {
+        if (c.getPlayer().getInventory(MapleInventoryType.SETUP).findById(itemId) == null)
+        {
             return;
         }
         c.getPlayer().setChair(itemId);

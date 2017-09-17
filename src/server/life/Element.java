@@ -21,11 +21,14 @@
 */
 package server.life;
 
-public enum Element {
+public enum Element
+{
     NEUTRAL, FIRE, ICE, LIGHTING, POISON, HOLY, DARK;
 
-    public static Element getFromChar(char c) {
-        switch (Character.toUpperCase(c)) {
+    public static Element getFromChar(char c)
+    {
+        switch (Character.toUpperCase(c))
+        {
             case 'F':
                 return FIRE;
             case 'I':
@@ -37,7 +40,7 @@ public enum Element {
             case 'H':
                 return HOLY;
             case 'D':
-            	return DARK;
+                return DARK;
             case 'P':
                 return NEUTRAL;
         }

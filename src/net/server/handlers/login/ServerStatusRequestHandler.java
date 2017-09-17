@@ -29,21 +29,29 @@ import net.server.channel.Channel;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class ServerStatusRequestHandler extends AbstractMaplePacketHandler {
+public final class ServerStatusRequestHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         byte world = (byte) slea.readShort();//Wuuu? ):
         int status;
         int num = 0;
-        for (Channel ch : Server.getInstance().getWorld(world).getChannels()) {
+        for (Channel ch : Server.getInstance().getWorld(world).getChannels())
+        {
             num += ch.getConnectedClients();
         }
-        if (num >= ServerConstants.CHANNEL_LOAD) {
+        if (num >= ServerConstants.CHANNEL_LOAD)
+        {
             status = 2;
-        } else if (num >= ServerConstants.CHANNEL_LOAD * .8) { // More than 80 percent o___o
+        }
+        else if (num >= ServerConstants.CHANNEL_LOAD * .8)
+        { // More than 80 percent o___o
             status = 1;
-        } else {
+        }
+        else
+        {
             status = 0;
         }
         c.announce(MaplePacketCreator.getServerStatus(status));

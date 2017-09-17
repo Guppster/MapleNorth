@@ -40,7 +40,7 @@ function action(mode, type, selection) {
             cm.dispose();
             return;
         }
-        if (mode == 1) 
+        if (mode == 1)
             status++;
         else
             status--;

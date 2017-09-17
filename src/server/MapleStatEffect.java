@@ -118,7 +118,8 @@ import constants.skills.WindArcher;
  * @author Frz
  * @author Ronan
  */
-public class MapleStatEffect {
+public class MapleStatEffect
+{
 
     private short watk, matk, wdef, mdef, acc, avoid, speed, jump;
     private short hp, mp;
@@ -141,33 +142,44 @@ public class MapleStatEffect {
     private byte bulletCount, bulletConsume;
     private byte mapProtection;
 
-    public static MapleStatEffect loadSkillEffectFromData(MapleData source, int skillid, boolean overtime) {
+    public static MapleStatEffect loadSkillEffectFromData(MapleData source, int skillid, boolean overtime)
+    {
         return loadFromData(source, skillid, true, overtime);
     }
 
-    public static MapleStatEffect loadItemEffectFromData(MapleData source, int itemid) {
+    public static MapleStatEffect loadItemEffectFromData(MapleData source, int itemid)
+    {
         return loadFromData(source, itemid, false, false);
     }
 
-    private static void addBuffStatPairToListIfNotZero(List<Pair<MapleBuffStat, Integer>> list, MapleBuffStat buffstat, Integer val) {
-        if (val.intValue() != 0) {
+    private static void addBuffStatPairToListIfNotZero(List<Pair<MapleBuffStat, Integer>> list, MapleBuffStat buffstat, Integer val)
+    {
+        if (val.intValue() != 0)
+        {
             list.add(new Pair<>(buffstat, val));
         }
     }
 
-    private static byte mapProtection(int sourceid) {
-        if(sourceid == 2022001 || sourceid == 2022186) {
+    private static byte mapProtection(int sourceid)
+    {
+        if (sourceid == 2022001 || sourceid == 2022186)
+        {
             return 1;   //elnath cold
         }
-        
-        else if(sourceid == 2022040) {
+
+        else if (sourceid == 2022040)
+        {
             return 2;   //aqua road underwater
         }
-        
-        else return 0;
+
+        else
+        {
+            return 0;
+        }
     }
-    
-    private static MapleStatEffect loadFromData(MapleData source, int sourceid, boolean skill, boolean overTime) {
+
+    private static MapleStatEffect loadFromData(MapleData source, int sourceid, boolean skill, boolean overTime)
+    {
         MapleStatEffect ret = new MapleStatEffect();
         ret.duration = MapleDataTool.getIntConvert("time", source, -1);
         ret.hp = (short) MapleDataTool.getInt("hp", source, 0);
@@ -187,9 +199,12 @@ public class MapleStatEffect {
 
         ret.sourceid = sourceid;
         ret.skill = skill;
-        if (!ret.skill && ret.duration > -1) {
+        if (!ret.skill && ret.duration > -1)
+        {
             ret.overTime = true;
-        } else {
+        }
+        else
+        {
             ret.duration *= 1000; // items have their times stored in ms, of course
             ret.overTime = overTime;
         }
@@ -200,22 +215,24 @@ public class MapleStatEffect {
         ret.mdef = (short) MapleDataTool.getInt("mdd", source, 0);
         ret.acc = (short) MapleDataTool.getIntConvert("acc", source, 0);
         ret.avoid = (short) MapleDataTool.getInt("eva", source, 0);
-        
+
         ret.speed = (short) MapleDataTool.getInt("speed", source, 0);
         ret.jump = (short) MapleDataTool.getInt("jump", source, 0);
-        
-        if((sourceid == Beginner.NIMBLE_FEET || sourceid == Noblesse.NIMBLE_FEET || sourceid == Evan.NIMBLE_FEET || sourceid == Legend.AGILE_BODY) && ServerConstants.USE_ULTRA_NIMBLE_FEET == true) {
-            ret.jump = (short)(ret.speed * 4);
+
+        if ((sourceid == Beginner.NIMBLE_FEET || sourceid == Noblesse.NIMBLE_FEET || sourceid == Evan.NIMBLE_FEET || sourceid == Legend.AGILE_BODY) && ServerConstants.USE_ULTRA_NIMBLE_FEET == true)
+        {
+            ret.jump = (short) (ret.speed * 4);
             ret.speed *= 15;
         }
-        
+
         ret.berserk = MapleDataTool.getInt("berserk", source, 0);
         ret.booster = MapleDataTool.getInt("booster", source, 0);
-        
+
         ret.mapProtection = mapProtection(sourceid);
         addBuffStatPairToListIfNotZero(statups, MapleBuffStat.MAP_PROTECTION, Integer.valueOf(ret.mapProtection));
-                    
-        if (ret.overTime && ret.getSummonMovementType() == null) {
+
+        if (ret.overTime && ret.getSummonMovementType() == null)
+        {
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.WATK, Integer.valueOf(ret.watk));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.WDEF, Integer.valueOf(ret.wdef));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.MATK, Integer.valueOf(ret.matk));
@@ -226,9 +243,11 @@ public class MapleStatEffect {
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.JUMP, Integer.valueOf(ret.jump));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.PYRAMID_PQ, Integer.valueOf(ret.berserk));
             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.BOOSTER, Integer.valueOf(ret.booster));
-            
-            if(!skill) {
-                if(isDojoBuff(sourceid) || sourceid == 2022337) {
+
+            if (!skill)
+            {
+                if (isDojoBuff(sourceid) || sourceid == 2022337)
+                {
                     ret.mhpR = (byte) MapleDataTool.getInt("mhpR", source, 0);
                     ret.mhpRRate = (short) (MapleDataTool.getInt("mhpRRate", source, 0) * 100);
                     ret.mmpR = (byte) MapleDataTool.getInt("mmpR", source, 0);
@@ -236,9 +255,12 @@ public class MapleStatEffect {
 
                     addBuffStatPairToListIfNotZero(statups, MapleBuffStat.HPREC, Integer.valueOf(ret.mhpR));
                     addBuffStatPairToListIfNotZero(statups, MapleBuffStat.MPREC, Integer.valueOf(ret.mmpR));
-                    
-                } else if(isRateCoupon(sourceid)) {
-                    switch(MapleDataTool.getInt("expR", source, 0)) {
+
+                }
+                else if (isRateCoupon(sourceid))
+                {
+                    switch (MapleDataTool.getInt("expR", source, 0))
+                    {
                         case 1:
                             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.COUPON_EXP1, 1);
                             break;
@@ -256,7 +278,8 @@ public class MapleStatEffect {
                             break;
                     }
 
-                    switch(MapleDataTool.getInt("drpR", source, 0)) {
+                    switch (MapleDataTool.getInt("drpR", source, 0))
+                    {
                         case 1:
                             addBuffStatPairToListIfNotZero(statups, MapleBuffStat.COUPON_DRP1, 1);
                             break;
@@ -273,24 +296,27 @@ public class MapleStatEffect {
             }
         }
         MapleData ltd = source.getChildByPath("lt");
-        if (ltd != null) {
+        if (ltd != null)
+        {
             ret.lt = (Point) ltd.getData();
             ret.rb = (Point) source.getChildByPath("rb").getData();
-            
-            if(ServerConstants.USE_MAXRANGE_ECHO_OF_HERO && (sourceid == Beginner.ECHO_OF_HERO || sourceid == Noblesse.ECHO_OF_HERO || sourceid == Legend.ECHO_OF_HERO || sourceid == Evan.ECHO_OF_HERO)) {
+
+            if (ServerConstants.USE_MAXRANGE_ECHO_OF_HERO && (sourceid == Beginner.ECHO_OF_HERO || sourceid == Noblesse.ECHO_OF_HERO || sourceid == Legend.ECHO_OF_HERO || sourceid == Evan.ECHO_OF_HERO))
+            {
                 ret.lt = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
                 ret.rb = new Point(Integer.MAX_VALUE, Integer.MAX_VALUE);
             }
         }
-        
+
         int x = MapleDataTool.getInt("x", source, 0);
-        
-        if((sourceid == Beginner.RECOVERY || sourceid == Noblesse.RECOVERY || sourceid == Evan.RECOVERY || sourceid == Legend.RECOVERY) && ServerConstants.USE_ULTRA_RECOVERY == true) {
+
+        if ((sourceid == Beginner.RECOVERY || sourceid == Noblesse.RECOVERY || sourceid == Evan.RECOVERY || sourceid == Legend.RECOVERY) && ServerConstants.USE_ULTRA_RECOVERY == true)
+        {
             x *= 10;
         }
         ret.x = x;
         ret.y = MapleDataTool.getInt("y", source, 0);
-        
+
         ret.damage = MapleDataTool.getIntConvert("damage", source, 100);
         ret.fixdamage = MapleDataTool.getIntConvert("fixdamage", source, -1);
         ret.attackCount = MapleDataTool.getIntConvert("attackCount", source, 1);
@@ -301,8 +327,10 @@ public class MapleStatEffect {
         ret.itemConNo = MapleDataTool.getInt("itemConNo", source, 0);
         ret.moveTo = MapleDataTool.getInt("moveTo", source, -1);
         Map<MonsterStatus, Integer> monsterStatus = new ArrayMap<>();
-        if (skill) {
-            switch (sourceid) {
+        if (skill)
+        {
+            switch (sourceid)
+            {
                 // BEGINNER
                 case Beginner.RECOVERY:
                 case Noblesse.RECOVERY:
@@ -412,8 +440,8 @@ public class MapleStatEffect {
                     break;
                 case BlazeWizard.ELEMENTAL_RESET:
                 case Evan.ELEMENTAL_RESET:
-                	statups.add(new Pair<>(MapleBuffStat.ELEMENTAL_RESET, Integer.valueOf(x)));
-                	break;
+                    statups.add(new Pair<>(MapleBuffStat.ELEMENTAL_RESET, Integer.valueOf(x)));
+                    break;
                 case Evan.MAGIC_SHIELD:
                     statups.add(new Pair<>(MapleBuffStat.MAGIC_SHIELD, Integer.valueOf(x)));
                     break;
@@ -421,8 +449,8 @@ public class MapleStatEffect {
                     statups.add(new Pair<>(MapleBuffStat.MAGIC_RESISTANCE, Integer.valueOf(x)));
                     break;
                 case Evan.SLOW:
-                	statups.add(new Pair<>(MapleBuffStat.SLOW, Integer.valueOf(x)));
-                // BOWMAN
+                    statups.add(new Pair<>(MapleBuffStat.SLOW, Integer.valueOf(x)));
+                    // BOWMAN
                 case Priest.MYSTIC_DOOR:
                 case Hunter.SOUL_ARROW:
                 case Crossbowman.SOUL_ARROW:
@@ -469,7 +497,7 @@ public class MapleStatEffect {
                     break;
                 case ChiefBandit.PICKPOCKET:
                     statups.add(new Pair<>(MapleBuffStat.PICKPOCKET, Integer.valueOf(x)));
-                    break;                
+                    break;
                 case NightLord.SHADOW_STARS:
                     statups.add(new Pair<>(MapleBuffStat.SHADOW_CLAW, Integer.valueOf(0)));
                     break;
@@ -565,8 +593,8 @@ public class MapleStatEffect {
                 case Crusader.ARMOR_CRASH:
                 case DragonKnight.POWER_CRASH:
                 case WhiteKnight.MAGIC_CRASH:
-                	monsterStatus.put(MonsterStatus.SEAL_SKILL,  Integer.valueOf(1));
-                	break;
+                    monsterStatus.put(MonsterStatus.SEAL_SKILL, Integer.valueOf(1));
+                    break;
                 case Rogue.DISORDER:
                     monsterStatus.put(MonsterStatus.WATK, Integer.valueOf(ret.x));
                     monsterStatus.put(MonsterStatus.WDEF, Integer.valueOf(ret.y));
@@ -623,7 +651,7 @@ public class MapleStatEffect {
                 case ILWizard.SLOW:
                 case BlazeWizard.SLOW:
                     monsterStatus.put(MonsterStatus.SPEED, Integer.valueOf(ret.x));
-                    break;    
+                    break;
                 case FPWizard.POISON_BREATH:
                 case FPMage.ELEMENT_COMPOSITION:
                     monsterStatus.put(MonsterStatus.POISON, Integer.valueOf(1));
@@ -645,8 +673,8 @@ public class MapleStatEffect {
                     monsterStatus.put(MonsterStatus.FREEZE, Integer.valueOf(1));
                     break;
                 case Evan.PHANTOM_IMPRINT:
-                	monsterStatus.put(MonsterStatus.PHANTOM_IMPRINT, Integer.valueOf(x));
-                //ARAN
+                    monsterStatus.put(MonsterStatus.PHANTOM_IMPRINT, Integer.valueOf(x));
+                    //ARAN
                 case Aran.COMBO_ABILITY:
                     statups.add(new Pair<>(MapleBuffStat.ARAN_COMBO, Integer.valueOf(100)));
                     break;
@@ -669,10 +697,12 @@ public class MapleStatEffect {
                     break;
             }
         }
-        if (ret.isMorph()) {
+        if (ret.isMorph())
+        {
             statups.add(new Pair<>(MapleBuffStat.MORPH, Integer.valueOf(ret.getMorph())));
         }
-        if (ret.ghost > 0 && !skill) {
+        if (ret.ghost > 0 && !skill)
+        {
             statups.add(new Pair<>(MapleBuffStat.GHOST_MORPH, Integer.valueOf(ret.ghost)));
         }
         ret.monsterStatus = monsterStatus;
@@ -681,24 +711,41 @@ public class MapleStatEffect {
         return ret;
     }
 
+    public static boolean isDojoBuff(int sourceid)
+    {
+        return sourceid >= 2022359 && sourceid <= 2022421;
+    }
+
+    public static boolean isRateCoupon(int sourceid)
+    {
+        int itemType = sourceid / 1000;
+        return itemType == 5211 || itemType == 5360;
+    }
+
     /**
      * @param applyto
      * @param obj
-     * @param attack damage done by the skill
+     * @param attack  damage done by the skill
      */
-    public void applyPassive(MapleCharacter applyto, MapleMapObject obj, int attack) {
-        if (makeChanceResult()) {
-            switch (sourceid) { // MP eater
+    public void applyPassive(MapleCharacter applyto, MapleMapObject obj, int attack)
+    {
+        if (makeChanceResult())
+        {
+            switch (sourceid)
+            { // MP eater
                 case FPWizard.MP_EATER:
                 case ILWizard.MP_EATER:
                 case Cleric.MP_EATER:
-                    if (obj == null || obj.getType() != MapleMapObjectType.MONSTER) {
+                    if (obj == null || obj.getType() != MapleMapObjectType.MONSTER)
+                    {
                         return;
                     }
                     MapleMonster mob = (MapleMonster) obj; // x is absorb percentage
-                    if (!mob.isBoss()) {
+                    if (!mob.isBoss())
+                    {
                         int absorbMp = Math.min((int) (mob.getMaxMp() * (getX() / 100.0)), mob.getMp());
-                        if (absorbMp > 0) {
+                        if (absorbMp > 0)
+                        {
                             mob.setMp(mob.getMp() - absorbMp);
                             applyto.addMP(absorbMp);
                             applyto.getClient().announce(MaplePacketCreator.showOwnBuffEffect(sourceid, 1));
@@ -710,30 +757,38 @@ public class MapleStatEffect {
         }
     }
 
-    public boolean applyTo(MapleCharacter chr) {
+    public boolean applyTo(MapleCharacter chr)
+    {
         return applyTo(chr, chr, true, null, false);
     }
-    
-    public boolean applyTo(MapleCharacter chr, boolean useMaxRange) {
+
+    public boolean applyTo(MapleCharacter chr, boolean useMaxRange)
+    {
         return applyTo(chr, chr, true, null, useMaxRange);
     }
 
-    public boolean applyTo(MapleCharacter chr, Point pos) {
+    public boolean applyTo(MapleCharacter chr, Point pos)
+    {
         return applyTo(chr, chr, true, pos, false);
     }
 
     // primary: the player caster of the buff
-    private boolean applyTo(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary, Point pos, boolean useMaxRange) {
-        if (skill && (sourceid == GM.HIDE || sourceid == SuperGM.HIDE)) {
+    private boolean applyTo(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary, Point pos, boolean useMaxRange)
+    {
+        if (skill && (sourceid == GM.HIDE || sourceid == SuperGM.HIDE))
+        {
             applyto.toggleHide(false);
             return true;
         }
         int hpchange = calcHPChange(applyfrom, primary);
         int mpchange = calcMPChange(applyfrom, primary);
-        
-        if (primary) {
-            if (itemConNo != 0) {
-                if(!applyto.getClient().getAbstractPlayerInteraction().hasItem(itemCon, itemConNo)) {
+
+        if (primary)
+        {
+            if (itemConNo != 0)
+            {
+                if (!applyto.getClient().getAbstractPlayerInteraction().hasItem(itemCon, itemConNo))
+                {
                     applyto.getClient().announce(MaplePacketCreator.enableActions());
                     return false;
                 }
@@ -741,50 +796,64 @@ public class MapleStatEffect {
             }
         }
         List<Pair<MapleStat, Integer>> hpmpupdate = new ArrayList<>(2);
-        if (!primary) {
-            if(isResurrection()) {
+        if (!primary)
+        {
+            if (isResurrection())
+            {
                 hpchange = applyto.getMaxHp();
                 applyto.setStance(0);
-                
+
                 applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.removePlayerFromMap(applyto.getId()), false);
                 applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.spawnPlayerMapobject(applyto), false);
             }
         }
-        if (isDispel() && makeChanceResult()) {
+        if (isDispel() && makeChanceResult())
+        {
             applyto.dispelDebuffs();
-        } else if (isCureAllAbnormalStatus()) {
+        }
+        else if (isCureAllAbnormalStatus())
+        {
             applyto.dispelDebuff(MapleDisease.SEDUCE);
             applyto.dispelDebuff(MapleDisease.ZOMBIFY);
             applyto.dispelDebuffs();
         }
-        if (isComboReset()) {
+        if (isComboReset())
+        {
             applyto.setCombo((short) 0);
         }
         /*if (applyfrom.getMp() < getMpCon()) {
          AutobanFactory.MPCON.addPoint(applyfrom.getAutobanManager(), "mpCon hack for skill:" + sourceid + "; Player MP: " + applyto.getMp() + " MP Needed: " + getMpCon());
          } */
-        if (hpchange != 0) {
-            if (hpchange < 0 && (-hpchange) >= applyto.getHp() && (!applyto.hasDisease(MapleDisease.ZOMBIFY) || hpCon > 0)) {
-                if(!applyto.isGM()) {
+        if (hpchange != 0)
+        {
+            if (hpchange < 0 && (-hpchange) >= applyto.getHp() && (!applyto.hasDisease(MapleDisease.ZOMBIFY) || hpCon > 0))
+            {
+                if (!applyto.isGM())
+                {
                     applyto.getClient().announce(MaplePacketCreator.enableActions());
                     return false;
                 }
             }
             int newHp = applyto.getHp() + hpchange;
-            if (newHp < 1) {
+            if (newHp < 1)
+            {
                 newHp = 1;
             }
             applyto.setHp(newHp);
             hpmpupdate.add(new Pair<>(MapleStat.HP, Integer.valueOf(applyto.getHp())));
         }
         int newMp = applyto.getMp() + mpchange;
-        if (mpchange != 0) {
-            if (mpchange < 0 && -mpchange > applyto.getMp()) {
-                if(!applyto.isGM()) {
+        if (mpchange != 0)
+        {
+            if (mpchange < 0 && -mpchange > applyto.getMp())
+            {
+                if (!applyto.isGM())
+                {
                     applyto.getClient().announce(MaplePacketCreator.enableActions());
                     return false;
                 }
-                else {
+                else
+                {
                     newMp = 0;
                 }
             }
@@ -793,148 +862,209 @@ public class MapleStatEffect {
             hpmpupdate.add(new Pair<>(MapleStat.MP, Integer.valueOf(applyto.getMp())));
         }
         applyto.getClient().announce(MaplePacketCreator.updatePlayerStats(hpmpupdate, true, applyto));
-        if (moveTo != -1) {
-            if (moveTo != applyto.getMapId()) {
+        if (moveTo != -1)
+        {
+            if (moveTo != applyto.getMapId())
+            {
                 MapleMap target;
                 MaplePortal pt;
-                
-                if (moveTo == 999999999) {
-                    if(sourceid != 2030100) {
+
+                if (moveTo == 999999999)
+                {
+                    if (sourceid != 2030100)
+                    {
                         target = applyto.getMap().getReturnMap();
                         pt = target.getRandomPlayerSpawnpoint();
-                    } else {
-                        if(!applyto.canRecoverLastBanish()) return false;
-                    
+                    }
+                    else
+                    {
+                        if (!applyto.canRecoverLastBanish()) return false;
+
                         Pair<Integer, Integer> lastBanishInfo = applyto.getLastBanishData();
                         target = applyto.getWarpMap(lastBanishInfo.getLeft());
                         pt = target.getPortal(lastBanishInfo.getRight());
                     }
-                } else {
+                }
+                else
+                {
                     target = applyto.getClient().getWorldServer().getChannel(applyto.getClient().getChannel()).getMapFactory().getMap(moveTo);
                     int targetid = target.getId() / 10000000;
-                    if (targetid != 60 && applyto.getMapId() / 10000000 != 61 && targetid != applyto.getMapId() / 10000000 && targetid != 21 && targetid != 20 && targetid != 12 && (applyto.getMapId() / 10000000 != 10 && applyto.getMapId() / 10000000 != 12)) {
-                    	return false;
+                    if (targetid != 60 && applyto.getMapId() / 10000000 != 61 && targetid != applyto.getMapId() / 10000000 && targetid != 21 && targetid != 20 && targetid != 12 && (applyto.getMapId() / 10000000 != 10 && applyto.getMapId() / 10000000 != 12))
+                    {
+                        return false;
                     }
-                    
+
                     pt = target.getRandomPlayerSpawnpoint();
                 }
-                
+
                 applyto.changeMap(target, pt);
-            } else {
+            }
+            else
+            {
                 return false;
             }
 
         }
-        if (isShadowClaw()) {
+        if (isShadowClaw())
+        {
             int projectile = 0;
             MapleInventory use = applyto.getInventory(MapleInventoryType.USE);
-            for (int i = 1; i <= use.getSlotLimit(); i++) { // impose order...
+            for (int i = 1; i <= use.getSlotLimit(); i++)
+            { // impose order...
                 Item item = use.getItem((short) i);
-                if (item != null) {
-                    if (ItemConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= 200) {
+                if (item != null)
+                {
+                    if (ItemConstants.isThrowingStar(item.getItemId()) && item.getQuantity() >= 200)
+                    {
                         projectile = item.getItemId();
                         break;
                     }
                 }
             }
-            if (projectile == 0) {
+            if (projectile == 0)
+            {
                 return false;
-            } else {
+            }
+            else
+            {
                 MapleInventoryManipulator.removeById(applyto.getClient(), MapleInventoryType.USE, projectile, 200, false, true);
             }
 
         }
         SummonMovementType summonMovementType = getSummonMovementType();
-        if (overTime || isCygnusFA() || summonMovementType != null) {
-            if (summonMovementType != null && pos != null) {
-                if(summonMovementType.getValue() == summonMovementType.STATIONARY.getValue()) applyto.cancelBuffStats(MapleBuffStat.PUPPET);
-                else applyto.cancelBuffStats(MapleBuffStat.SUMMON);
+        if (overTime || isCygnusFA() || summonMovementType != null)
+        {
+            if (summonMovementType != null && pos != null)
+            {
+                if (summonMovementType.getValue() == summonMovementType.STATIONARY.getValue())
+                {
+                    applyto.cancelBuffStats(MapleBuffStat.PUPPET);
+                }
+                else
+                {
+                    applyto.cancelBuffStats(MapleBuffStat.SUMMON);
+                }
             }
-            
+
             applyBuffEffect(applyfrom, applyto, primary);
         }
 
-        if (primary && (overTime || isHeal())) {
+        if (primary && (overTime || isHeal()))
+        {
             applyBuff(applyfrom, useMaxRange);
         }
 
-        if (primary && isMonsterBuff()) {
+        if (primary && isMonsterBuff())
+        {
             applyMonsterBuff(applyfrom);
         }
 
-        if (this.getFatigue() != 0) {
+        if (this.getFatigue() != 0)
+        {
             applyto.getMount().setTiredness(applyto.getMount().getTiredness() + this.getFatigue());
         }
 
-        if (summonMovementType != null && pos != null) {
+        if (summonMovementType != null && pos != null)
+        {
             final MapleSummon tosummon = new MapleSummon(applyfrom, sourceid, pos, summonMovementType);
             applyfrom.getMap().spawnSummon(tosummon);
             applyfrom.addSummon(sourceid, tosummon);
             tosummon.addHP(x);
-            if (isBeholder()) {
+            if (isBeholder())
+            {
                 tosummon.addHP(1);
             }
         }
-        if (isMagicDoor() && !FieldLimit.DOOR.check(applyto.getMap().getFieldLimit())) { // Magic Door
+        if (isMagicDoor() && !FieldLimit.DOOR.check(applyto.getMap().getFieldLimit()))
+        { // Magic Door
             int y = applyto.getFh();
-            if (y == 0) {
-                    y = applyto.getPosition().y;
+            if (y == 0)
+            {
+                y = applyto.getPosition().y;
             }
             Point doorPosition = new Point(applyto.getPosition().x, y);
             MapleDoor door = new MapleDoor(applyto, doorPosition);
-            
-            if(door.getOwnerId() >= 0) {
-                if (applyto.getParty() != null) {
-                    for (MaplePartyCharacter partyMember : applyto.getParty().getMembers()) {
+
+            if (door.getOwnerId() >= 0)
+            {
+                if (applyto.getParty() != null)
+                {
+                    for (MaplePartyCharacter partyMember : applyto.getParty().getMembers())
+                    {
                         partyMember.getPlayer().addDoor(door.getOwnerId(), door);
                         partyMember.addDoor(door.getOwnerId(), door);
                     }
                     applyto.silentPartyUpdate();
-                } else {
+                }
+                else
+                {
                     applyto.addDoor(door.getOwnerId(), door);
                 }
 
                 door.getTarget().spawnDoor(door.getAreaDoor());
                 door.getTown().spawnDoor(door.getTownDoor());
-                
+
                 applyto.disableDoor();
-            } else {
+            }
+            else
+            {
                 MapleInventoryManipulator.addFromDrop(applyto.getClient(), new Item(4006000, (short) 0, (short) 1), false);
-                
-                if(door.getOwnerId() == -3) applyto.dropMessage(5, "Mystic Door cannot be cast far from a spawn point. Nearest one is at " + door.getDoorStatus().getRight() + "pts " + door.getDoorStatus().getLeft());
-                else if(door.getOwnerId() == -2) applyto.dropMessage(5, "Mystic Door cannot be cast on a slope, try elsewhere.");
-                else applyto.dropMessage(5, "There are no door portals available for the town at this moment. Try again later.");
-                
+
+                if (door.getOwnerId() == -3)
+                {
+                    applyto.dropMessage(5, "Mystic Door cannot be cast far from a spawn point. Nearest one is at " + door.getDoorStatus().getRight() + "pts " + door.getDoorStatus().getLeft());
+                }
+                else if (door.getOwnerId() == -2)
+                {
+                    applyto.dropMessage(5, "Mystic Door cannot be cast on a slope, try elsewhere.");
+                }
+                else
+                {
+                    applyto.dropMessage(5, "There are no door portals available for the town at this moment. Try again later.");
+                }
+
                 applyto.cancelBuffStats(MapleBuffStat.SOULARROW);  // cancel door buff
             }
-        }  else if (isMist()) {
+        }
+        else if (isMist())
+        {
             Rectangle bounds = calculateBoundingBox(sourceid == NightWalker.POISON_BOMB ? pos : applyfrom.getPosition(), applyfrom.isFacingLeft());
             MapleMist mist = new MapleMist(bounds, applyfrom, this);
             applyfrom.getMap().spawnMist(mist, getDuration(), mist.isPoisonMist(), false, mist.isRecoveryMist());
-        } else if(isTimeLeap()) {
+        }
+        else if (isTimeLeap())
+        {
             applyto.removeAllCooldownsExcept(Buccaneer.TIME_LEAP, true);
-        } else if(isHyperBody() && !primary) {
+        }
+        else if (isHyperBody() && !primary)
+        {
             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.removePlayerFromMap(applyto.getId()), false);
             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.spawnPlayerMapobject(applyto), false);
         }
-        
+
         return true;
     }
 
-    private void applyBuff(MapleCharacter applyfrom, boolean useMaxRange) {
-        if (isPartyBuff() && (applyfrom.getParty() != null || isGmBuff())) {
+    private void applyBuff(MapleCharacter applyfrom, boolean useMaxRange)
+    {
+        if (isPartyBuff() && (applyfrom.getParty() != null || isGmBuff()))
+        {
             Rectangle bounds = (!useMaxRange) ? calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft()) : new Rectangle(Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2, Integer.MAX_VALUE, Integer.MAX_VALUE);
             List<MapleMapObject> affecteds = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(MapleMapObjectType.PLAYER));
             List<MapleCharacter> affectedp = new ArrayList<>(affecteds.size());
-            for (MapleMapObject affectedmo : affecteds) {
+            for (MapleMapObject affectedmo : affecteds)
+            {
                 MapleCharacter affected = (MapleCharacter) affectedmo;
-                if (affected != applyfrom && (isGmBuff() || applyfrom.getParty().equals(affected.getParty()))) {
-                    if ((!isResurrection() && affected.isAlive()) || (isResurrection() && !affected.isAlive())) {
+                if (affected != applyfrom && (isGmBuff() || applyfrom.getParty().equals(affected.getParty())))
+                {
+                    if ((!isResurrection() && affected.isAlive()) || (isResurrection() && !affected.isAlive()))
+                    {
                         affectedp.add(affected);
                     }
                 }
             }
-            for (MapleCharacter affected : affectedp) {
+            for (MapleCharacter affected : affectedp)
+            {
                 applyTo(applyfrom, affected, false, null, useMaxRange);
                 affected.getClient().announce(MaplePacketCreator.showOwnBuffEffect(sourceid, 2));
                 affected.getMap().broadcastMessage(affected, MaplePacketCreator.showBuffeffect(affected.getId(), sourceid, 2), false);
@@ -942,37 +1072,49 @@ public class MapleStatEffect {
         }
     }
 
-    private void applyMonsterBuff(MapleCharacter applyfrom) {
+    private void applyMonsterBuff(MapleCharacter applyfrom)
+    {
         Rectangle bounds = calculateBoundingBox(applyfrom.getPosition(), applyfrom.isFacingLeft());
         List<MapleMapObject> affected = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(MapleMapObjectType.MONSTER));
         Skill skill_ = SkillFactory.getSkill(sourceid);
         int i = 0;
-        for (MapleMapObject mo : affected) {
+        for (MapleMapObject mo : affected)
+        {
             MapleMonster monster = (MapleMonster) mo;
-            if (isDispel()) { 
-        		monster.debuffMob(skill_.getId());
-        	} else {
-        		if (makeChanceResult()) {
-        			monster.applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), skill_, null, false), isPoison(), getDuration());
-        			if (isCrash()) {
-        				monster.debuffMob(skill_.getId());
-        			}
-        		}
-        	}
+            if (isDispel())
+            {
+                monster.debuffMob(skill_.getId());
+            }
+            else
+            {
+                if (makeChanceResult())
+                {
+                    monster.applyStatus(applyfrom, new MonsterStatusEffect(getMonsterStati(), skill_, null, false), isPoison(), getDuration());
+                    if (isCrash())
+                    {
+                        monster.debuffMob(skill_.getId());
+                    }
+                }
+            }
             i++;
-            if (i >= mobCount) {
+            if (i >= mobCount)
+            {
                 break;
             }
         }
     }
 
-    private Rectangle calculateBoundingBox(Point posFrom, boolean facingLeft) {
+    private Rectangle calculateBoundingBox(Point posFrom, boolean facingLeft)
+    {
         Point mylt;
         Point myrb;
-        if (facingLeft) {
+        if (facingLeft)
+        {
             mylt = new Point(lt.x + posFrom.x, lt.y + posFrom.y);
             myrb = new Point(rb.x + posFrom.x, rb.y + posFrom.y);
-        } else {
+        }
+        else
+        {
             myrb = new Point(-lt.x + posFrom.x, rb.y + posFrom.y);
             mylt = new Point(-rb.x + posFrom.x, lt.y + posFrom.y);
         }
@@ -980,26 +1122,31 @@ public class MapleStatEffect {
         return bounds;
     }
 
-    public void silentApplyBuff(MapleCharacter chr, long starttime) {
+    public void silentApplyBuff(MapleCharacter chr, long starttime)
+    {
         int localDuration = duration;
         localDuration = alchemistModifyVal(chr, localDuration, false);
         CancelEffectAction cancelAction = new CancelEffectAction(chr, this, starttime);
         ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + localDuration) - System.currentTimeMillis()));
         chr.registerEffect(this, starttime, schedule);
         SummonMovementType summonMovementType = getSummonMovementType();
-        if (summonMovementType != null) {
+        if (summonMovementType != null)
+        {
             final MapleSummon tosummon = new MapleSummon(chr, sourceid, chr.getPosition(), summonMovementType);
-            if (!tosummon.isStationary()) {
+            if (!tosummon.isStationary())
+            {
                 chr.addSummon(sourceid, tosummon);
                 tosummon.addHP(x);
             }
         }
-        if (sourceid == Corsair.BATTLE_SHIP) {
+        if (sourceid == Corsair.BATTLE_SHIP)
+        {
             chr.announce(MaplePacketCreator.skillCooldown(5221999, chr.getBattleshipHp()));
         }
     }
 
-    public final void applyComboBuff(final MapleCharacter applyto, int combo) {
+    public final void applyComboBuff(final MapleCharacter applyto, int combo)
+    {
         final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.ARAN_COMBO, combo));
         applyto.getClient().announce(MaplePacketCreator.giveBuff(sourceid, 99999, stat));
 
@@ -1009,8 +1156,10 @@ public class MapleStatEffect {
         applyto.registerEffect(this, starttime, null);
     }
 
-    private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary) {
-        if (!isMonsterRiding() && !isCouponBuff() && !isMysticDoor()) {     // last mystic door already dispelled if it has been used before.
+    private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary)
+    {
+        if (!isMonsterRiding() && !isCouponBuff() && !isMysticDoor())
+        {     // last mystic door already dispelled if it has been used before.
             applyto.cancelEffect(this, true, -1);
         }
 
@@ -1019,91 +1168,144 @@ public class MapleStatEffect {
         int localsourceid = sourceid;
         int seconds = localDuration / 1000;
         MapleMount givemount = null;
-        if (isMonsterRiding()) {
+        if (isMonsterRiding())
+        {
             int ridingLevel = 0;
             Item mount = applyfrom.getInventory(MapleInventoryType.EQUIPPED).getItem((short) -18);
-            if (mount != null) {
+            if (mount != null)
+            {
                 ridingLevel = mount.getItemId();
             }
-            if (sourceid == Corsair.BATTLE_SHIP) {
+            if (sourceid == Corsair.BATTLE_SHIP)
+            {
                 ridingLevel = 1932000;
-            } else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP) {
+            }
+            else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP)
+            {
                 ridingLevel = 1932000 + applyto.getSkillLevel(sourceid);
-            } else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT1) {
+            }
+            else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT1)
+            {
                 ridingLevel = 1932003;
-            } else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Legend.YETI_MOUNT2) {
+            }
+            else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Legend.YETI_MOUNT2)
+            {
                 ridingLevel = 1932004;
-            } else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Legend.WITCH_BROOMSTICK) {
+            }
+            else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Legend.WITCH_BROOMSTICK)
+            {
                 ridingLevel = 1932005;
-            } else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT) {
+            }
+            else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT)
+            {
                 ridingLevel = 1932010;
-            } else {
-                if (applyto.getMount() == null) {
+            }
+            else
+            {
+                if (applyto.getMount() == null)
+                {
                     applyto.mount(ridingLevel, sourceid);
                 }
-                
+
                 applyto.getClient().getWorldServer().registerMountHunger(applyto);
             }
-            if (sourceid == Corsair.BATTLE_SHIP) {
+            if (sourceid == Corsair.BATTLE_SHIP)
+            {
                 givemount = new MapleMount(applyto, 1932000, sourceid);
-            } else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP) {
+            }
+            else if (sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP)
+            {
                 givemount = new MapleMount(applyto, 1932000 + applyto.getSkillLevel(sourceid), sourceid);
-            } else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT1) {
+            }
+            else if (sourceid == Beginner.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT1)
+            {
                 givemount = new MapleMount(applyto, 1932003, sourceid);
-            } else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Legend.YETI_MOUNT2) {
+            }
+            else if (sourceid == Beginner.YETI_MOUNT2 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Legend.YETI_MOUNT2)
+            {
                 givemount = new MapleMount(applyto, 1932004, sourceid);
-            } else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Legend.WITCH_BROOMSTICK) {
+            }
+            else if (sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Legend.WITCH_BROOMSTICK)
+            {
                 givemount = new MapleMount(applyto, 1932005, sourceid);
-            } else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT) {
+            }
+            else if (sourceid == Beginner.BALROG_MOUNT || sourceid == Noblesse.BALROG_MOUNT || sourceid == Legend.BALROG_MOUNT)
+            {
                 givemount = new MapleMount(applyto, 1932010, sourceid);
-            } else {
+            }
+            else
+            {
                 givemount = applyto.getMount();
             }
             localDuration = sourceid;
             localsourceid = ridingLevel;
             localstatups = Collections.singletonList(new Pair<>(MapleBuffStat.MONSTER_RIDING, 0));
-        } else if (isSkillMorph()) {
+        }
+        else if (isSkillMorph())
+        {
             localstatups = Collections.singletonList(new Pair<>(MapleBuffStat.MORPH, getMorph(applyto)));
         }
-        if (primary) {
+        if (primary)
+        {
             localDuration = alchemistModifyVal(applyfrom, localDuration, false);
             applyto.getMap().broadcastMessage(applyto, MaplePacketCreator.showBuffeffect(applyto.getId(), sourceid, 1, (byte) 3), false);
         }
-        if (localstatups.size() > 0) {
+        if (localstatups.size() > 0)
+        {
             byte[] buff = null;
             byte[] mbuff = null;
-            if (getSummonMovementType() == null) {
+            if (getSummonMovementType() == null)
+            {
                 buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), localDuration, localstatups);
             }
-            if (isDash()) {
+            if (isDash())
+            {
                 buff = MaplePacketCreator.givePirateBuff(statups, sourceid, seconds);
                 mbuff = MaplePacketCreator.giveForeignPirateBuff(applyto.getId(), sourceid, seconds, localstatups);
-            } else if (isInfusion()) {
-            	buff = MaplePacketCreator.givePirateBuff(localstatups, sourceid, seconds);
+            }
+            else if (isInfusion())
+            {
+                buff = MaplePacketCreator.givePirateBuff(localstatups, sourceid, seconds);
                 mbuff = MaplePacketCreator.giveForeignPirateBuff(applyto.getId(), sourceid, seconds, localstatups);
-            } else if (isDs()) {
+            }
+            else if (isDs())
+            {
                 List<Pair<MapleBuffStat, Integer>> dsstat = Collections.singletonList(new Pair<>(MapleBuffStat.DARKSIGHT, 0));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), dsstat);
-            } else if (isCombo()) {
+            }
+            else if (isCombo())
+            {
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), statups);
-            } else if (isMonsterRiding()) {
+            }
+            else if (isMonsterRiding())
+            {
                 buff = MaplePacketCreator.giveBuff(localsourceid, localDuration, localstatups);
                 mbuff = MaplePacketCreator.showMonsterRiding(applyto.getId(), givemount);
                 localDuration = duration;
-                if (sourceid == Corsair.BATTLE_SHIP) {//hp
-                    if (applyto.getBattleshipHp() == 0) {
+                if (sourceid == Corsair.BATTLE_SHIP)
+                {//hp
+                    if (applyto.getBattleshipHp() == 0)
+                    {
                         applyto.resetBattleshipHp();
                     }
                 }
-            } else if (isShadowPartner()) {
+            }
+            else if (isShadowPartner())
+            {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.SHADOWPARTNER, 0));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
-            } else if (isSoulArrow()) {
+            }
+            else if (isSoulArrow())
+            {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.SOULARROW, 0));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
-            } else if (isEnrage()) {
+            }
+            else if (isEnrage())
+            {
                 applyto.handleOrbconsume();
-            } else if (isMorph()) {
+            }
+            else if (isMorph())
+            {
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
             }
@@ -1112,130 +1314,173 @@ public class MapleStatEffect {
             ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, localDuration);
             applyto.registerEffect(this, starttime, schedule);
 
-            if (buff != null) {
-            	if (!hasNoIcon()) { //Thanks flav for such a simple release! :)
-            		applyto.getClient().announce(buff);
-            	}
-                else {
+            if (buff != null)
+            {
+                if (!hasNoIcon())
+                { //Thanks flav for such a simple release! :)
+                    applyto.getClient().announce(buff);
+                }
+                else
+                {
                     System.out.println("<Error> NO buff icon for id " + sourceid);
                 }
             }
-            if (mbuff != null) {
+            if (mbuff != null)
+            {
                 applyto.getMap().broadcastMessage(applyto, mbuff, false);
             }
-            if (sourceid == Corsair.BATTLE_SHIP) {
+            if (sourceid == Corsair.BATTLE_SHIP)
+            {
                 applyto.announce(MaplePacketCreator.skillCooldown(5221999, applyto.getBattleshipHp() / 10));
             }
         }
     }
 
-    private int calcHPChange(MapleCharacter applyfrom, boolean primary) {
+    private int calcHPChange(MapleCharacter applyfrom, boolean primary)
+    {
         int hpchange = 0;
-        if (hp != 0) {
-            if (!skill) {
-                if (primary) {
+        if (hp != 0)
+        {
+            if (!skill)
+            {
+                if (primary)
+                {
                     hpchange += alchemistModifyVal(applyfrom, hp, true);
-                } else {
+                }
+                else
+                {
                     hpchange += hp;
                 }
-                if (applyfrom.hasDisease(MapleDisease.ZOMBIFY)) {
+                if (applyfrom.hasDisease(MapleDisease.ZOMBIFY))
+                {
                     hpchange /= 2;
                 }
-            } else { // assumption: this is heal
+            }
+            else
+            { // assumption: this is heal
                 hpchange += makeHealHP(hp / 100.0, applyfrom.getTotalMagic(), 3, 5);
-                if (applyfrom.hasDisease(MapleDisease.ZOMBIFY)) {
+                if (applyfrom.hasDisease(MapleDisease.ZOMBIFY))
+                {
                     hpchange = -hpchange;
                     hpCon = 0;
                 }
             }
         }
-        if (hpR != 0) {
+        if (hpR != 0)
+        {
             hpchange += (int) (applyfrom.getCurrentMaxHp() * hpR) / (applyfrom.hasDisease(MapleDisease.ZOMBIFY) ? 2 : 1);
             applyfrom.checkBerserk(applyfrom.isHidden());
         }
-        if (primary) {
-            if (hpCon != 0) {
+        if (primary)
+        {
+            if (hpCon != 0)
+            {
                 hpchange -= hpCon;
             }
         }
-        if (isChakra()) {
+        if (isChakra())
+        {
             hpchange += makeHealHP(getY() / 100.0, applyfrom.getTotalLuk(), 2.3, 3.5);
-        } else if (sourceid == SuperGM.HEAL_PLUS_DISPEL) {
+        }
+        else if (sourceid == SuperGM.HEAL_PLUS_DISPEL)
+        {
             hpchange += (applyfrom.getMaxHp() - applyfrom.getHp());
         }
 
         return hpchange;
     }
 
-    private int makeHealHP(double rate, double stat, double lowerfactor, double upperfactor) {
+    private int makeHealHP(double rate, double stat, double lowerfactor, double upperfactor)
+    {
         return (int) ((Math.random() * ((int) (stat * upperfactor * rate) - (int) (stat * lowerfactor * rate) + 1)) + (int) (stat * lowerfactor * rate));
     }
 
-    private int calcMPChange(MapleCharacter applyfrom, boolean primary) {
+    private int calcMPChange(MapleCharacter applyfrom, boolean primary)
+    {
         int mpchange = 0;
-        if (mp != 0) {
-            if (primary) {
+        if (mp != 0)
+        {
+            if (primary)
+            {
                 mpchange += alchemistModifyVal(applyfrom, mp, true);
-            } else {
+            }
+            else
+            {
                 mpchange += mp;
             }
         }
-        if (mpR != 0) {
+        if (mpR != 0)
+        {
             mpchange += (int) (applyfrom.getCurrentMaxMp() * mpR);
         }
-        if (primary) {
-            if (mpCon != 0) {
+        if (primary)
+        {
+            if (mpCon != 0)
+            {
                 double mod = 1.0;
                 boolean isAFpMage = applyfrom.getJob().isA(MapleJob.FP_MAGE);
                 boolean isCygnus = applyfrom.getJob().isA(MapleJob.BLAZEWIZARD2);
                 boolean isEvan = applyfrom.getJob().isA(MapleJob.EVAN7);
-                if (isAFpMage || isCygnus || isEvan || applyfrom.getJob().isA(MapleJob.IL_MAGE)) {
+                if (isAFpMage || isCygnus || isEvan || applyfrom.getJob().isA(MapleJob.IL_MAGE))
+                {
                     Skill amp = isAFpMage ? SkillFactory.getSkill(FPMage.ELEMENT_AMPLIFICATION) : (isCygnus ? SkillFactory.getSkill(BlazeWizard.ELEMENT_AMPLIFICATION) : (isEvan ? SkillFactory.getSkill(Evan.MAGIC_AMPLIFICATION) : SkillFactory.getSkill(ILMage.ELEMENT_AMPLIFICATION)));
                     int ampLevel = applyfrom.getSkillLevel(amp);
-                    if (ampLevel > 0) {
+                    if (ampLevel > 0)
+                    {
                         mod = amp.getEffect(ampLevel).getX() / 100.0;
                     }
                 }
                 mpchange -= mpCon * mod;
-                if (applyfrom.getBuffedValue(MapleBuffStat.INFINITY) != null) {
+                if (applyfrom.getBuffedValue(MapleBuffStat.INFINITY) != null)
+                {
                     mpchange = 0;
-                } else if (applyfrom.getBuffedValue(MapleBuffStat.CONCENTRATE) != null) {
+                }
+                else if (applyfrom.getBuffedValue(MapleBuffStat.CONCENTRATE) != null)
+                {
                     mpchange -= (int) (mpchange * (applyfrom.getBuffedValue(MapleBuffStat.CONCENTRATE).doubleValue() / 100));
                 }
             }
         }
-        if (sourceid == SuperGM.HEAL_PLUS_DISPEL) {
+        if (sourceid == SuperGM.HEAL_PLUS_DISPEL)
+        {
             mpchange += (applyfrom.getMaxMp() - applyfrom.getMp());
         }
 
         return mpchange;
     }
 
-    private int alchemistModifyVal(MapleCharacter chr, int val, boolean withX) {
-        if (!skill && (chr.getJob().isA(MapleJob.HERMIT) || chr.getJob().isA(MapleJob.NIGHTWALKER3))) {
+    private int alchemistModifyVal(MapleCharacter chr, int val, boolean withX)
+    {
+        if (!skill && (chr.getJob().isA(MapleJob.HERMIT) || chr.getJob().isA(MapleJob.NIGHTWALKER3)))
+        {
             MapleStatEffect alchemistEffect = getAlchemistEffect(chr);
-            if (alchemistEffect != null) {
+            if (alchemistEffect != null)
+            {
                 return (int) (val * ((withX ? alchemistEffect.getX() : alchemistEffect.getY()) / 100.0));
             }
         }
         return val;
     }
 
-    private MapleStatEffect getAlchemistEffect(MapleCharacter chr) {
+    private MapleStatEffect getAlchemistEffect(MapleCharacter chr)
+    {
         int id = Hermit.ALCHEMIST;
-        if (chr.isCygnus()) {
+        if (chr.isCygnus())
+        {
             id = NightWalker.ALCHEMIST;
         }
         int alchemistLevel = chr.getSkillLevel(SkillFactory.getSkill(id));
         return alchemistLevel == 0 ? null : SkillFactory.getSkill(id).getEffect(alchemistLevel);
     }
 
-    private boolean isGmBuff() {
-        switch (sourceid) {
+    private boolean isGmBuff()
+    {
+        switch (sourceid)
+        {
             case Beginner.ECHO_OF_HERO:
             case Noblesse.ECHO_OF_HERO:
             case Legend.ECHO_OF_HERO:
-            case Evan.ECHO_OF_HERO:	
+            case Evan.ECHO_OF_HERO:
             case SuperGM.HEAL_PLUS_DISPEL:
             case SuperGM.HASTE:
             case SuperGM.HOLY_SYMBOL:
@@ -1248,11 +1493,14 @@ public class MapleStatEffect {
         }
     }
 
-    private boolean isMonsterBuff() {
-        if (!skill) {
+    private boolean isMonsterBuff()
+    {
+        if (!skill)
+        {
             return false;
         }
-        switch (sourceid) {
+        switch (sourceid)
+        {
             case Page.THREATEN:
             case FPWizard.SLOW:
             case ILWizard.SLOW:
@@ -1275,131 +1523,153 @@ public class MapleStatEffect {
         return false;
     }
 
-    private boolean isPartyBuff() {
-        if (lt == null || rb == null) {
+    private boolean isPartyBuff()
+    {
+        if (lt == null || rb == null)
+        {
             return false;
         }
-        if ((sourceid >= 1211003 && sourceid <= 1211008) || sourceid == Paladin.SWORD_HOLY_CHARGE || sourceid == Paladin.BW_HOLY_CHARGE || sourceid == DawnWarrior.SOUL_CHARGE) {// wk charges have lt and rb set but are neither player nor monster buffs
+        if ((sourceid >= 1211003 && sourceid <= 1211008) || sourceid == Paladin.SWORD_HOLY_CHARGE || sourceid == Paladin.BW_HOLY_CHARGE || sourceid == DawnWarrior.SOUL_CHARGE)
+        {// wk charges have lt and rb set but are neither player nor monster buffs
             return false;
         }
         return true;
     }
 
-    private boolean isHeal() {
+    private boolean isHeal()
+    {
         return sourceid == Cleric.HEAL || sourceid == SuperGM.HEAL_PLUS_DISPEL;
     }
 
-    private boolean isResurrection() {
+    private boolean isResurrection()
+    {
         return sourceid == Bishop.RESURRECTION || sourceid == GM.RESURRECTION || sourceid == SuperGM.RESURRECTION;
     }
 
-    private boolean isTimeLeap() {
+    private boolean isTimeLeap()
+    {
         return sourceid == Buccaneer.TIME_LEAP;
     }
 
-    public boolean isDragonBlood() {
+    public boolean isDragonBlood()
+    {
         return skill && sourceid == DragonKnight.DRAGON_BLOOD;
     }
 
-    public boolean isBerserk() {
+    public boolean isBerserk()
+    {
         return skill && sourceid == DarkKnight.BERSERK;
     }
 
-    public boolean isRecovery() {
+    public boolean isRecovery()
+    {
         return sourceid == Beginner.RECOVERY || sourceid == Noblesse.RECOVERY || sourceid == Legend.RECOVERY || sourceid == Evan.RECOVERY;
     }
-    
-    public boolean isDojoBuff() {
+
+    public boolean isDojoBuff()
+    {
         return sourceid >= 2022359 && sourceid <= 2022421;
-    }
-    
-    public static boolean isDojoBuff(int sourceid) {
-        return sourceid >= 2022359 && sourceid <= 2022421;
-    }
-    
-    public static boolean isRateCoupon(int sourceid) {
-        int itemType = sourceid / 1000;
-        return itemType == 5211 || itemType == 5360;
     }
 
-    private boolean isDs() {
+    private boolean isDs()
+    {
         return skill && (sourceid == Rogue.DARK_SIGHT || sourceid == WindArcher.WIND_WALK || sourceid == NightWalker.DARK_SIGHT);
     }
 
-    private boolean isCombo() {
+    private boolean isCombo()
+    {
         return skill && (sourceid == Crusader.COMBO || sourceid == DawnWarrior.COMBO);
     }
 
-    private boolean isEnrage() {
+    private boolean isEnrage()
+    {
         return skill && sourceid == Hero.ENRAGE;
     }
 
-    public boolean isBeholder() {
+    public boolean isBeholder()
+    {
         return skill && sourceid == DarkKnight.BEHOLDER;
     }
 
-    private boolean isShadowPartner() {
+    private boolean isShadowPartner()
+    {
         return skill && (sourceid == Hermit.SHADOW_PARTNER || sourceid == NightWalker.SHADOW_PARTNER);
     }
 
-    private boolean isChakra() {
+    private boolean isChakra()
+    {
         return skill && sourceid == ChiefBandit.CHAKRA;
     }
 
-    private boolean isCouponBuff() {
+    private boolean isCouponBuff()
+    {
         return isRateCoupon(sourceid);
     }
-    
-    private boolean isMysticDoor() {
+
+    private boolean isMysticDoor()
+    {
         return skill && sourceid == Priest.MYSTIC_DOOR;
     }
-    
-    public boolean isMonsterRiding() {
+
+    public boolean isMonsterRiding()
+    {
         return skill && (sourceid % 10000000 == 1004 || sourceid == Corsair.BATTLE_SHIP || sourceid == Beginner.SPACESHIP || sourceid == Noblesse.SPACESHIP
-                || sourceid == Beginner.YETI_MOUNT1 || sourceid == Beginner.YETI_MOUNT2 || sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Beginner.BALROG_MOUNT
-                || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Noblesse.BALROG_MOUNT
-                || sourceid == Legend.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT2 || sourceid == Legend.WITCH_BROOMSTICK || sourceid == Legend.BALROG_MOUNT);
+                         || sourceid == Beginner.YETI_MOUNT1 || sourceid == Beginner.YETI_MOUNT2 || sourceid == Beginner.WITCH_BROOMSTICK || sourceid == Beginner.BALROG_MOUNT
+                         || sourceid == Noblesse.YETI_MOUNT1 || sourceid == Noblesse.YETI_MOUNT2 || sourceid == Noblesse.WITCH_BROOMSTICK || sourceid == Noblesse.BALROG_MOUNT
+                         || sourceid == Legend.YETI_MOUNT1 || sourceid == Legend.YETI_MOUNT2 || sourceid == Legend.WITCH_BROOMSTICK || sourceid == Legend.BALROG_MOUNT);
     }
 
-    public boolean isMagicDoor() {
+    public boolean isMagicDoor()
+    {
         return skill && sourceid == Priest.MYSTIC_DOOR;
     }
 
-    public boolean isPoison() {
+    public boolean isPoison()
+    {
         return skill && (sourceid == FPMage.POISON_MIST || sourceid == FPWizard.POISON_BREATH || sourceid == FPMage.ELEMENT_COMPOSITION || sourceid == NightWalker.POISON_BOMB || sourceid == BlazeWizard.FLAME_GEAR);
     }
-    
-    public boolean isMorph() {
+
+    public boolean isMorph()
+    {
         return morphId > 0;
     }
-    
-    public boolean isMorphWithoutAttack() {
+
+    public boolean isMorphWithoutAttack()
+    {
         return morphId > 0 && morphId < 100; // Every morph item I have found has been under 100, pirate skill transforms start at 1000.
     }
 
-    private boolean isMist() {
+    private boolean isMist()
+    {
         return skill && (sourceid == FPMage.POISON_MIST || sourceid == Shadower.SMOKE_SCREEN || sourceid == BlazeWizard.FLAME_GEAR || sourceid == NightWalker.POISON_BOMB || sourceid == Evan.RECOVERY_AURA);
     }
 
-    private boolean isSoulArrow() {
+    private boolean isSoulArrow()
+    {
         return skill && (sourceid == Hunter.SOUL_ARROW || sourceid == Crossbowman.SOUL_ARROW || sourceid == WindArcher.SOUL_ARROW);
     }
 
-    private boolean isShadowClaw() {
+    private boolean isShadowClaw()
+    {
         return skill && sourceid == NightLord.SHADOW_STARS;
     }
 
-    private boolean isCrash() {
-    	return skill && (sourceid == DragonKnight.POWER_CRASH || sourceid == Crusader.ARMOR_CRASH || sourceid == WhiteKnight.MAGIC_CRASH);
+    private boolean isCrash()
+    {
+        return skill && (sourceid == DragonKnight.POWER_CRASH || sourceid == Crusader.ARMOR_CRASH || sourceid == WhiteKnight.MAGIC_CRASH);
     }
-    
-    private boolean isDispel() {
+
+    private boolean isDispel()
+    {
         return skill && (sourceid == Priest.DISPEL || sourceid == SuperGM.HEAL_PLUS_DISPEL);
     }
 
-    private boolean isCureAllAbnormalStatus() {
-        if (skill) {
-            switch (sourceid) {
+    private boolean isCureAllAbnormalStatus()
+    {
+        if (skill)
+        {
+            switch (sourceid)
+            {
                 case Hero.HEROS_WILL:
                 case Paladin.HEROS_WILL:
                 case DarkKnight.HEROS_WILL:
@@ -1416,55 +1686,69 @@ public class MapleStatEffect {
                 default:
                     return false;
             }
-        } else if (sourceid == 2022544) return true;
-        
+        }
+        else if (sourceid == 2022544) return true;
+
         return false;
     }
 
-    private boolean isDash() {
+    private boolean isDash()
+    {
         return skill && (sourceid == Pirate.DASH || sourceid == ThunderBreaker.DASH || sourceid == Beginner.SPACE_DASH || sourceid == Noblesse.SPACE_DASH);
     }
 
-    private boolean isSkillMorph() {
+    private boolean isSkillMorph()
+    {
         return skill && (sourceid == Buccaneer.SUPER_TRANSFORMATION || sourceid == Marauder.TRANSFORMATION || sourceid == WindArcher.EAGLE_EYE || sourceid == ThunderBreaker.TRANSFORMATION);
     }
 
-    private boolean isInfusion() {
+    private boolean isInfusion()
+    {
         return skill && (sourceid == Buccaneer.SPEED_INFUSION || sourceid == Corsair.SPEED_INFUSION || sourceid == ThunderBreaker.SPEED_INFUSION);
     }
 
-    private boolean isCygnusFA() {
+    private boolean isCygnusFA()
+    {
         return skill && (sourceid == DawnWarrior.FINAL_ATTACK || sourceid == WindArcher.FINAL_ATTACK);
     }
-    
-    private boolean isHyperBody() {
+
+    private boolean isHyperBody()
+    {
         return skill && (sourceid == Spearman.HYPER_BODY || sourceid == GM.HYPER_BODY || sourceid == SuperGM.HYPER_BODY);
     }
 
-    private boolean isComboReset() {
+    private boolean isComboReset()
+    {
         return sourceid == Aran.COMBO_BARRIER || sourceid == Aran.COMBO_DRAIN;
     }
 
-    private int getFatigue() {
+    private int getFatigue()
+    {
         return fatigue;
     }
 
-    private int getMorph() {
+    private int getMorph()
+    {
         return morphId;
     }
 
-    private int getMorph(MapleCharacter chr) {
-        if (morphId % 10 == 0) {
+    private int getMorph(MapleCharacter chr)
+    {
+        if (morphId % 10 == 0)
+        {
             return morphId + chr.getGender();
         }
         return morphId + 100 * chr.getGender();
     }
 
-    private SummonMovementType getSummonMovementType() {
-        if (!skill) {
+    private SummonMovementType getSummonMovementType()
+    {
+        if (!skill)
+        {
             return null;
         }
-        switch (sourceid) {
+        switch (sourceid)
+        {
             case Ranger.PUPPET:
             case Sniper.PUPPET:
             case WindArcher.PUPPET:
@@ -1493,143 +1777,175 @@ public class MapleStatEffect {
         return null;
     }
 
-    
-    public boolean hasNoIcon() {
+
+    public boolean hasNoIcon()
+    {
         return (sourceid == 3111002 || sourceid == 3211002 || + // puppet, puppet
-                sourceid == 3211005 || +                        // golden eagle
-                sourceid == 2121005 || sourceid == 2221005 || + // elquines, ifrit
-                sourceid == 2321003 || sourceid == 3121006 || + // bahamut, phoenix
-                sourceid == 3221005 || sourceid == 3111005 || + // frostprey, silver hawk
-                sourceid == 2311006 || sourceid == 5220002 || + // summon dragon, wrath of the octopi
-                sourceid == 5211001 || sourceid == 5211002); // octopus, gaviota
+                                                                      sourceid == 3211005 || +                        // golden eagle
+                                                                                                     sourceid == 2121005 || sourceid == 2221005 || + // elquines, ifrit
+                                                                                                                                                           sourceid == 2321003 || sourceid == 3121006 || + // bahamut, phoenix
+                                                                                                                                                                                                                 sourceid == 3221005 || sourceid == 3111005 || + // frostprey, silver hawk
+                                                                                                                                                                                                                                                                       sourceid == 2311006 || sourceid == 5220002 || + // summon dragon, wrath of the octopi
+                                                                                                                                                                                                                                                                                                                             sourceid == 5211001 || sourceid == 5211002); // octopus, gaviota
     }
-    
-    public boolean isSkill() {
+
+    public boolean isSkill()
+    {
         return skill;
     }
 
-    public int getSourceId() {
+    public int getSourceId()
+    {
         return sourceid;
     }
 
-    public boolean makeChanceResult() {
+    public boolean makeChanceResult()
+    {
         return prop == 1.0 || Math.random() < prop;
     }
 
-    private static class CancelEffectAction implements Runnable {
+    public short getHp()
+    {
+        return hp;
+    }
+
+    public short getMp()
+    {
+        return mp;
+    }
+
+    public byte getHpR()
+    {
+        return mhpR;
+    }
+
+    public byte getMpR()
+    {
+        return mmpR;
+    }
+
+    public short getHpRRate()
+    {
+        return mhpRRate;
+    }
+
+    public short getMpRRate()
+    {
+        return mmpRRate;
+    }
+
+    public short getHpCon()
+    {
+        return hpCon;
+    }
+
+    public short getMpCon()
+    {
+        return mpCon;
+    }
+
+    public short getMatk()
+    {
+        return matk;
+    }
+
+    public short getWatk()
+    {
+        return watk;
+    }
+
+    public int getDuration()
+    {
+        return duration;
+    }
+
+    public List<Pair<MapleBuffStat, Integer>> getStatups()
+    {
+        return statups;
+    }
+
+    public boolean sameSource(MapleStatEffect effect)
+    {
+        return this.sourceid == effect.sourceid && this.skill == effect.skill;
+    }
+
+    public int getX()
+    {
+        return x;
+    }
+
+    public int getY()
+    {
+        return y;
+    }
+
+    public int getDamage()
+    {
+        return damage;
+    }
+
+    public int getAttackCount()
+    {
+        return attackCount;
+    }
+
+    public int getMobCount()
+    {
+        return mobCount;
+    }
+
+    public int getFixDamage()
+    {
+        return fixdamage;
+    }
+
+    public byte getBulletCount()
+    {
+        return bulletCount;
+    }
+
+    public byte getBulletConsume()
+    {
+        return bulletConsume;
+    }
+
+    public int getMoneyCon()
+    {
+        return moneyCon;
+    }
+
+    public int getCooldown()
+    {
+        return cooldown;
+    }
+
+    public Map<MonsterStatus, Integer> getMonsterStati()
+    {
+        return monsterStatus;
+    }
+
+    private static class CancelEffectAction implements Runnable
+    {
 
         private MapleStatEffect effect;
         private WeakReference<MapleCharacter> target;
         private long startTime;
 
-        public CancelEffectAction(MapleCharacter target, MapleStatEffect effect, long startTime) {
+        public CancelEffectAction(MapleCharacter target, MapleStatEffect effect, long startTime)
+        {
             this.effect = effect;
             this.target = new WeakReference<>(target);
             this.startTime = startTime;
         }
 
         @Override
-        public void run() {
+        public void run()
+        {
             MapleCharacter realTarget = target.get();
-            if (realTarget != null) {
+            if (realTarget != null)
+            {
                 realTarget.cancelEffect(effect, false, startTime);
             }
         }
-    }
-
-    public short getHp() {
-        return hp;
-    }
-
-    public short getMp() {
-        return mp;
-    }
-    
-    public byte getHpR() {
-        return mhpR;
-    }
-
-    public byte getMpR() {
-        return mmpR;
-    }
-    
-    public short getHpRRate() {
-        return mhpRRate;
-    }
-
-    public short getMpRRate() {
-        return mmpRRate;
-    }
-
-    public short getHpCon() {
-        return hpCon;
-    }
-
-    public short getMpCon() {
-        return mpCon;
-    }
-
-    public short getMatk() {
-        return matk;
-    }
-    
-    public short getWatk() {
-        return watk;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public List<Pair<MapleBuffStat, Integer>> getStatups() {
-        return statups;
-    }
-
-    public boolean sameSource(MapleStatEffect effect) {
-        return this.sourceid == effect.sourceid && this.skill == effect.skill;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getDamage() {
-        return damage;
-    }
-
-    public int getAttackCount() {
-        return attackCount;
-    }
-
-    public int getMobCount() {
-        return mobCount;
-    }
-
-    public int getFixDamage() {
-        return fixdamage;
-    }
-
-    public byte getBulletCount() {
-        return bulletCount;
-    }
-
-    public byte getBulletConsume() {
-        return bulletConsume;
-    }
-
-    public int getMoneyCon() {
-        return moneyCon;
-    }
-
-    public int getCooldown() {
-        return cooldown;
-    }
-
-    public Map<MonsterStatus, Integer> getMonsterStati() {
-        return monsterStatus;
     }
 }

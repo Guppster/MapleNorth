@@ -27,11 +27,11 @@ function scheduleNew() {
 }
 
 function stopEntry() {
-    em.setProperty("entry","false");
+    em.setProperty("entry", "false");
 }
 
 function takeoff() {
-    em.setProperty("docked","false");
+    em.setProperty("docked", "false");
     KC_Waiting.warpEveryone(Subway_to_NLC.getId());
     NLC_Waiting.warpEveryone(Subway_to_KC.getId());
     em.schedule("arrived", rideTime);

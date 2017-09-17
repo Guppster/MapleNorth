@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting.portal;
 
 import client.MapleClient;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,45 +35,61 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
 import server.MaplePortal;
 import tools.FilePrinter;
 
-public class PortalScriptManager {
+public class PortalScriptManager
+{
 
     private static PortalScriptManager instance = new PortalScriptManager();
     private Map<String, PortalScript> scripts = new HashMap<>();
     private ScriptEngineFactory sef;
 
-    private PortalScriptManager() {
+    private PortalScriptManager()
+    {
         ScriptEngineManager sem = new ScriptEngineManager();
         sef = sem.getEngineByName("javascript").getFactory();
     }
 
-    public static PortalScriptManager getInstance() {
+    public static PortalScriptManager getInstance()
+    {
         return instance;
     }
 
-    private PortalScript getPortalScript(String scriptName) {
-        if (scripts.containsKey(scriptName)) {
+    private PortalScript getPortalScript(String scriptName)
+    {
+        if (scripts.containsKey(scriptName))
+        {
             return scripts.get(scriptName);
         }
         File scriptFile = new File("scripts/portal/" + scriptName + ".js");
-        if (!scriptFile.exists()) {
+        if (!scriptFile.exists())
+        {
             scripts.put(scriptName, null);
             return null;
         }
         FileReader fr = null;
         ScriptEngine portal = sef.getScriptEngine();
-        try {
+        try
+        {
             fr = new FileReader(scriptFile);
             ((Compilable) portal).compile(fr).eval();
-        } catch (ScriptException | IOException | UndeclaredThrowableException e) {
+        }
+        catch (ScriptException | IOException | UndeclaredThrowableException e)
+        {
             FilePrinter.printError(FilePrinter.PORTAL + scriptName + ".txt", e);
-        } finally {
-            if (fr != null) {
-                try {
+        }
+        finally
+        {
+            if (fr != null)
+            {
+                try
+                {
                     fr.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     e.printStackTrace();
                 }
             }
@@ -82,21 +99,29 @@ public class PortalScriptManager {
         return script;
     }
 
-    public boolean executePortalScript(MaplePortal portal, MapleClient c) {
-        try {
+    public boolean executePortalScript(MaplePortal portal, MapleClient c)
+    {
+        try
+        {
             PortalScript script = getPortalScript(portal.getScriptName());
-            if (script != null) {
+            if (script != null)
+            {
                 return script.enter(new PortalPlayerInteraction(c, portal));
             }
-        } catch (UndeclaredThrowableException ute) {
+        }
+        catch (UndeclaredThrowableException ute)
+        {
             FilePrinter.printError(FilePrinter.PORTAL + portal.getScriptName() + ".txt", ute);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e)
+        {
             FilePrinter.printError(FilePrinter.PORTAL + portal.getScriptName() + ".txt", e);
         }
         return false;
     }
 
-    public void reloadPortalScripts() {
+    public void reloadPortalScripts()
+    {
         scripts.clear();
     }
 }

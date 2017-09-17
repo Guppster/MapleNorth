@@ -30,46 +30,57 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 
 /**
- *
  * @author Danny (Leifde)
  */
-public class MobSkillFactory {
+public class MobSkillFactory
+{
 
-    private static Map<String, MobSkill> mobSkills = new HashMap<String, MobSkill>();
     private final static MapleDataProvider dataSource = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Skill.wz"));
-    private static MapleData skillRoot = dataSource.getData("MobSkill.img");
     private final static ReentrantReadWriteLock dataLock = new ReentrantReadWriteLock();
     private final static ReadLock rL = dataLock.readLock();
     private final static WriteLock wL = dataLock.writeLock();
+    private static Map<String, MobSkill> mobSkills = new HashMap<String, MobSkill>();
+    private static MapleData skillRoot = dataSource.getData("MobSkill.img");
 
-    public static MobSkill getMobSkill(final int skillId, final int level) {
+    public static MobSkill getMobSkill(final int skillId, final int level)
+    {
         final String key = skillId + "" + level;
         rL.lock();
-        try {
+        try
+        {
             MobSkill ret = mobSkills.get(key);
-            if (ret != null) {
+            if (ret != null)
+            {
                 return ret;
             }
-        } finally {
+        }
+        finally
+        {
             rL.unlock();
         }
         wL.lock();
-        try {
+        try
+        {
             MobSkill ret;
             ret = mobSkills.get(key);
-            if (ret == null) {
+            if (ret == null)
+            {
                 MapleData skillData = skillRoot.getChildByPath(skillId + "/level/" + level);
-                if (skillData != null) {
+                if (skillData != null)
+                {
                     int mpCon = MapleDataTool.getInt(skillData.getChildByPath("mpCon"), 0);
                     List<Integer> toSummon = new ArrayList<Integer>();
-                    for (int i = 0; i > -1; i++) {
-                        if (skillData.getChildByPath(String.valueOf(i)) == null) {
+                    for (int i = 0; i > -1; i++)
+                    {
+                        if (skillData.getChildByPath(String.valueOf(i)) == null)
+                        {
                             break;
                         }
                         toSummon.add(Integer.valueOf(MapleDataTool.getInt(skillData.getChildByPath(String.valueOf(i)), 0)));
@@ -86,7 +97,8 @@ public class MobSkillFactory {
                     MapleData ltd = skillData.getChildByPath("lt");
                     Point lt = null;
                     Point rb = null;
-                    if (ltd != null) {
+                    if (ltd != null)
+                    {
                         lt = (Point) ltd.getData();
                         rb = (Point) skillData.getChildByPath("rb").getData();
                     }
@@ -106,7 +118,9 @@ public class MobSkillFactory {
                 mobSkills.put(skillId + "" + level, ret);
             }
             return ret;
-        } finally {
+        }
+        finally
+        {
             wL.unlock();
         }
     }

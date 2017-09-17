@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Corsair {
+public class Corsair
+{
     public static final int MAPLE_WARRIOR = 5221000;
     public static final int ELEMENTAL_BOOST = 5220001;
     public static final int WRATH_OF_THE_OCTOPI = 5220002;

@@ -16,22 +16,22 @@ import java.io.*;
 
 /**
  * @author RonanLana
- *
+ * <p>
  * This application updates the Monster Book drop data with the actual underlying drop data from
  * the Maplestory database specified by the URL below.
- *
+ * <p>
  * In other words all items drops from monsters listed inside the Mob Book feature will be patched to match exactly like the item
  * drop list specified by the URL's Maplestory database.
- *
+ * <p>
  * The original file "MonsterBook.img.xml" from String.wz must be copied to the directory of this application and only then
  * executed. This program will generate another file that must replace the original server file to make the effects take place
  * to on your server.
- *
+ * <p>
  * After replacing on server, this XML must be updated on the client via WZ Editor (HaRepack for instance). Once inside the repack,
  * remove the property 'MonsterBook.img' inside 'string.wz' and choose to import the xml generated with this software.
- *
  */
-public class MobBookUpdate {
+public class MobBookUpdate
+{
     static String host = "jdbc:mysql://localhost:3306/maplesolaxia";
     static String driver = "com.mysql.jdbc.Driver";
     static String username = "root";
@@ -47,7 +47,8 @@ public class MobBookUpdate {
     static byte status = 0;
     static int mobId = -1;
 
-    private static String getName(String token) {
+    private static String getName(String token)
+    {
         int i, j;
         char[] dest;
         String d;
@@ -56,41 +57,56 @@ public class MobBookUpdate {
         i = token.indexOf("\"", i) + 1; //lower bound of the string
         j = token.indexOf("\"", i);     //upper bound
 
-        if(j - i < 7) dest = new char[6];
-        else dest = new char[7];
+        if (j - i < 7)
+        {
+            dest = new char[6];
+        }
+        else
+        {
+            dest = new char[7];
+        }
         token.getChars(i, j, dest, 0);
 
         d = new String(dest);
-        return(d);
+        return (d);
     }
 
-    private static void forwardCursor(int st) {
+    private static void forwardCursor(int st)
+    {
         String line = null;
 
-        try {
-            while(status >= st && (line = bufferedReader.readLine()) != null) {
+        try
+        {
+            while (status >= st && (line = bufferedReader.readLine()) != null)
+            {
                 simpleToken(line);
             }
-            if(line != null) printWriter.println(line);
+            if (line != null) printWriter.println(line);
         }
-        catch(Exception e) {
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
 
-    private static void simpleToken(String token) {
-        if(token.contains("/imgdir")) {
+    private static void simpleToken(String token)
+    {
+        if (token.contains("/imgdir"))
+        {
             status -= 1;
         }
-        else if(token.contains("imgdir")) {
+        else if (token.contains("imgdir"))
+        {
             status += 1;
         }
     }
 
-    private static void loadDropsFromMob() {
+    private static void loadDropsFromMob()
+    {
         System.out.println("Loading mob id " + mobId);
 
-        try {
+        try
+        {
             String toPrint;
             int itemId, cont = 0;
 
@@ -98,9 +114,10 @@ public class MobBookUpdate {
             ps.setInt(1, mobId);
             ResultSet rs = ps.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next())
+            {
                 toPrint = "";
-                for(int k = 0; k <= status; k++) toPrint += "  ";
+                for (int k = 0; k <= status; k++) toPrint += "  ";
 
                 toPrint += "<int name=\"";
                 toPrint += cont;
@@ -113,33 +130,40 @@ public class MobBookUpdate {
                 printWriter.println(toPrint);
                 cont++;
             }
-            
+
             rs.close();
             ps.close();
         }
-        catch(SQLException e) {
+        catch (SQLException e)
+        {
             e.printStackTrace();
         }
     }
 
-    private static void translateToken(String token) {
+    private static void translateToken(String token)
+    {
         String d;
         int temp;
 
         printWriter.println(token);
 
-        if(token.contains("/imgdir")) {
+        if (token.contains("/imgdir"))
+        {
             status -= 1;
         }
-        else if(token.contains("imgdir")) {
-            if(status == 1) {           //getting MobId
+        else if (token.contains("imgdir"))
+        {
+            if (status == 1)
+            {           //getting MobId
                 d = getName(token);
                 mobId = Integer.parseInt(d);
             }
-            else if(status == 2) {
+            else if (status == 2)
+            {
                 d = getName(token);
 
-                if(d.contains("reward")) {
+                if (d.contains("reward"))
+                {
                     temp = status;
 
                     loadDropsFromMob();
@@ -152,11 +176,13 @@ public class MobBookUpdate {
 
     }
 
-    private static void UpdateFromDropData() {
+    private static void UpdateFromDropData()
+    {
         // This will reference one line at a time
         String line = null;
 
-        try {
+        try
+        {
             Class.forName(driver).newInstance();
             con = DriverManager.getConnection(host, username, password);
 
@@ -164,7 +190,8 @@ public class MobBookUpdate {
             fileReader = new InputStreamReader(new FileInputStream(fileName), "UTF-8");
             bufferedReader = new BufferedReader(fileReader);
 
-            while((line = bufferedReader.readLine()) != null) {
+            while ((line = bufferedReader.readLine()) != null)
+            {
                 translateToken(line);
             }
 
@@ -175,29 +202,35 @@ public class MobBookUpdate {
             con.close();
         }
 
-        catch(FileNotFoundException ex) {
+        catch (FileNotFoundException ex)
+        {
             System.out.println("Unable to open file '" + fileName + "'");
         }
-        catch(IOException ex) {
+        catch (IOException ex)
+        {
             System.out.println("Error reading file '" + fileName + "'");
         }
 
-        catch(SQLException e) {
+        catch (SQLException e)
+        {
             System.out.println("Warning: Could not establish connection to database to change card chance rate.");
             System.out.println(e.getMessage());
         }
 
-        catch(ClassNotFoundException e) {
+        catch (ClassNotFoundException e)
+        {
             System.out.println("Error: could not find class");
             System.out.println(e.getMessage());
         }
 
-        catch(InstantiationException e) {
+        catch (InstantiationException e)
+        {
             System.out.println("Error: instantiation failure");
             System.out.println(e.getMessage());
         }
 
-        catch(Exception e) {
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
@@ -205,7 +238,8 @@ public class MobBookUpdate {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         UpdateFromDropData();
     }
 

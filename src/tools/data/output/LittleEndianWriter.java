@@ -31,7 +31,8 @@ import java.awt.Point;
  * @version 1.0
  * @since Revision 323
  */
-public interface LittleEndianWriter {
+public interface LittleEndianWriter
+{
 
     /**
      * Write an array of bytes to the sequence.

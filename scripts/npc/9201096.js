@@ -36,7 +36,7 @@ function action(mode, type, selection) {
         cm.sendNext(selStr);
     }
     else if (status == 1) {
-	var selStr = "Said so, methinks making use of some strong utility potions can potentially create some differential on the front, and by this I mean to start crafting #b#t2022284##k's to help on the efforts. So, getting right down to business, I'm currently pursuing #rplenty#k of those items: #r#t4032010##k, #r#t4032011##k, #r#t4032012##k, and some funds to support the cause. Would you want to get some of these boosters?";
+        var selStr = "Said so, methinks making use of some strong utility potions can potentially create some differential on the front, and by this I mean to start crafting #b#t2022284##k's to help on the efforts. So, getting right down to business, I'm currently pursuing #rplenty#k of those items: #r#t4032010##k, #r#t4032011##k, #r#t4032012##k, and some funds to support the cause. Would you want to get some of these boosters?";
         cm.sendYesNo(selStr);
     }
 
@@ -52,44 +52,44 @@ function action(mode, type, selection) {
         mats = matSet[selectedItem];
         matQty = matQtySet[selectedItem];
         cost = costSet[selectedItem];
-                
+
         var prompt = "Ok, I'll be crafting some #t" + item + "#. In that case, how many of those do you want me to make?";
-        cm.sendGetNumber(prompt,1,1,100)
+        cm.sendGetNumber(prompt, 1, 1, 100)
     }
-        
+
     else if (status == 3) {
         qty = selection;
         last_use = false;
-                
+
         var prompt = "So, you want me to make ";
         if (qty == 1)
             prompt += "a #t" + item + "#?";
         else
             prompt += qty + " #t" + item + "#?";
-                        
+
         prompt += " In that case, I'm going to need specific items from you in order to make it. And make sure you have room in your inventory!#b";
-                
-        if (mats instanceof Array){
+
+        if (mats instanceof Array) {
             for (var i = 0; i < mats.length; i++) {
-                prompt += "\r\n#i"+mats[i]+"# " + matQty[i] * qty + " #t" + mats[i] + "#";
+                prompt += "\r\n#i" + mats[i] + "# " + matQty[i] * qty + " #t" + mats[i] + "#";
             }
         } else {
-            prompt += "\r\n#i"+mats+"# " + matQty * qty + " #t" + mats + "#";
+            prompt += "\r\n#i" + mats + "# " + matQty * qty + " #t" + mats + "#";
         }
-                
+
         if (cost > 0) {
             prompt += "\r\n#i4031138# " + cost * qty + " meso";
         }
         cm.sendYesNo(prompt);
     }
-    
+
     else if (status == 4) {
         var complete = true;
-                
+
         if (cm.getMeso() < cost * qty) {
             cm.sendOk("Well, I DID say I would be needing some funds to craft it, wasn't it?");
         }
-        else if(!cm.canHold(item, qty)) {
+        else if (!cm.canHold(item, qty)) {
             cm.sendOk("You didn't check if you got a slot to spare on your inventory before crafting, right?");
         }
         else {
@@ -104,12 +104,12 @@ function action(mode, type, selection) {
             } else {
                 complete = cm.haveItem(mats, matQty * qty);
             }
-            
+
             if (!complete)
                 cm.sendOk("There are not enough resources on your inventory. Please check it again.");
             else {
                 if (mats instanceof Array) {
-                    for (var i = 0; i < mats.length; i++){
+                    for (var i = 0; i < mats.length; i++) {
                         cm.gainItem(mats[i], -matQty[i] * qty);
                     }
                 } else {

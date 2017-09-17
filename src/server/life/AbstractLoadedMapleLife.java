@@ -23,7 +23,8 @@ package server.life;
 
 import server.maps.AbstractAnimatedMapleMapObject;
 
-public abstract class AbstractLoadedMapleLife extends AbstractAnimatedMapleMapObject {
+public abstract class AbstractLoadedMapleLife extends AbstractAnimatedMapleMapObject
+{
     private final int id;
     private int f;
     private boolean hide;
@@ -33,11 +34,13 @@ public abstract class AbstractLoadedMapleLife extends AbstractAnimatedMapleMapOb
     private int rx0;
     private int rx1;
 
-    public AbstractLoadedMapleLife(int id) {
+    public AbstractLoadedMapleLife(int id)
+    {
         this.id = id;
     }
 
-    public AbstractLoadedMapleLife(AbstractLoadedMapleLife life) {
+    public AbstractLoadedMapleLife(AbstractLoadedMapleLife life)
+    {
         this(life.getId());
         this.f = life.f;
         this.hide = life.hide;
@@ -48,59 +51,73 @@ public abstract class AbstractLoadedMapleLife extends AbstractAnimatedMapleMapOb
         this.rx1 = life.rx1;
     }
 
-    public int getF() {
+    public int getF()
+    {
         return f;
     }
 
-    public void setF(int f) {
+    public void setF(int f)
+    {
         this.f = f;
     }
 
-    public boolean isHidden() {
+    public boolean isHidden()
+    {
         return hide;
     }
 
-    public void setHide(boolean hide) {
+    public void setHide(boolean hide)
+    {
         this.hide = hide;
     }
 
-    public int getFh() {
+    public int getFh()
+    {
         return fh;
     }
 
-    public void setFh(int fh) {
+    public void setFh(int fh)
+    {
         this.fh = fh;
     }
 
-    public int getStartFh() {
+    public int getStartFh()
+    {
         return start_fh;
     }
 
-    public int getCy() {
+    public int getCy()
+    {
         return cy;
     }
 
-    public void setCy(int cy) {
+    public void setCy(int cy)
+    {
         this.cy = cy;
     }
 
-    public int getRx0() {
+    public int getRx0()
+    {
         return rx0;
     }
 
-    public void setRx0(int rx0) {
+    public void setRx0(int rx0)
+    {
         this.rx0 = rx0;
     }
 
-    public int getRx1() {
+    public int getRx1()
+    {
         return rx1;
     }
 
-    public void setRx1(int rx1) {
+    public void setRx1(int rx1)
+    {
         this.rx1 = rx1;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 }

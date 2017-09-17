@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class FPMage {
+public class FPMage
+{
     public static final int PARTIAL_RESISTANCE = 2110000;
     public static final int ELEMENT_AMPLIFICATION = 2110001;
     public static final int EXPLOSION = 2111002;

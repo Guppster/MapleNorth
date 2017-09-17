@@ -19,13 +19,14 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*	
 	Author : Ronan Lana
 */
 
 function end(mode, type, selection) {
-    
-    if(!qm.haveItem(4031619, 1)) {
+
+    if (!qm.haveItem(4031619, 1)) {
         qm.sendOk("Please bring me the box with the supplies that lies with #b#p2012019##k...");
     }
     else {
@@ -33,6 +34,6 @@ function end(mode, type, selection) {
         qm.sendOk("Oh, you brought #p2012019#'s box! Thank you.");
         qm.forceCompleteQuest();
     }
-    
+
     qm.dispose();
 }

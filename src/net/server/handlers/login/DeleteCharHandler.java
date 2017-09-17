@@ -27,17 +27,22 @@ import tools.FilePrinter;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class DeleteCharHandler extends AbstractMaplePacketHandler {
+public final class DeleteCharHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         String pic = slea.readMapleAsciiString();
         int cid = slea.readInt();
-        if (c.checkPic(pic)) {
-            FilePrinter.printError(FilePrinter.DELETED_CHARACTERS + c.getAccountName() + ".txt", c.getAccountName() + " deleted CID: " + cid + "\r\n");			
+        if (c.checkPic(pic))
+        {
+            FilePrinter.printError(FilePrinter.DELETED_CHARACTERS + c.getAccountName() + ".txt", c.getAccountName() + " deleted CID: " + cid + "\r\n");
             c.announce(MaplePacketCreator.deleteCharResponse(cid, 0));
             c.deleteCharacter(cid);
-        } else {
+        }
+        else
+        {
             c.announce(MaplePacketCreator.deleteCharResponse(cid, 0x14));
         }
     }

@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class BlazeWizard {
+public class BlazeWizard
+{
     public static final int ELEMENTAL_RESET = 12101005;
     public static final int ELEMENT_AMPLIFICATION = 12110001;
     public static final int FIRE_STRIKE = 12111006;

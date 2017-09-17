@@ -25,15 +25,15 @@ var status = -1;
 
 function start(mode, type, selection) {
     status++;
-    if (mode != 1){
+    if (mode != 1) {
         if (mode == 0 && type == 12)
             qm.sendNext("Come back again when you have took your desition wisely.");
         qm.dispose();
         return;
     }
-    if(status == 0)
+    if (status == 0)
         qm.sendAcceptDecline("How is the training going? Wow, you've reached such a high level! That's amazing. I knew you would do just fine on Victoria Island... Oh, look at me. I'm wasting your time. I know you're busy, but you'll have to return to the island for a bit.");
-    else if(status == 1){
+    else if (status == 1) {
         qm.sendOk("Your #b#p1201001##k in #b#m140000000##k is acting strange all of a sudden. According to the records, the Polearm acts this way when it is calling for its master. #bPerhaps it's calling for you#k. Please return to the island and check things out.");
         qm.startQuest();
         qm.dispose();
@@ -42,7 +42,7 @@ function start(mode, type, selection) {
 
 function end(mode, type, selection) {
     status++;
-    if (mode != 1){
+    if (mode != 1) {
         if (mode == 0 && type == 1)
             qm.sendNext("Hey! At least say you tried!");
         qm.dispose();
@@ -72,11 +72,11 @@ function end(mode, type, selection) {
         qm.sendNextPrev("I'm so sorry, but I can't remember a thing.", 2);
     else if (status == 11)
         qm.sendYesNo("Sorry doesn't cut it! Do you know how lonely and bored I was for hundreds of years? I don't care what it takes! Remember me! Remember me now!");
-    else if (status == 12){
+    else if (status == 12) {
         qm.completeQuest();
         qm.sendNext("#b(The voice that claims to be #p1201002# the #p1201001# is yelling in frustration. You don't think this conversation is going anywhere. You better go talk to #p1201000# first.)", 2);
         //qm.sendNoExit("#b(The voice that claims to be #p1201002# the #p1201001# is yelling in frustration. You don't think this conversation is going anywhere. You better go talk to #p1201000# first.)", true);
-    }else if (status == 13){
+    } else if (status == 13) {
         //qm.showVideo("Maha");
         qm.dispose();
     }

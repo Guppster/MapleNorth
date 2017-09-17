@@ -26,25 +26,30 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+
 import client.MapleClient;
+
 import java.sql.Connection;
 import java.sql.SQLException;
+
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
 /**
- *
  * @author XoticStory
  */
-public class PlayerNPCs extends AbstractMapleMapObject {
+public class PlayerNPCs extends AbstractMapleMapObject
+{
     private Map<Short, Integer> equips = new HashMap<Short, Integer>();
     private int npcId, face, hair;
     private byte skin;
     private String name = "";
     private int FH, RX0, RX1, CY;
 
-    public PlayerNPCs(ResultSet rs) {
-        try {
+    public PlayerNPCs(ResultSet rs)
+    {
+        try
+        {
             CY = rs.getInt("cy");
             name = rs.getString("name");
             hair = rs.getInt("hair");
@@ -55,74 +60,90 @@ public class PlayerNPCs extends AbstractMapleMapObject {
             RX1 = rs.getInt("rx1");
             npcId = rs.getInt("ScriptId");
             setPosition(new Point(rs.getInt("x"), CY));
-            
+
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT equippos, equipid FROM playernpcs_equip WHERE NpcId = ?");
             ps.setInt(1, rs.getInt("id"));
             ResultSet rs2 = ps.executeQuery();
-            while (rs2.next()) {
+            while (rs2.next())
+            {
                 equips.put(rs2.getShort("equippos"), rs2.getInt("equipid"));
             }
             rs2.close();
             ps.close();
             con.close();
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             e.printStackTrace();
         }
     }
 
-    public Map<Short, Integer> getEquips() {
+    public Map<Short, Integer> getEquips()
+    {
         return equips;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return npcId;
     }
 
-    public int getFH() {
+    public int getFH()
+    {
         return FH;
     }
 
-    public int getRX0() {
+    public int getRX0()
+    {
         return RX0;
     }
 
-    public int getRX1() {
+    public int getRX1()
+    {
         return RX1;
     }
 
-    public int getCY() {
+    public int getCY()
+    {
         return CY;
     }
 
-    public byte getSkin() {
+    public byte getSkin()
+    {
         return skin;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public int getFace() {
+    public int getFace()
+    {
         return face;
     }
 
-    public int getHair() {
+    public int getHair()
+    {
         return hair;
     }
 
     @Override
-    public void sendDestroyData(MapleClient client) {
+    public void sendDestroyData(MapleClient client)
+    {
         return;
     }
 
     @Override
-    public MapleMapObjectType getType() {
+    public MapleMapObjectType getType()
+    {
         return MapleMapObjectType.PLAYER_NPC;
     }
 
     @Override
-    public void sendSpawnData(MapleClient client) {
+    public void sendSpawnData(MapleClient client)
+    {
         client.announce(MaplePacketCreator.spawnPlayerNPC(this));
         client.announce(MaplePacketCreator.getPlayerNPC(this));
     }

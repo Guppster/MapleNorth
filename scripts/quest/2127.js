@@ -19,6 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*	
 	Author : Ronan Lana
 */
@@ -26,6 +27,6 @@
 function end(mode, type, selection) {
     qm.sendOk("I see you're ready for the task. Now, pay heed to the details of your mission...");
     qm.forceCompleteQuest();
-    
+
     qm.dispose();
 }

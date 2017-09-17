@@ -33,7 +33,7 @@ function start() {
 }
 
 function action(mode, type, selection) {
-    
+
     if (mode == -1) {
         cm.dispose();
     } else {
@@ -45,8 +45,8 @@ function action(mode, type, selection) {
             status++;
         else
             status--;
-            
-        if(status == -1) {
+
+        if (status == -1) {
             cm.sendNext("Hmm... are you raising one of my kids by any chance? I perfected a spell that uses Water of Life to blow life into a doll. People call it the #bPet#k. If you have one with you, feel free to ask me questions.");
         }
         else if (status == 0)
@@ -114,10 +114,10 @@ function action(mode, type, selection) {
                 status = 14;
                 cm.sendNext("In order to transfer the pet ability points, closeness and level, Pet AP Reset Scroll is required. If you take this\r\nscroll to Mar the Fairy in Ellinia, she will transfer the level and closeness of the pet to another one. I am especially giving it to you because I can feel your heart for your pet. However, I can't give this out for free. I can give you this book for 250,000 mesos. Oh, I almost forgot! Even if you have this book, it is no use if you do not have a new pet to transfer the Ability points.");
             }
-            if(selection > 2 && selection < 27)
+            if (selection > 2 && selection < 27)
                 cm.dispose();
         } else if (status == 2) {
-            if(sel == 0)
+            if (sel == 0)
                 cm.sendNextPrev("But Water of Life only comes out little at the very bottom of the World Tree, so I can't give him too much time in life... I know, it's very unfortunate... but even if it becomes a doll again I can always bring life back into it so be good to it while you're with it.");
             else if (sel == 1)
                 cm.sendNextPrev("Talk to the pet, pay attention to it and its intimacy level will go up and eventually his overall level will go up too. As the intimacy level rises, the pet's overall level will rise soon after. As the overall level rises, one day the pet may even talk like a person a little bit, so try hard raising it. Of course it won't be easy doing so...");
@@ -128,12 +128,12 @@ function action(mode, type, selection) {
         } else if (status == 3) {
             if (sel == 0)
                 cm.sendNextPrev("Oh yeah, they'll react when you give them special commands. You can scold them, love them... it all\r\ndepends on how you take care of them. They are afraid to leave their masters so be nice to them, show them love. They can get sad and lonely fast...");
-            else if (sel == 1){
+            else if (sel == 1) {
                 cm.sendNextPrev("It may be a live doll but they also have life so they can feel the hunger too. #bFullness#k shows the level of hunger the pet's in. 100 is the max, and the lower it gets, it means that the pet is getting hungrier. After a while, it won't even follow your command and be on the offensive, so watch out over that.");
                 return;
-            }else if (sel == 2)
+            } else if (sel == 2)
                 cm.sendNextPrev("Even if it someday moves again, it's sad to see them stop altogether. Please be nice to them while they are alive and moving. Feed them well, too. Isn't it nice to know that there's something alive that follows and listens to only you?");
-            else if (sel == 27){
+            else if (sel == 27) {
                 if (cm.getMeso() < 250000 || !cm.canHold(4160011))
                     cm.sendOk("Please check if your inventory has empty slot or you don't have enough mesos.");
                 else {
@@ -142,8 +142,8 @@ function action(mode, type, selection) {
                 }
                 cm.dispose();
             }
-        } else if (status == 4){
-            if(sel != 1)
+        } else if (status == 4) {
+            if (sel != 1)
                 cm.dispose();
             cm.sendNextPrev("Oh yes! Pets can't eat the normal human food. Instead my disciple #bDoofus#k sells #bPet Food#k at the Henesys Market so if you need food for your pet, find Henesys. It'll be a good idea to buy the food in advance and feed the pet before it gets really hungry.");
         } else if (status == 5)

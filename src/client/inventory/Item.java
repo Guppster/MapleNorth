@@ -26,20 +26,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class Item implements Comparable<Item> {
+public class Item implements Comparable<Item>
+{
 
+    protected List<String> log;
     private int id, cashId, sn;
     private short position;
     private short quantity;
     private int petid = -1;
     private MaplePet pet = null;
     private String owner = "";
-    protected List<String> log;
     private byte flag;
     private long expiration = -1;
     private String giftFrom = "";
 
-    public Item(int id, short position, short quantity) {
+    public Item(int id, short position, short quantity)
+    {
         this.id = id;
         this.position = position;
         this.quantity = quantity;
@@ -47,7 +49,8 @@ public class Item implements Comparable<Item> {
         this.flag = 0;
     }
 
-    public Item(int id, short position, short quantity, int petid) {
+    public Item(int id, short position, short quantity, int petid)
+    {
         this.id = id;
         this.position = position;
         this.quantity = quantity;
@@ -57,7 +60,8 @@ public class Item implements Comparable<Item> {
         this.log = new LinkedList<>();
     }
 
-    public Item copy() {
+    public Item copy()
+    {
         Item ret = new Item(id, position, quantity, petid);
         ret.flag = flag;
         ret.owner = owner;
@@ -66,107 +70,135 @@ public class Item implements Comparable<Item> {
         return ret;
     }
 
-    public void setPosition(short position) {
-        this.position = position;
-    }
-
-    public void setQuantity(short quantity) {
-        this.quantity = quantity;
-    }
-
-    public int getItemId() {
+    public int getItemId()
+    {
         return id;
     }
 
-    public int getCashId() {
-        if (cashId == 0) {
+    public int getCashId()
+    {
+        if (cashId == 0)
+        {
             cashId = new Random().nextInt(Integer.MAX_VALUE) + 1;
         }
         return cashId;
     }
 
-    public short getPosition() {
+    public short getPosition()
+    {
         return position;
     }
 
-    public short getQuantity() {
+    public void setPosition(short position)
+    {
+        this.position = position;
+    }
+
+    public short getQuantity()
+    {
         return quantity;
     }
 
-    public byte getType() {
-        if (getPetId() > -1) {
+    public void setQuantity(short quantity)
+    {
+        this.quantity = quantity;
+    }
+
+    public byte getType()
+    {
+        if (getPetId() > -1)
+        {
             return 3;
         }
         return 2;
     }
 
-    public String getOwner() {
+    public String getOwner()
+    {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(String owner)
+    {
         this.owner = owner;
     }
 
-    public int getPetId() {
+    public int getPetId()
+    {
         return petid;
     }
 
-    public void setPetId(int id) {
+    public void setPetId(int id)
+    {
         this.petid = id;
     }
- 
-    public int compareTo(Item other) {
-        if (this.id < other.getItemId()) {
+
+    public int compareTo(Item other)
+    {
+        if (this.id < other.getItemId())
+        {
             return -1;
-        } else if (this.id > other.getItemId()) {
+        }
+        else if (this.id > other.getItemId())
+        {
             return 1;
         }
-         return 0;
+        return 0;
     }
-    
+
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "Item: " + id + " quantity: " + quantity;
     }
 
-    public List<String> getLog() {
+    public List<String> getLog()
+    {
         return Collections.unmodifiableList(log);
     }
 
-    public byte getFlag() {
+    public byte getFlag()
+    {
         return flag;
     }
 
-    public void setFlag(byte b) {
+    public void setFlag(byte b)
+    {
         this.flag = b;
     }
 
-    public long getExpiration() {
+    public long getExpiration()
+    {
         return expiration;
     }
 
-    public void setExpiration(long expire) {
+    public void setExpiration(long expire)
+    {
         this.expiration = expire;
     }
 
-    public int getSN() {
+    public int getSN()
+    {
         return sn;
     }
 
-    public void setSN(int sn) {
+    public void setSN(int sn)
+    {
         this.sn = sn;
     }
 
-    public String getGiftFrom() {
+    public String getGiftFrom()
+    {
         return giftFrom;
     }
 
-    public void setGiftFrom(String giftFrom) {
+    public void setGiftFrom(String giftFrom)
+    {
         this.giftFrom = giftFrom;
     }
 
-    public MaplePet getPet() {
+    public MaplePet getPet()
+    {
         return pet;
     }
 }

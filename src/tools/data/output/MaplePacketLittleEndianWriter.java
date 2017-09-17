@@ -22,22 +22,25 @@
 package tools.data.output;
 
 import java.io.ByteArrayOutputStream;
+
 import tools.HexTool;
 
 /**
  * Writes a maplestory-packet little-endian stream of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 352
  */
-public class MaplePacketLittleEndianWriter extends GenericLittleEndianWriter {
+public class MaplePacketLittleEndianWriter extends GenericLittleEndianWriter
+{
     private ByteArrayOutputStream baos;
 
     /**
      * Constructor - initializes this stream with a default size.
      */
-    public MaplePacketLittleEndianWriter() {
+    public MaplePacketLittleEndianWriter()
+    {
         this(32);
     }
 
@@ -46,7 +49,8 @@ public class MaplePacketLittleEndianWriter extends GenericLittleEndianWriter {
      *
      * @param size The size of the underlying stream.
      */
-    public MaplePacketLittleEndianWriter(int size) {
+    public MaplePacketLittleEndianWriter(int size)
+    {
         this.baos = new ByteArrayOutputStream(size);
         setByteOutputStream(new BAOSByteOutputStream(baos));
     }
@@ -57,7 +61,8 @@ public class MaplePacketLittleEndianWriter extends GenericLittleEndianWriter {
      *
      * @return A <code>MaplePacket</code> with the bytes in this stream.
      */
-    public byte[] getPacket() {
+    public byte[] getPacket()
+    {
         return baos.toByteArray();
     }
 
@@ -67,7 +72,8 @@ public class MaplePacketLittleEndianWriter extends GenericLittleEndianWriter {
      * @return This packet as hex digits.
      */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return HexTool.toString(baos.toByteArray());
     }
 }

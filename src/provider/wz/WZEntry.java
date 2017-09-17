@@ -24,14 +24,16 @@ package provider.wz;
 import provider.MapleDataEntity;
 import provider.MapleDataEntry;
 
-public class WZEntry implements MapleDataEntry {
+public class WZEntry implements MapleDataEntry
+{
     private String name;
     private int size;
     private int checksum;
     private int offset;
     private MapleDataEntity parent;
 
-    public WZEntry(String name, int size, int checksum, MapleDataEntity parent) {
+    public WZEntry(String name, int size, int checksum, MapleDataEntity parent)
+    {
         super();
         this.name = name;
         this.size = size;
@@ -39,23 +41,28 @@ public class WZEntry implements MapleDataEntry {
         this.parent = parent;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public int getSize() {
+    public int getSize()
+    {
         return size;
     }
 
-    public int getChecksum() {
+    public int getChecksum()
+    {
         return checksum;
     }
 
-    public int getOffset() {
+    public int getOffset()
+    {
         return offset;
     }
 
-    public MapleDataEntity getParent() {
+    public MapleDataEntity getParent()
+    {
         return parent;
     }
 }

@@ -32,18 +32,19 @@ var belts = Array(1132000, 1132001, 1132002, 1132003, 1132004);
 var belt_level = Array(25, 35, 45, 60, 75);
 
 /* var belt_points = Array(200, 1800, 4000, 9200, 17000); */
-var belt_points = Array(5, 45, 100, 230, 425); /* Watered down version */
+var belt_points = Array(5, 45, 100, 230, 425);
+/* Watered down version */
 
 var status = -1;
 var selectedMenu = -1;
 
 function start() {
-	if(disabled) {
-		cm.sendOk("My master has requested that the dojo be #rclosed#k at this time so I can't let you in.");
-		cm.dispose();
-		return;
-	}
-	
+    if (disabled) {
+        cm.sendOk("My master has requested that the dojo be #rclosed#k at this time so I can't let you in.");
+        cm.dispose();
+        return;
+    }
+
     if (isRestingSpot(cm.getPlayer().getMap().getId())) {
         var text = "I'm surprised you made it this far! But it won't be easy from here on out. You still want the challenge?\r\n\r\n#b#L0#I want to continue#l\r\n#L1#I want to leave#l\r\n";
         if (!cm.getPlayer().getDojoParty()) {
@@ -78,10 +79,10 @@ function action(mode, type, selection) {
                         if (mode == 0) {
                             cm.sendNext("Haha! Who are you trying to impress with a heart like that?\r\nGo back home where you belong!");
                         } else {
-                           if(cm.getClient().getChannelServer().getMapFactory().getMap(925020010).getCharacters().size() > 0) {
-								cm.sendOk("Someone is already in Dojo");
-								cm.dispose();
-								return;
+                            if (cm.getClient().getChannelServer().getMapFactory().getMap(925020010).getCharacters().size() > 0) {
+                                cm.sendOk("Someone is already in Dojo");
+                                cm.dispose();
+                                return;
                             }
                             cm.warp(925020010, 0);
                             cm.getPlayer().setFinishedDojoTutorial();
@@ -96,13 +97,13 @@ function action(mode, type, selection) {
                         cm.dispose();
                     }
                 } else {
-					for (var i = 1 ; i < 39; i++) { //only 32 stages, but 38 maps
-						if(cm.getClient().getChannelServer().getMapFactory().getMap(925020000 + 100 * i).getCharacters().size() > 0) {
-							cm.sendOk("Someone is already in the Dojo." + i);
-							cm.dispose();
-							return;
-						}
-					}
+                    for (var i = 1; i < 39; i++) { //only 32 stages, but 38 maps
+                        if (cm.getClient().getChannelServer().getMapFactory().getMap(925020000 + 100 * i).getCharacters().size() > 0) {
+                            cm.sendOk("Someone is already in the Dojo." + i);
+                            cm.dispose();
+                            return;
+                        }
+                    }
                     cm.getClient().getChannelServer().getMapFactory().getMap(925020100).resetReactors();
                     cm.getClient().getChannelServer().getMapFactory().getMap(925020100).killAllMonsters();
                     cm.warp(925020100, 0);
@@ -133,12 +134,12 @@ function action(mode, type, selection) {
                 } else if (!isBetween30) {
                     cm.sendNext("Your partys level ranges are too broad to enter. Please make sure all of your party members are within #r30 levels#k of each other.");
                 } else {
-                    for (var i = 1 ; i < 39; i++) { //only 32 stages, but 38 maps
-                            if(cm.getClient().getChannelServer().getMapFactory().getMap(925020000 + 100 * i).getCharacters().size() > 0) {
-                                    cm.sendOk("Someone is already in the Dojo.");
-                                    cm.dispose();
-                                    return;
-                            }
+                    for (var i = 1; i < 39; i++) { //only 32 stages, but 38 maps
+                        if (cm.getClient().getChannelServer().getMapFactory().getMap(925020000 + 100 * i).getCharacters().size() > 0) {
+                            cm.sendOk("Someone is already in the Dojo.");
+                            cm.dispose();
+                            return;
+                        }
                     }
                     cm.getClient().getChannelServer().getMapFactory().getMap(925020100).resetReactors();
                     cm.getClient().getChannelServer().getMapFactory().getMap(925020100).killAllMonsters();

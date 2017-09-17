@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Brawler {
+public class Brawler
+{
     public static final int IMPROVE_MAX_HP = 5100000;
     public static final int KNUCKLER_MASTERY = 5100001;
     public static final int BACK_SPIN_BLOW = 5101002;

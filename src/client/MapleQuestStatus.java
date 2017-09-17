@@ -26,38 +26,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import server.quest.MapleQuest;
 import tools.StringUtil;
 
 /**
- *
  * @author Matze
  */
-public class MapleQuestStatus {
-    public enum Status {
-        UNDEFINED(-1),
-        NOT_STARTED(0),
-        STARTED(1),
-        COMPLETED(2);
-        final int status;
-
-        private Status(int id) {
-            status = id;
-        }
-
-        public int getId() {
-            return status;
-        }
-
-        public static Status getById(int id) {
-            for (Status l : Status.values()) {
-                if (l.getId() == id) {
-                    return l;
-                }
-            }
-            return null;
-        }
-    }
+public class MapleQuestStatus
+{
     private short questID;
     private Status status;
     private Map<Integer, String> progress = new LinkedHashMap<Integer, String>();
@@ -67,72 +44,90 @@ public class MapleQuestStatus {
     private int forfeited = 0;
     private String customData;
 
-    public MapleQuestStatus(MapleQuest quest, Status status) {
+    public MapleQuestStatus(MapleQuest quest, Status status)
+    {
         this.questID = quest.getId();
         this.setStatus(status);
         this.completionTime = System.currentTimeMillis();
         this.expirationTime = 0;
-        if (status == Status.STARTED) 
-            registerMobs();      
+        if (status == Status.STARTED)
+        {
+            registerMobs();
+        }
     }
 
-    public MapleQuestStatus(MapleQuest quest, Status status, int npc) {
+    public MapleQuestStatus(MapleQuest quest, Status status, int npc)
+    {
         this.questID = quest.getId();
         this.setStatus(status);
         this.setNpc(npc);
         this.completionTime = System.currentTimeMillis();
         this.expirationTime = 0;
-        if (status == Status.STARTED) {
+        if (status == Status.STARTED)
+        {
             registerMobs();
         }
     }
 
-    public MapleQuest getQuest() {
+    public MapleQuest getQuest()
+    {
         return MapleQuest.getInstance(questID);
     }
-	
-    public short getQuestID() {
+
+    public short getQuestID()
+    {
         return questID;
     }
 
-    public Status getStatus() {
+    public Status getStatus()
+    {
         return status;
     }
 
-    public final void setStatus(Status status) {
+    public final void setStatus(Status status)
+    {
         this.status = status;
     }
 
-    public int getNpc() {
+    public int getNpc()
+    {
         return npc;
     }
 
-    public final void setNpc(int npc) {
+    public final void setNpc(int npc)
+    {
         this.npc = npc;
     }
 
-    private void registerMobs() {
-        for (int i : MapleQuest.getInstance(questID).getRelevantMobs()) {
+    private void registerMobs()
+    {
+        for (int i : MapleQuest.getInstance(questID).getRelevantMobs())
+        {
             progress.put(i, "000");
         }
     }
 
-    public boolean addMedalMap(int mapid) {
+    public boolean addMedalMap(int mapid)
+    {
         if (medalProgress.contains(mapid)) return false;
         medalProgress.add(mapid);
         return true;
     }
 
-    public int getMedalProgress() {
+    public int getMedalProgress()
+    {
         return medalProgress.size();
     }
 
-    public List<Integer> getMedalMaps() {
+    public List<Integer> getMedalMaps()
+    {
         return medalProgress;
     }
 
-    public boolean progress(int id) {
-        if (progress.get(id) != null) {
+    public boolean progress(int id)
+    {
+        if (progress.get(id) != null)
+        {
             int current = Integer.parseInt(progress.get(id));
             String str = StringUtil.getLeftPaddedStr(Integer.toString(current + 1), '0', 3);
             progress.put(id, str);
@@ -141,90 +136,145 @@ public class MapleQuestStatus {
         return false;
     }
 
-    public void setProgress(int id, String pr) {
-        	progress.put(id, pr);
+    public void setProgress(int id, String pr)
+    {
+        progress.put(id, pr);
     }
 
-    public boolean madeProgress() {
+    public boolean madeProgress()
+    {
         return progress.size() > 0;
     }
 
-    public Integer getAnyProgressKey() {
+    public Integer getAnyProgressKey()
+    {
         if (!progress.isEmpty()) return progress.entrySet().iterator().next().getKey();
         return 0;
     }
-    
-    public String getProgress(int id) {
+
+    public String getProgress(int id)
+    {
         if (progress.get(id) == null) return "";
         return progress.get(id);
     }
-    
-    public void resetProgress(int id) {
+
+    public void resetProgress(int id)
+    {
         setProgress(id, "000");
     }
-    
-    public void resetAllProgress() {
-        for(Map.Entry<Integer, String> entry : progress.entrySet()) {
+
+    public void resetAllProgress()
+    {
+        for (Map.Entry<Integer, String> entry : progress.entrySet())
+        {
             setProgress(entry.getKey(), "000");
         }
     }
 
-    public Map<Integer, String> getProgress() {
+    public Map<Integer, String> getProgress()
+    {
         return Collections.unmodifiableMap(progress);
     }
 
-    public long getCompletionTime() {
+    public long getCompletionTime()
+    {
         return completionTime;
     }
 
-    public void setCompletionTime(long completionTime) {
+    public void setCompletionTime(long completionTime)
+    {
         this.completionTime = completionTime;
     }
-    
-    public long getExpirationTime() {
+
+    public long getExpirationTime()
+    {
         return expirationTime;
     }
-    
-    public void setExpirationTime(long expirationTime) {
+
+    public void setExpirationTime(long expirationTime)
+    {
         this.expirationTime = expirationTime;
     }
 
-    public int getForfeited() {
+    public int getForfeited()
+    {
         return forfeited;
     }
-    
-    public String getInfo() {
-        if(!progress.containsKey(0) && !getMedalMaps().isEmpty()) {
-            return Integer.toString(getMedalProgress());
-        }
-        return getProgress(0);
-    }
-    
-    public void setInfo(String newInfo) {
-        progress.put(0, newInfo);
-    }
 
-    public void setForfeited(int forfeited) {
-        if (forfeited >= this.forfeited) {
+    public void setForfeited(int forfeited)
+    {
+        if (forfeited >= this.forfeited)
+        {
             this.forfeited = forfeited;
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Can't set forfeits to something lower than before.");
         }
     }
 
-    public final void setCustomData(final String customData) {
+    public String getInfo()
+    {
+        if (!progress.containsKey(0) && !getMedalMaps().isEmpty())
+        {
+            return Integer.toString(getMedalProgress());
+        }
+        return getProgress(0);
+    }
+
+    public void setInfo(String newInfo)
+    {
+        progress.put(0, newInfo);
+    }
+
+    public final String getCustomData()
+    {
+        return customData;
+    }
+
+    public final void setCustomData(final String customData)
+    {
         this.customData = customData;
     }
 
-    public final String getCustomData() {
-        return customData;
-    }
-    
-    public String getQuestData() {
+    public String getQuestData()
+    {
         StringBuilder str = new StringBuilder();
-        for (String ps : progress.values()) {
+        for (String ps : progress.values())
+        {
             str.append(ps);
         }
         return str.toString();
+    }
+
+    public enum Status
+    {
+        UNDEFINED(-1),
+        NOT_STARTED(0),
+        STARTED(1),
+        COMPLETED(2);
+        final int status;
+
+        private Status(int id)
+        {
+            status = id;
+        }
+
+        public static Status getById(int id)
+        {
+            for (Status l : Status.values())
+            {
+                if (l.getId() == id)
+                {
+                    return l;
+                }
+            }
+            return null;
+        }
+
+        public int getId()
+        {
+            return status;
+        }
     }
 }

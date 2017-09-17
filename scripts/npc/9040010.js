@@ -29,13 +29,13 @@ function start() {
                 if (prev == null) {
                     var start = parseInt(eim.getProperty("entryTimestamp"));
                     var diff = Date.now() - start;
-                    
+
                     var points = 1000 - Math.floor(diff / (100 * 60));
-                    if(points < 100) points = 100;
-                    
+                    if (points < 100) points = 100;
+
                     cm.getGuild().gainGP(points);
                 }
-                
+
                 eim.clearPQ();
             }
             else {
@@ -48,6 +48,6 @@ function start() {
     }
     else
         cm.warp(990001100);
-    
+
     cm.dispose();
 }

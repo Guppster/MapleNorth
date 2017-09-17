@@ -40,7 +40,7 @@ function init() {
     Orbis_docked = em.getChannelServer().getMapFactory().getMap(200000151);
     Ariant_docked = em.getChannelServer().getMapFactory().getMap(260000100);
     Orbis_Station = em.getChannelServer().getMapFactory().getMap(200000100);
-    
+
     scheduleNew();
 }
 
@@ -48,14 +48,14 @@ function scheduleNew() {
     em.setProperty("docked", "true");
     Orbis_docked.setDocked(true);
     Ariant_docked.setDocked(true);
-    
+
     em.setProperty("entry", "true");
     em.schedule("stopEntry", closeTime); //The time to close the gate
     em.schedule("takeoff", beginTime); //The time to begin the ride
 }
 
 function stopEntry() {
-    em.setProperty("entry","false");
+    em.setProperty("entry", "false");
 }
 
 function takeoff() {
@@ -63,11 +63,11 @@ function takeoff() {
     Ariant_btf.warpEveryone(Genie_to_Orbis.getId());
     Orbis_docked.broadcastShip(false);
     Ariant_docked.broadcastShip(false);
- 
-    em.setProperty("docked","false");
+
+    em.setProperty("docked", "false");
     Orbis_docked.setDocked(false);
     Ariant_docked.setDocked(false);
-    
+
     em.schedule("arrived", rideTime); //The time that require move to destination
 }
 
@@ -76,7 +76,7 @@ function arrived() {
     Genie_to_Ariant.warpEveryone(Ariant_docked.getId(), 1);
     Orbis_docked.broadcastShip(true);
     Ariant_docked.broadcastShip(true);
-    
+
     scheduleNew();
 }
 

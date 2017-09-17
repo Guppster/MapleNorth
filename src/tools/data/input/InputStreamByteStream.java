@@ -26,12 +26,13 @@ import java.io.InputStream;
 
 /**
  * Provides an abstract wrapper to a stream of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323
  */
-public class InputStreamByteStream implements ByteInputStream {
+public class InputStreamByteStream implements ByteInputStream
+{
     private InputStream is;
     private long read = 0;
 
@@ -41,7 +42,8 @@ public class InputStreamByteStream implements ByteInputStream {
      *
      * @param is The input stream to wrap this object around.
      */
-    public InputStreamByteStream(InputStream is) {
+    public InputStreamByteStream(InputStream is)
+    {
         this.is = is;
     }
 
@@ -51,16 +53,21 @@ public class InputStreamByteStream implements ByteInputStream {
      * @return Then next byte in the stream.
      */
     @Override
-    public int readByte() {
+    public int readByte()
+    {
         int temp;
-        try {
+        try
+        {
             temp = is.read();
-            if (temp == -1) {
+            if (temp == -1)
+            {
                 throw new RuntimeException("EOF");
             }
             read++;
             return temp;
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -71,7 +78,8 @@ public class InputStreamByteStream implements ByteInputStream {
      * @return The number of bytes read as a long integer.
      */
     @Override
-    public long getBytesRead() {
+    public long getBytesRead()
+    {
         return read;
     }
 
@@ -81,10 +89,14 @@ public class InputStreamByteStream implements ByteInputStream {
      * @return The number of bytes available for reading as a long integer.
      */
     @Override
-    public long available() {
-        try {
+    public long available()
+    {
+        try
+        {
             return is.available();
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
             System.out.println("ERROR" + e);
             return 0;

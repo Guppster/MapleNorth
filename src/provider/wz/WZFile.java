@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import provider.MapleData;
 import provider.MapleDataDirectoryEntry;
 import provider.MapleDataFileEntry;
@@ -37,10 +38,13 @@ import tools.data.input.LittleEndianAccessor;
 import tools.data.input.RandomAccessByteStream;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public class WZFile implements MapleDataProvider {
-    static {
+public class WZFile implements MapleDataProvider
+{
+    static
+    {
         ListWZFile.init();
     }
+
     private File wzfile;
     private LittleEndianAccessor lea;
     private SeekableLittleEndianAccessor slea;
@@ -49,7 +53,8 @@ public class WZFile implements MapleDataProvider {
     private boolean provideImages;
     private int cOffset;
 
-    public WZFile(File wzfile, boolean provideImages) throws IOException {
+    public WZFile(File wzfile, boolean provideImages) throws IOException
+    {
         this.wzfile = wzfile;
         lea = new GenericLittleEndianAccessor(new InputStreamByteStream(new BufferedInputStream(new FileInputStream(wzfile))));
         RandomAccessFile raf = new RandomAccessFile(wzfile, "r");
@@ -59,7 +64,8 @@ public class WZFile implements MapleDataProvider {
         load();
     }
 
-    private void load() throws IOException {
+    private void load() throws IOException
+    {
         lea.readAsciiString(4);
         lea.readInt();
         lea.readInt();
@@ -71,23 +77,29 @@ public class WZFile implements MapleDataProvider {
         getOffsets(root);
     }
 
-    private void getOffsets(MapleDataDirectoryEntry dir) {
-        for (MapleDataFileEntry file : dir.getFiles()) {
+    private void getOffsets(MapleDataDirectoryEntry dir)
+    {
+        for (MapleDataFileEntry file : dir.getFiles())
+        {
             file.setOffset(cOffset);
             cOffset += file.getSize();
         }
-        for (MapleDataDirectoryEntry sdir : dir.getSubdirectories()) {
+        for (MapleDataDirectoryEntry sdir : dir.getSubdirectories())
+        {
             getOffsets(sdir);
         }
     }
 
-    private void parseDirectory(WZDirectoryEntry dir) {
+    private void parseDirectory(WZDirectoryEntry dir)
+    {
         int entries = WZTool.readValue(lea);
-        for (int i = 0; i < entries; i++) {
+        for (int i = 0; i < entries; i++)
+        {
             byte marker = lea.readByte();
             String name = null;
             int size, checksum;
-            switch (marker) {
+            switch (marker)
+            {
                 case 0x02:
                     name = WZTool.readDecodedStringAtOffsetAndReset(slea, lea.readInt() + this.headerSize + 1);
                     size = WZTool.readValue(lea);
@@ -101,31 +113,39 @@ public class WZFile implements MapleDataProvider {
                     size = WZTool.readValue(lea);
                     checksum = WZTool.readValue(lea);
                     lea.readInt(); //dummy int
-                    if (marker == 3) {
+                    if (marker == 3)
+                    {
                         dir.addDirectory(new WZDirectoryEntry(name, size, checksum, dir));
-                    } else {
+                    }
+                    else
+                    {
                         dir.addFile(new WZFileEntry(name, size, checksum, dir));
                     }
                     break;
                 default:
             }
         }
-        for (MapleDataDirectoryEntry idir : dir.getSubdirectories()) {
+        for (MapleDataDirectoryEntry idir : dir.getSubdirectories())
+        {
             parseDirectory((WZDirectoryEntry) idir);
         }
     }
 
-    public WZIMGFile getImgFile(String path) throws IOException {
+    public WZIMGFile getImgFile(String path) throws IOException
+    {
         String segments[] = path.split("/");
         WZDirectoryEntry dir = root;
-        for (int x = 0; x < segments.length - 1; x++) {
+        for (int x = 0; x < segments.length - 1; x++)
+        {
             dir = (WZDirectoryEntry) dir.getEntry(segments[x]);
-            if (dir == null) {
+            if (dir == null)
+            {
                 return null;
             }
         }
         WZFileEntry entry = (WZFileEntry) dir.getEntry(segments[segments.length - 1]);
-        if (entry == null) {
+        if (entry == null)
+        {
             return null;
         }
         String fullPath = wzfile.getName().substring(0, wzfile.getName().length() - 3).toLowerCase() + "/" + path;
@@ -133,22 +153,28 @@ public class WZFile implements MapleDataProvider {
     }
 
     @Override
-    public synchronized MapleData getData(String path) {
-        try {
+    public synchronized MapleData getData(String path)
+    {
+        try
+        {
             WZIMGFile imgFile = getImgFile(path);
-            if (imgFile == null) {
+            if (imgFile == null)
+            {
                 return null;
             }
             MapleData ret = imgFile.getRoot();
             return ret;
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
         return null;
     }
 
     @Override
-    public MapleDataDirectoryEntry getRoot() {
+    public MapleDataDirectoryEntry getRoot()
+    {
         return root;
     }
 }

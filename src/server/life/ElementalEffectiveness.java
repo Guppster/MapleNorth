@@ -21,11 +21,14 @@
 */
 package server.life;
 
-public enum ElementalEffectiveness {
+public enum ElementalEffectiveness
+{
     NORMAL, IMMUNE, STRONG, WEAK, NEUTRAL;
 
-    public static ElementalEffectiveness getByNumber(int num) {
-        switch (num) {
+    public static ElementalEffectiveness getByNumber(int num)
+    {
+        switch (num)
+        {
             case 1:
                 return IMMUNE;
             case 2:

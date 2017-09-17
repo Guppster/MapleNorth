@@ -26,55 +26,65 @@ import scripting.npc.NPCConversationManager;
 import server.quest.MapleQuest;
 
 /**
- *
  * @author RMZero213
  */
-public class QuestActionManager extends NPCConversationManager {
+public class QuestActionManager extends NPCConversationManager
+{
     private boolean start; // this is if the script in question is start or end
     private int quest;
 
-    public QuestActionManager(MapleClient c, int quest, int npc, boolean start) {
+    public QuestActionManager(MapleClient c, int quest, int npc, boolean start)
+    {
         super(c, npc, null);
         this.quest = quest;
         this.start = start;
     }
 
-    public int getQuest() {
+    public int getQuest()
+    {
         return quest;
     }
 
-    public boolean isStart() {
+    public boolean isStart()
+    {
         return start;
     }
 
     @Override
-    public void dispose() {
+    public void dispose()
+    {
         QuestScriptManager.getInstance().dispose(this, getClient());
     }
 
-    public boolean forceStartQuest() {
+    public boolean forceStartQuest()
+    {
         return forceStartQuest(quest);
     }
 
-    public boolean forceStartQuest(int id) {
+    public boolean forceStartQuest(int id)
+    {
         return MapleQuest.getInstance(id).forceStart(getPlayer(), getNpc());
     }
 
-    public boolean forceCompleteQuest() {
+    public boolean forceCompleteQuest()
+    {
         return forceCompleteQuest(quest);
     }
-    
+
     // For compatibility with some older scripts...
-    public void startQuest() {
+    public void startQuest()
+    {
         forceStartQuest();
     }
-    
+
     // For compatibility with some older scripts...
-    public void completeQuest() {
+    public void completeQuest()
+    {
         forceCompleteQuest();
     }
 
-    public boolean forceCompleteQuest(int id) {
+    public boolean forceCompleteQuest(int id)
+    {
         return MapleQuest.getInstance(id).forceComplete(getPlayer(), getNpc());
     }
 }

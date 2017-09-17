@@ -19,11 +19,12 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*
 Nautilus Port portal
 By xV1ral
 */
-function enter(pi) { 
-    pi.warp(120010000, "nt01"); 
-    return true; 
+function enter(pi) {
+    pi.warp(120010000, "nt01");
+    return true;
 }  

@@ -30,9 +30,11 @@ import server.maps.MapleDoor;
 import server.MapleStatEffect;
 import client.MapleCharacter;
 import client.MapleJob;
+
 import java.util.Collections;
 
-public class MaplePartyCharacter {
+public class MaplePartyCharacter
+{
     private String name;
     private int id;
     private int level;
@@ -43,10 +45,11 @@ public class MaplePartyCharacter {
     private boolean online;
     private MapleJob job;
     private MapleCharacter character;
-    
-    public MaplePartyCharacter(MapleCharacter maplechar) {
+
+    public MaplePartyCharacter(MapleCharacter maplechar)
+    {
         this.character = maplechar;
-    	this.name = maplechar.getName();
+        this.name = maplechar.getName();
         this.level = maplechar.getLevel();
         this.channel = maplechar.getClient().getChannel();
         this.world = maplechar.getWorld();
@@ -55,85 +58,105 @@ public class MaplePartyCharacter {
         this.mapid = maplechar.getMapId();
         this.online = true;
         this.job = maplechar.getJob();
-        for (Entry<Integer, MapleDoor> entry : maplechar.getDoors().entrySet()) {
+        for (Entry<Integer, MapleDoor> entry : maplechar.getDoors().entrySet())
+        {
             doors.put(entry.getKey(), entry.getValue());
         }
     }
 
-    public MaplePartyCharacter() {
+    public MaplePartyCharacter()
+    {
         this.name = "";
     }
-    
-    public MapleCharacter getPlayer() {
-    	return character;
+
+    public MapleCharacter getPlayer()
+    {
+        return character;
     }
 
-    public MapleJob getJob() {
+    public MapleJob getJob()
+    {
         return job;
     }
 
-    public int getLevel() {
+    public int getLevel()
+    {
         return level;
     }
 
-    public int getChannel() {
+    public int getChannel()
+    {
         return channel;
     }
 
-    public void setChannel(int channel) {
+    public void setChannel(int channel)
+    {
         this.channel = channel;
     }
-    
-    public boolean isLeader() {
+
+    public boolean isLeader()
+    {
         return getPlayer().isPartyLeader();
     }
 
-    public boolean isOnline() {
+    public boolean isOnline()
+    {
         return online;
     }
 
-    public void setOnline(boolean online) {
+    public void setOnline(boolean online)
+    {
         this.online = online;
     }
 
-    public int getMapId() {
+    public int getMapId()
+    {
         return mapid;
     }
 
-    public void setMapId(int mapid) {
+    public void setMapId(int mapid)
+    {
         this.mapid = mapid;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public int getJobId() {
+    public int getJobId()
+    {
         return jobid;
     }
-    
-    public int getGuildId() {
+
+    public int getGuildId()
+    {
         return character.getGuildId();
     }
 
-    public void addDoor(Integer owner, MapleDoor door) {
-    	this.doors.put(owner, door);
+    public void addDoor(Integer owner, MapleDoor door)
+    {
+        this.doors.put(owner, door);
     }
-    
-    public void removeDoor(Integer owner) {
-    	this.doors.remove(owner);
+
+    public void removeDoor(Integer owner)
+    {
+        this.doors.remove(owner);
     }
-    
-    public Collection<MapleDoor> getDoors() {
-    	return Collections.unmodifiableCollection(doors.values());
+
+    public Collection<MapleDoor> getDoors()
+    {
+        return Collections.unmodifiableCollection(doors.values());
     }
-    
+
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
@@ -141,28 +164,37 @@ public class MaplePartyCharacter {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
             return true;
         }
-        if (obj == null) {
+        if (obj == null)
+        {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
+        {
             return false;
         }
         final MaplePartyCharacter other = (MaplePartyCharacter) obj;
-        if (name == null) {
-            if (other.name != null) {
+        if (name == null)
+        {
+            if (other.name != null)
+            {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        }
+        else if (!name.equals(other.name))
+        {
             return false;
         }
         return true;
     }
 
-    public int getWorld() {
+    public int getWorld()
+    {
         return world;
     }
 }

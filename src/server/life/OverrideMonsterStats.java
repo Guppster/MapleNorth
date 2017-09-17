@@ -17,48 +17,58 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-public class OverrideMonsterStats {
+public class OverrideMonsterStats
+{
 
     public int hp;
     public int exp, mp;
 
-    public OverrideMonsterStats() {
+    public OverrideMonsterStats()
+    {
         hp = 1;
         exp = 0;
         mp = 0;
     }
 
-    public OverrideMonsterStats(int hp, int mp, int exp, boolean change) {
+    public OverrideMonsterStats(int hp, int mp, int exp, boolean change)
+    {
         this.hp = /*change ? (hp * 3L / 2L) : */ hp;
         this.mp = mp;
         this.exp = exp;
     }
 
-    public OverrideMonsterStats(int hp, int mp, int exp) {
+    public OverrideMonsterStats(int hp, int mp, int exp)
+    {
         this(hp, mp, exp, true);
     }
 
-    public int getExp() {
+    public int getExp()
+    {
         return exp;
     }
 
-    public void setOExp(int exp) {
+    public void setOExp(int exp)
+    {
         this.exp = exp;
     }
 
-    public int getHp() {
+    public int getHp()
+    {
         return hp;
     }
 
-    public void setOHp(int hp) {
+    public void setOHp(int hp)
+    {
         this.hp = hp;
     }
 
-    public int getMp() {
+    public int getMp()
+    {
         return mp;
     }
 
-    public void setOMp(int mp) {
+    public void setOMp(int mp)
+    {
         this.mp = mp;
     }
 }

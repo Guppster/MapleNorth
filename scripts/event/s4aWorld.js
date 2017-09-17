@@ -23,7 +23,8 @@ function setup() {
     return eim;
 }
 
-function afterSetup(eim) {}
+function afterSetup(eim) {
+}
 
 function playerEntry(eim, player) {
     var map = eim.getMapFactory().getMap(910500000);
@@ -44,11 +45,11 @@ function scheduledTimeout(eim) {
 
 function changedMap(eim, player, mapid) {
     if (mapid != 910500000) {
-	eim.unregisterPlayer(player);
+        eim.unregisterPlayer(player);
 
-	if (eim.disposeIfPlayerBelow(minPlayers, 105090200)) {
-	    em.setProperty("started", "false");
-	}
+        if (eim.disposeIfPlayerBelow(minPlayers, 105090200)) {
+            em.setProperty("started", "false");
+        }
     }
 }
 
@@ -68,7 +69,8 @@ function disbandParty(eim) {
     em.setProperty("started", "false");
 }
 
-function playerUnregistered(eim, player) {}
+function playerUnregistered(eim, player) {
+}
 
 function playerExit(eim, player) {
     eim.unregisterPlayer(player);
@@ -82,8 +84,11 @@ function clearPQ(eim) {
     em.setProperty("started", "false");
 }
 
-function monsterKilled(mob, eim) {}
+function monsterKilled(mob, eim) {
+}
 
-function allMonstersDead(eim) {}
+function allMonstersDead(eim) {
+}
 
-function cancelSchedule() {}
+function cancelSchedule() {
+}

@@ -25,6 +25,7 @@ import client.MapleClient;
 import client.inventory.Item;
 import client.inventory.ItemFactory;
 import client.inventory.MapleInventoryType;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,15 +39,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 import tools.Pair;
 
 /**
- *
  * @author Matze
  */
-public class MapleStorage {
+public class MapleStorage
+{
 
     private int id;
     private int meso;
@@ -55,68 +57,90 @@ public class MapleStorage {
     private List<Item> items;
     private Lock lock = new ReentrantLock();
 
-    private MapleStorage(int id, byte slots, int meso) {
+    private MapleStorage(int id, byte slots, int meso)
+    {
         this.id = id;
         this.slots = slots;
         this.items = new LinkedList<>();
         this.meso = meso;
     }
 
-    private static MapleStorage create(int id, int world) {
-        try {
+    private static MapleStorage create(int id, int world)
+    {
+        try
+        {
             Connection con = DatabaseConnection.getConnection();
-            try (PreparedStatement ps = con.prepareStatement("INSERT INTO storages (accountid, world, slots, meso) VALUES (?, ?, 4, 0)")) {
+            try (PreparedStatement ps = con.prepareStatement("INSERT INTO storages (accountid, world, slots, meso) VALUES (?, ?, 4, 0)"))
+            {
                 ps.setInt(1, id);
                 ps.setInt(2, world);
                 ps.executeUpdate();
             }
-            
+
             con.close();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
         return loadOrCreateFromDB(id, world);
     }
 
-    public static MapleStorage loadOrCreateFromDB(int id, int world) {
+    public static MapleStorage loadOrCreateFromDB(int id, int world)
+    {
         MapleStorage ret = null;
         int storeId;
-        try {
+        try
+        {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT storageid, slots, meso FROM storages WHERE accountid = ? AND world = ?");
             ps.setInt(1, id);
             ps.setInt(2, world);
             ResultSet rs = ps.executeQuery();
-            if (!rs.next()) {
+            if (!rs.next())
+            {
                 rs.close();
                 ps.close();
                 con.close();
                 return create(id, world);
-            } else {
+            }
+            else
+            {
                 storeId = rs.getInt("storageid");
                 ret = new MapleStorage(storeId, (byte) rs.getInt("slots"), rs.getInt("meso"));
                 rs.close();
                 ps.close();
-                for (Pair<Item, MapleInventoryType> item : ItemFactory.STORAGE.loadItems(ret.id, false)) {
+                for (Pair<Item, MapleInventoryType> item : ItemFactory.STORAGE.loadItems(ret.id, false))
+                {
                     ret.items.add(item.getLeft());
                 }
             }
-            
+
             con.close();
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex)
+        {
             ex.printStackTrace();
         }
         return ret;
     }
 
-    public byte getSlots() {
+    public byte getSlots()
+    {
         return slots;
     }
 
-    public boolean gainSlots(int slots) {
+    public void setSlots(byte set)
+    {
+        this.slots = set;
+    }
+
+    public boolean gainSlots(int slots)
+    {
         slots += this.slots;
 
-        if (slots <= 48) {
+        if (slots <= 48)
+        {
             this.slots = (byte) slots;
             return true;
         }
@@ -124,13 +148,12 @@ public class MapleStorage {
         return false;
     }
 
-    public void setSlots(byte set) {
-        this.slots = set;
-    }
-
-    public void saveToDB(Connection con) {
-        try {
-            try (PreparedStatement ps = con.prepareStatement("UPDATE storages SET slots = ?, meso = ? WHERE storageid = ?")) {
+    public void saveToDB(Connection con)
+    {
+        try
+        {
+            try (PreparedStatement ps = con.prepareStatement("UPDATE storages SET slots = ?, meso = ? WHERE storageid = ?"))
+            {
                 ps.setInt(1, slots);
                 ps.setInt(2, meso);
                 ps.setInt(3, id);
@@ -139,79 +162,104 @@ public class MapleStorage {
             List<Pair<Item, MapleInventoryType>> itemsWithType = new ArrayList<>();
 
             List<Item> list = getItems();
-            for (Item item : list) {
+            for (Item item : list)
+            {
                 itemsWithType.add(new Pair<>(item, MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId())));
             }
 
             ItemFactory.STORAGE.saveItems(itemsWithType, id, con);
-        } catch (SQLException ex) {
+        }
+        catch (SQLException ex)
+        {
             ex.printStackTrace();
         }
     }
 
-    public Item getItem(byte slot) {
+    public Item getItem(byte slot)
+    {
         lock.lock();
-        try {
+        try
+        {
             return items.get(slot);
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public Item takeOut(byte slot) {
+    public Item takeOut(byte slot)
+    {
         Item ret;
-        
+
         lock.lock();
-        try {
+        try
+        {
             ret = items.remove(slot);
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
-        
+
         MapleInventoryType type = MapleItemInformationProvider.getInstance().getInventoryType(ret.getItemId());
         typeItems.put(type, new ArrayList<>(filterItems(type)));
         return ret;
     }
 
-    public void store(Item item) {
+    public void store(Item item)
+    {
         lock.lock();
-        try {
+        try
+        {
             items.add(item);
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
-        
+
         MapleInventoryType type = MapleItemInformationProvider.getInstance().getInventoryType(item.getItemId());
         typeItems.put(type, new ArrayList<>(filterItems(type)));
     }
 
-    public List<Item> getItems() {
+    public List<Item> getItems()
+    {
         lock.lock();
-        try {
+        try
+        {
             return Collections.unmodifiableList(items);
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    private List<Item> filterItems(MapleInventoryType type) {
+    private List<Item> filterItems(MapleInventoryType type)
+    {
         List<Item> storageItems = getItems();
         List<Item> ret = new LinkedList<>();
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        
-        for (Item item : storageItems) {
-            if (ii.getInventoryType(item.getItemId()) == type) {
+
+        for (Item item : storageItems)
+        {
+            if (ii.getInventoryType(item.getItemId()) == type)
+            {
                 ret.add(item);
             }
         }
         return ret;
     }
 
-    public byte getSlot(MapleInventoryType type, byte slot) {
+    public byte getSlot(MapleInventoryType type, byte slot)
+    {
         byte ret = 0;
         List<Item> storageItems = getItems();
-        for (Item item : storageItems) {
-            if (item == typeItems.get(type).get(slot)) {
+        for (Item item : storageItems)
+        {
+            if (item == typeItems.get(type).get(slot))
+            {
                 return ret;
             }
             ret++;
@@ -219,66 +267,87 @@ public class MapleStorage {
         return -1;
     }
 
-    public void sendStorage(MapleClient c, int npcId) {
+    public void sendStorage(MapleClient c, int npcId)
+    {
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        
+
         lock.lock();
-        try {
-            Collections.sort(items, new Comparator<Item>() {
+        try
+        {
+            Collections.sort(items, new Comparator<Item>()
+            {
                 @Override
-                public int compare(Item o1, Item o2) {
-                    if (ii.getInventoryType(o1.getItemId()).getType() < ii.getInventoryType(o2.getItemId()).getType()) {
+                public int compare(Item o1, Item o2)
+                {
+                    if (ii.getInventoryType(o1.getItemId()).getType() < ii.getInventoryType(o2.getItemId()).getType())
+                    {
                         return -1;
-                    } else if (ii.getInventoryType(o1.getItemId()) == ii.getInventoryType(o2.getItemId())) {
+                    }
+                    else if (ii.getInventoryType(o1.getItemId()) == ii.getInventoryType(o2.getItemId()))
+                    {
                         return 0;
                     }
                     return 1;
                 }
             });
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
-        
+
         List<Item> storageItems = getItems();
-        for (MapleInventoryType type : MapleInventoryType.values()) {
+        for (MapleInventoryType type : MapleInventoryType.values())
+        {
             typeItems.put(type, new ArrayList<>(storageItems));
         }
         c.announce(MaplePacketCreator.getStorage(npcId, slots, storageItems, meso));
     }
 
-    public void sendStored(MapleClient c, MapleInventoryType type) {
+    public void sendStored(MapleClient c, MapleInventoryType type)
+    {
         c.announce(MaplePacketCreator.storeStorage(slots, type, typeItems.get(type)));
     }
 
-    public void sendTakenOut(MapleClient c, MapleInventoryType type) {
+    public void sendTakenOut(MapleClient c, MapleInventoryType type)
+    {
         c.announce(MaplePacketCreator.takeOutStorage(slots, type, typeItems.get(type)));
     }
 
-    public int getMeso() {
+    public int getMeso()
+    {
         return meso;
     }
 
-    public void setMeso(int meso) {
-        if (meso < 0) {
+    public void setMeso(int meso)
+    {
+        if (meso < 0)
+        {
             throw new RuntimeException();
         }
         this.meso = meso;
     }
 
-    public void sendMeso(MapleClient c) {
+    public void sendMeso(MapleClient c)
+    {
         c.announce(MaplePacketCreator.mesoStorage(slots, meso));
     }
 
-    public boolean isFull() {
+    public boolean isFull()
+    {
         lock.lock();
-        try {
+        try
+        {
             return items.size() >= slots;
-        } finally {
+        }
+        finally
+        {
             lock.unlock();
         }
     }
 
-    public void close() {
+    public void close()
+    {
         typeItems.clear();
     }
 }

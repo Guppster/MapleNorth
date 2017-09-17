@@ -21,7 +21,8 @@
 */
 package client.status;
 
-public enum MonsterStatus {
+public enum MonsterStatus
+{
     WATK(0x1),
     WDEF(0x2),
     NEUTRALISE(0x2, true),
@@ -57,21 +58,25 @@ public enum MonsterStatus {
     private final int i;
     private final boolean first;
 
-    private MonsterStatus(int i) {
+    private MonsterStatus(int i)
+    {
         this.i = i;
         this.first = false;
     }
 
-    private MonsterStatus(int i, boolean first) {
-		this.i = i;
-		this.first = first;
+    private MonsterStatus(int i, boolean first)
+    {
+        this.i = i;
+        this.first = first;
     }
 
-    public boolean isFirst() {
-    	return first;
+    public boolean isFirst()
+    {
+        return first;
     }
-    
-    public int getValue() {
+
+    public int getValue()
+    {
         return i;
     }
 }

@@ -23,12 +23,14 @@ package server.movement;
 
 import java.awt.Point;
 
-public abstract class AbstractLifeMovement implements LifeMovement {
+public abstract class AbstractLifeMovement implements LifeMovement
+{
     private Point position;
     private int duration;
     private int newstate, type;
 
-    public AbstractLifeMovement(int type, Point position, int duration, int newstate) {
+    public AbstractLifeMovement(int type, Point position, int duration, int newstate)
+    {
         super();
         this.type = type;
         this.position = position;
@@ -37,22 +39,26 @@ public abstract class AbstractLifeMovement implements LifeMovement {
     }
 
     @Override
-    public int getType() {
+    public int getType()
+    {
         return this.type;
     }
 
     @Override
-    public int getDuration() {
+    public int getDuration()
+    {
         return duration;
     }
 
     @Override
-    public int getNewstate() {
+    public int getNewstate()
+    {
         return newstate;
     }
 
     @Override
-    public Point getPosition() {
+    public Point getPosition()
+    {
         return position;
     }
 }

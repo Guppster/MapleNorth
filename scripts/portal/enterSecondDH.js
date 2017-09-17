@@ -25,7 +25,7 @@
  */
 function enter(pi) {
     var maps = [108000600, 108000601, 108000602];
-    if(pi.isQuestStarted(20201) || pi.isQuestStarted(20202) || pi.isQuestStarted(20203) || pi.isQuestStarted(20204) || pi.isQuestStarted(20205)) {
+    if (pi.isQuestStarted(20201) || pi.isQuestStarted(20202) || pi.isQuestStarted(20203) || pi.isQuestStarted(20204) || pi.isQuestStarted(20205)) {
         var rand = Math.floor(Math.random() * maps.length);
         pi.warp(maps[rand], 0);
         return true;

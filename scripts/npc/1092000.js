@@ -30,8 +30,8 @@ function start() {
     cm.sendNext("Okay, I'll now send you to the stable where my cows are. Watch out for the calves that drink all the milk. You don't want your effort to go to waste.");
 }
 
-function action(mode, type, selection){
-    if (mode == -1 || !cm.isQuestStarted(2180)){
+function action(mode, type, selection) {
+    if (mode == -1 || !cm.isQuestStarted(2180)) {
         cm.dispose();
         return;
     } else if (mode == 0)

@@ -24,18 +24,18 @@
  */
 function enter(pi) {
     var currwarp = Date.now();
-    
-    if(currwarp - pi.getPlayer().getNpcCooldown() < 3000) return false; // this script can be ran twice when passing the dojo portal... strange.
+
+    if (currwarp - pi.getPlayer().getNpcCooldown() < 3000) return false; // this script can be ran twice when passing the dojo portal... strange.
     pi.getPlayer().setNpcCooldown(currwarp);
-    
+
     var gate = pi.getPlayer().getMap().getReactorByName("door");
-    if(gate != null) {
+    if (gate != null) {
         if (gate.getState() == 1 || pi.getMap().countMonsters() == 0) {
             if (Math.floor(pi.getPlayer().getMapId() / 100) % 100 < 38) {
                 pi.getPlayer().message("You received " + pi.getPlayer().addDojoPointsByMap() + " training points. Your total training points score is now " + pi.getPlayer().getDojoPoints() + ".");
 
-                if(((Math.floor((pi.getPlayer().getMap().getId() + 100) / 100)) % 100) % 6 == 0) {
-                    if(Math.floor(pi.getPlayer().getMapId() / 10000) == 92503) {
+                if (((Math.floor((pi.getPlayer().getMap().getId() + 100) / 100)) % 100) % 6 == 0) {
+                    if (Math.floor(pi.getPlayer().getMapId() / 10000) == 92503) {
                         pi.warpParty(pi.getPlayer().getMap().getId() + 100, 925030100, 925033804);
                     } else {
                         pi.warp(pi.getPlayer().getMap().getId() + 100, 0);

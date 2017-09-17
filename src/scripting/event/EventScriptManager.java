@@ -33,58 +33,74 @@ import net.server.channel.Channel;
 import scripting.AbstractScriptManager;
 
 /**
- *
  * @author Matze
  */
-public class EventScriptManager extends AbstractScriptManager {
-    private class EventEntry {
-        public EventEntry(Invocable iv, EventManager em) {
-            this.iv = iv;
-            this.em = em;
-        }
-        public Invocable iv;
-        public EventManager em;
-    }
+public class EventScriptManager extends AbstractScriptManager
+{
     private Map<String, EventEntry> events = new LinkedHashMap<>();
 
-    public EventScriptManager(Channel cserv, String[] scripts) {
+    public EventScriptManager(Channel cserv, String[] scripts)
+    {
         super();
-        for (String script : scripts) {
-            if (!script.equals("")) {
+        for (String script : scripts)
+        {
+            if (!script.equals(""))
+            {
                 Invocable iv = getInvocable("event/" + script + ".js", null);
                 events.put(script, new EventEntry(iv, new EventManager(cserv, iv, script)));
             }
         }
     }
 
-    public EventManager getEventManager(String event) {
+    public EventManager getEventManager(String event)
+    {
         EventEntry entry = events.get(event);
-        if (entry == null) {
+        if (entry == null)
+        {
             return null;
         }
         return entry.em;
     }
 
-    public void init() {
-        for (EventEntry entry : events.values()) {
-            try {
+    public void init()
+    {
+        for (EventEntry entry : events.values())
+        {
+            try
+            {
                 ((ScriptEngine) entry.iv).put("em", entry.em);
                 entry.iv.invokeFunction("init", (Object) null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 Logger.getLogger(EventScriptManager.class.getName()).log(Level.SEVERE, null, ex);
                 System.out.println("Error on script: " + entry.em.getName());
             }
         }
     }
-    
-    public void reload(){
-    	cancel();
-    	init();
+
+    public void reload()
+    {
+        cancel();
+        init();
     }
 
-    public void cancel() {
-        for (EventEntry entry : events.values()) {
+    public void cancel()
+    {
+        for (EventEntry entry : events.values())
+        {
             entry.em.cancel();
+        }
+    }
+
+    private class EventEntry
+    {
+        public Invocable iv;
+        public EventManager em;
+        public EventEntry(Invocable iv, EventManager em)
+        {
+            this.iv = iv;
+            this.em = em;
         }
     }
 }

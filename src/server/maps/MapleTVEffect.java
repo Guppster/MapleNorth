@@ -22,8 +22,10 @@
 package server.maps;
 
 import client.MapleCharacter;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import net.server.Server;
 import server.TimerManager;
 import tools.MaplePacketCreator;
@@ -32,47 +34,59 @@ import tools.MaplePacketCreator;
  * MapleTVEffect
  * @author MrXotic
  */
-public class MapleTVEffect {
-	
-	private static boolean ACTIVE;
-	
-	private List<String> message = new ArrayList<>(5);
-	private MapleCharacter user;
-	private int type;
-	private MapleCharacter partner;
+public class MapleTVEffect
+{
 
-	public MapleTVEffect(MapleCharacter u, MapleCharacter p, List<String> msg, int t) {
-		this.message = msg;
-		this.user = u;
-		this.type = t;
-		this.partner = p;
-		broadcastTV(true);
-	}
+    private static boolean ACTIVE;
 
-	public static boolean isActive(){
-		return ACTIVE;
-	}
+    private List<String> message = new ArrayList<>(5);
+    private MapleCharacter user;
+    private int type;
+    private MapleCharacter partner;
 
-	private void broadcastTV(boolean activity) {
-		Server server = Server.getInstance();
-		ACTIVE = activity;
-		if (ACTIVE) {
-			server.broadcastMessage(MaplePacketCreator.enableTV());
-			server.broadcastMessage(MaplePacketCreator.sendTV(user, message, type <= 2 ? type : type - 3, partner));
-			int delay = 15000;
-			if (type == 4) {
-				delay = 30000;
-			} else if (type == 5) {
-				delay = 60000;
-			}
-			TimerManager.getInstance().schedule(new Runnable() {
-				@Override
-				public void run() {
-					broadcastTV(false);
-				}
-			}, delay);
-		} else {
-			server.broadcastMessage(MaplePacketCreator.removeTV());
-		}
-	}
+    public MapleTVEffect(MapleCharacter u, MapleCharacter p, List<String> msg, int t)
+    {
+        this.message = msg;
+        this.user = u;
+        this.type = t;
+        this.partner = p;
+        broadcastTV(true);
+    }
+
+    public static boolean isActive()
+    {
+        return ACTIVE;
+    }
+
+    private void broadcastTV(boolean activity)
+    {
+        Server server = Server.getInstance();
+        ACTIVE = activity;
+        if (ACTIVE)
+        {
+            server.broadcastMessage(MaplePacketCreator.enableTV());
+            server.broadcastMessage(MaplePacketCreator.sendTV(user, message, type <= 2 ? type : type - 3, partner));
+            int delay = 15000;
+            if (type == 4)
+            {
+                delay = 30000;
+            }
+            else if (type == 5)
+            {
+                delay = 60000;
+            }
+            TimerManager.getInstance().schedule(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    broadcastTV(false);
+                }
+            }, delay);
+        }
+        else
+        {
+            server.broadcastMessage(MaplePacketCreator.removeTV());
+        }
+    }
 }

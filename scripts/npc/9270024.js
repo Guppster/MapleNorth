@@ -35,7 +35,7 @@ function start() {
 }
 
 function action(mode, type, selection) {
-    if (mode == -1) 
+    if (mode == -1)
         cm.dispose();
     else {
         if (mode == 0 && status >= 0) {
@@ -55,24 +55,24 @@ function action(mode, type, selection) {
                 cm.dispose();
                 return;
             }
-            
+
             facenew = Array();
             if (cm.getPlayer().getGender() == 0) {
-                for(var i = 0; i < mface.length; i++)
-                    facenew.push(mface[i] + cm.getPlayer().getFace()% 1000 - (cm.getPlayer().getFace()% 100));
+                for (var i = 0; i < mface.length; i++)
+                    facenew.push(mface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace() % 100));
             }
             if (cm.getPlayer().getGender() == 1) {
-                for(var i = 0; i < fface.length; i++) {
-                    facenew.push(fface[i] + cm.getPlayer().getFace()% 1000 - (cm.getPlayer().getFace()% 100));
+                for (var i = 0; i < fface.length; i++) {
+                    facenew.push(fface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace() % 100));
                 }
             }
             cm.sendStyle("Let's see... I can totally transform your face into something new. Don't you want to try it? For #b#t5152038##k, you can get the face of your liking. Take your time in choosing the face of your preference...", facenew);
         }
-        else if (status == 2){
+        else if (status == 2) {
             cm.gainItem(5152038, -1);
             cm.setFace(facenew[selection]);
             cm.sendOk("Enjoy your new and improved face!");
-            
+
             cm.dispose();
         }
     }

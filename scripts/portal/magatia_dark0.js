@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 function enter(pi) {
-    if(pi.isQuestCompleted(7770)) {
+    if (pi.isQuestCompleted(7770)) {
         pi.warp(926130000, "out00");
         return true;
     } else {

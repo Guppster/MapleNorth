@@ -24,19 +24,23 @@ package provider.wz;
 import provider.MapleDataEntity;
 import provider.MapleDataFileEntry;
 
-public class WZFileEntry extends WZEntry implements MapleDataFileEntry {
+public class WZFileEntry extends WZEntry implements MapleDataFileEntry
+{
     private int offset;
 
-    public WZFileEntry(String name, int size, int checksum, MapleDataEntity parent) {
+    public WZFileEntry(String name, int size, int checksum, MapleDataEntity parent)
+    {
         super(name, size, checksum, parent);
     }
 
     @Override
-    public int getOffset() {
+    public int getOffset()
+    {
         return offset;
     }
 
-    public void setOffset(int offset) {
+    public void setOffset(int offset)
+    {
         this.offset = offset;
     }
 }

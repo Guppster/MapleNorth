@@ -48,30 +48,30 @@ function action(mode, type, selection) {
             status--;
         if (status == 1) {
             if (selection == 1) {
-                if(cm.getMeso() >= price) {
+                if (cm.getMeso() >= price) {
                     cm.gainMeso(-price);
                     cm.gainItem(5152033, 1);
                     cm.sendOk("Enjoy!");
                 } else
-                cm.sendOk("You don't have enough mesos to buy a coupon!");
+                    cm.sendOk("You don't have enough mesos to buy a coupon!");
                 cm.dispose();
             } else if (selection == 2) {
                 facenew = Array();
                 if (cm.getPlayer().getGender() == 0)
-                    for(var i = 0; i < mface.length; i++)
+                    for (var i = 0; i < mface.length; i++)
                         facenew.push(mface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace() % 100));
                 if (cm.getPlayer().getGender() == 1)
-                    for(var i = 0; i < fface.length; i++)
+                    for (var i = 0; i < fface.length; i++)
                         facenew.push(fface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace() % 100));
                 cm.sendYesNo("If you use the regular coupon, your face may transform into a random new look...do you still want to do it using #b#t5152033##k?");
             }
-        } else if (status == 2){
+        } else if (status == 2) {
             cm.dispose();
-            if (cm.haveItem(5152033)){
+            if (cm.haveItem(5152033)) {
                 cm.gainItem(5152033, -1);
                 cm.setFace(facenew[Math.floor(Math.random() * facenew.length)]);
                 cm.sendOk("Enjoy your new and improved face!");
-            } else 
+            } else
                 cm.sendOk("Hmm ... it looks like you don't have the coupon specifically for this place. Sorry to say this, but without the coupon, there's no plastic surgery for you...");
         }
     }

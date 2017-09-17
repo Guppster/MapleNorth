@@ -19,6 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*	
  * @author:  kevintjuh93, moogra
  * @portal:  dojang_exit
@@ -27,8 +28,8 @@
 
 function enter(pi) {
     var map = pi.getPlayer().getSavedLocation("MIRROR");
-    if(map == -1) map = 100000000;
-    
+    if (map == -1) map = 100000000;
+
     pi.warp(map);
     return true;
 }

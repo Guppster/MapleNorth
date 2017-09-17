@@ -23,11 +23,12 @@
  *9201024 - Nana(E)
  *@author Jvlaple
  */
- 
+
 function start() {
     cm.sendOk("Hi, I'm Nana the love fairy... How's it going?");
     cm.dispose();
 }
+
 //
 //function action(mode, type, selection) {
 //    if (mode == -1) {

@@ -3,51 +3,60 @@ package client.inventory;
 import constants.ItemConstants;
 
 /**
- *
  * @author kevin
  */
-public class ModifyInventory {
+public class ModifyInventory
+{
 
     private int mode;
     private Item item;
     private short oldPos;
 
-    public ModifyInventory(final int mode, final Item item) {
+    public ModifyInventory(final int mode, final Item item)
+    {
         this.mode = mode;
         this.item = item.copy();
     }
 
-    public ModifyInventory(final int mode, final Item item, final short oldPos) {
+    public ModifyInventory(final int mode, final Item item, final short oldPos)
+    {
         this.mode = mode;
         this.item = item.copy();
         this.oldPos = oldPos;
     }
-    
-    public final int getMode() {
+
+    public final int getMode()
+    {
         return mode;
     }
 
-    public final int getInventoryType() {
+    public final int getInventoryType()
+    {
         return ItemConstants.getInventoryType(item.getItemId()).getType();
     }
 
-    public final short getPosition() {
+    public final short getPosition()
+    {
         return item.getPosition();
     }
 
-    public final short getOldPosition() {
+    public final short getOldPosition()
+    {
         return oldPos;
     }
-    
-    public final short getQuantity() {
+
+    public final short getQuantity()
+    {
         return item.getQuantity();
     }
 
-    public final Item getItem() {
+    public final Item getItem()
+    {
         return item;
     }
 
-    public final void clear() {
+    public final void clear()
+    {
         this.item = null;
     }
 }

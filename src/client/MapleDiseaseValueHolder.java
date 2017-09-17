@@ -21,13 +21,14 @@
 package client;
 
 /**
- *
  * @author anybody can do this
  */
-public class MapleDiseaseValueHolder {
+public class MapleDiseaseValueHolder
+{
     public long startTime, length;
-    
-    public MapleDiseaseValueHolder(long start, long length) {
+
+    public MapleDiseaseValueHolder(long start, long length)
+    {
         this.startTime = start;
         this.length = length;
     }

@@ -33,63 +33,77 @@ import client.inventory.MapleInventory;
 import client.inventory.MapleInventoryType;
 import server.MapleItemInformationProvider;
 
-public final class ItemSortHandler extends AbstractMaplePacketHandler {
+public final class ItemSortHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         MapleCharacter chr = c.getPlayer();
         chr.getAutobanManager().setTimestamp(2, slea.readInt(), 3);
         MapleInventoryType inventoryType = MapleInventoryType.getByType(slea.readByte());
-                
-	if(!ServerConstants.USE_ITEM_SORT) {
+
+        if (!ServerConstants.USE_ITEM_SORT)
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
-	}
-		
-	MapleInventory inventory = c.getPlayer().getInventory(inventoryType);
-        
+        }
+
+        MapleInventory inventory = c.getPlayer().getInventory(inventoryType);
+
         //------------------- RonanLana's SLOT MERGER -----------------
-        
+
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         Item srcItem, dstItem;
 
-        for(short dst = 1; dst <= inventory.getSlotLimit(); dst++) {
+        for (short dst = 1; dst <= inventory.getSlotLimit(); dst++)
+        {
             dstItem = inventory.getItem(dst);
-            if(dstItem == null) continue;
+            if (dstItem == null) continue;
 
-            for(short src = (short)(dst + 1); src <= inventory.getSlotLimit(); src++) {
+            for (short src = (short) (dst + 1); src <= inventory.getSlotLimit(); src++)
+            {
                 srcItem = inventory.getItem(src);
-                if(srcItem == null) continue;
+                if (srcItem == null) continue;
 
-                if(dstItem.getItemId() != srcItem.getItemId()) continue;
-                if(dstItem.getQuantity() == ii.getSlotMax(c, inventory.getItem(dst).getItemId())) break;
+                if (dstItem.getItemId() != srcItem.getItemId()) continue;
+                if (dstItem.getQuantity() == ii.getSlotMax(c, inventory.getItem(dst).getItemId())) break;
 
                 MapleInventoryManipulator.move(c, inventoryType, src, dst);
             }
         }
-                
+
         //------------------------------------------------------------
-                
+
         inventory = c.getPlayer().getInventory(inventoryType);
         boolean sorted = false;
 
-        while (!sorted) {
+        while (!sorted)
+        {
             short freeSlot = inventory.getNextFreeSlot();
 
-            if (freeSlot != -1) {
+            if (freeSlot != -1)
+            {
                 short itemSlot = -1;
-                for (short i = (short) (freeSlot + 1); i <= inventory.getSlotLimit(); i = (short) (i + 1)) {
-                    if (inventory.getItem(i) != null) {
+                for (short i = (short) (freeSlot + 1); i <= inventory.getSlotLimit(); i = (short) (i + 1))
+                {
+                    if (inventory.getItem(i) != null)
+                    {
                         itemSlot = i;
                         break;
                     }
                 }
-                if (itemSlot > 0) {
-                    MapleInventoryManipulator.move(c, inventoryType,  itemSlot, freeSlot);
-                } else {
+                if (itemSlot > 0)
+                {
+                    MapleInventoryManipulator.move(c, inventoryType, itemSlot, freeSlot);
+                }
+                else
+                {
                     sorted = true;
                 }
-            } else {
+            }
+            else
+            {
                 sorted = true;
             }
         }

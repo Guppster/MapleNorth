@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class WhiteKnight {
+public class WhiteKnight
+{
     public static final int IMPROVING_MP_RECOVERY = 1210000;
     public static final int CHARGE_BLOW = 1211002;
     public static final int SWORD_FIRE_CHARGE = 1211003;

@@ -26,37 +26,56 @@ import net.AbstractMaplePacketHandler;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class AfterLoginHandler extends AbstractMaplePacketHandler {
+public final class AfterLoginHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
+
         byte c2 = slea.readByte();
         byte c3 = 5;
-        if (slea.available() > 0) {
+        if (slea.available() > 0)
+        {
             c3 = slea.readByte();
         }
-        if (c2 == 1 && c3 == 1) {
-            if (c.getPin() == null) {
+        if (c2 == 1 && c3 == 1)
+        {
+            if (c.getPin() == null)
+            {
                 c.announce(MaplePacketCreator.registerPin());
-            } else {
+            }
+            else
+            {
                 c.announce(MaplePacketCreator.requestPin());
             }
-        } else if (c2 == 1 && c3 == 0) {
+        }
+        else if (c2 == 1 && c3 == 0)
+        {
             String pin = slea.readMapleAsciiString();
-            if (c.checkPin(pin)) {
+            if (c.checkPin(pin))
+            {
                 c.announce(MaplePacketCreator.pinAccepted());
-            } else {
+            }
+            else
+            {
                 c.announce(MaplePacketCreator.requestPinAfterFailure());
             }
-        } else if (c2 == 2 && c3 == 0) {
+        }
+        else if (c2 == 2 && c3 == 0)
+        {
             String pin = slea.readMapleAsciiString();
-            if (c.checkPin(pin)) {
+            if (c.checkPin(pin))
+            {
                 c.announce(MaplePacketCreator.registerPin());
-            } else {
+            }
+            else
+            {
                 c.announce(MaplePacketCreator.requestPinAfterFailure());
             }
-        } else if (c2 == 0 && c3 == 5) {
+        }
+        else if (c2 == 0 && c3 == 5)
+        {
             c.updateLoginState(MapleClient.LOGIN_NOTLOGGEDIN);
         }
     }

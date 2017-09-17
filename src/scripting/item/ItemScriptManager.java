@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting.item;
 
 import client.MapleClient;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,46 +36,58 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
 import tools.FilePrinter;
 import tools.MaplePacketCreator;
 
-public class ItemScriptManager {
+public class ItemScriptManager
+{
 
     private static ItemScriptManager instance = new ItemScriptManager();
     private Map<String, Invocable> scripts = new HashMap<>();
     private ScriptEngineFactory sef;
 
-    private ItemScriptManager() {
+    private ItemScriptManager()
+    {
         ScriptEngineManager sem = new ScriptEngineManager();
         sef = sem.getEngineByName("javascript").getFactory();
     }
 
-    public static ItemScriptManager getInstance() {
+    public static ItemScriptManager getInstance()
+    {
         return instance;
     }
 
-    public boolean scriptExists(String scriptName) {
+    public boolean scriptExists(String scriptName)
+    {
         File scriptFile = new File("scripts/item/" + scriptName + ".js");
         return scriptFile.exists();
     }
 
-    public void getItemScript(MapleClient c, String scriptName) {
-        if (scripts.containsKey(scriptName)) {
-            try {
+    public void getItemScript(MapleClient c, String scriptName)
+    {
+        if (scripts.containsKey(scriptName))
+        {
+            try
+            {
                 scripts.get(scriptName).invokeFunction("start", new ItemScriptMethods(c));
-            } catch (ScriptException | NoSuchMethodException ex) {
+            }
+            catch (ScriptException | NoSuchMethodException ex)
+            {
                 FilePrinter.printError(FilePrinter.ITEM + scriptName + ".txt", ex);
             }
             return;
         }
         File scriptFile = new File("scripts/item/" + scriptName + ".js");
-        if (!scriptFile.exists()) {
+        if (!scriptFile.exists())
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
         FileReader fr = null;
         ScriptEngine portal = sef.getScriptEngine();
-        try {
+        try
+        {
             fr = new FileReader(scriptFile);
             CompiledScript compiled = ((Compilable) portal).compile(fr);
             compiled.eval();
@@ -82,15 +95,25 @@ public class ItemScriptManager {
             final Invocable script = ((Invocable) portal);
             scripts.put(scriptName, script);
             script.invokeFunction("start", new ItemScriptMethods(c));
-        } catch (final UndeclaredThrowableException | ScriptException ute) {
+        }
+        catch (final UndeclaredThrowableException | ScriptException ute)
+        {
             FilePrinter.printError(FilePrinter.ITEM + scriptName + ".txt", ute);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e)
+        {
             FilePrinter.printError(FilePrinter.ITEM + scriptName + ".txt", e);
-        } finally {
-            if (fr != null) {
-                try {
+        }
+        finally
+        {
+            if (fr != null)
+            {
+                try
+                {
                     fr.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     e.printStackTrace();
                 }
             }

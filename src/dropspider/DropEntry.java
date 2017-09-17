@@ -8,10 +8,10 @@ import client.inventory.MapleInventoryType;
 import server.MapleItemInformationProvider;
 
 /**
- *
  * @author Simon
  */
-public class DropEntry {
+public class DropEntry
+{
     private int version;
     private int item_id;
     private int monster_id;
@@ -19,7 +19,8 @@ public class DropEntry {
     private int mindrop;
     private int maxdrop;
 
-    public DropEntry(int item_id, int monster_id, int version) {
+    public DropEntry(int item_id, int monster_id, int version)
+    {
         this.item_id = item_id;
         this.monster_id = monster_id;
         mindrop = 1;
@@ -28,25 +29,31 @@ public class DropEntry {
         this.version = version;
     }
 
-    private int calculateChance(int item_id) {
+    private int calculateChance(int item_id)
+    {
         MapleInventoryType mit = MapleItemInformationProvider.getInstance().getInventoryType(item_id);
         boolean boss = DataTool.isBoss(monster_id);
         int number = (item_id / 1000) % 1000;
-        switch (mit) {
+        switch (mit)
+        {
             case EQUIP:
-                if (boss) {
+                if (boss)
+                {
                     return 40000;
                 }
                 return 700;
             case USE:
-                if (boss) {
+                if (boss)
+                {
                     mindrop = 1;
                     maxdrop = 4;
                 }
-                switch (number) {
+                switch (number)
+                {
                     case 0: // normal potions
                         mindrop = 1;
-                        if (version > 98) {
+                        if (version > 98)
+                        {
                             maxdrop = 5;
                         }
                         return 40000;
@@ -67,19 +74,27 @@ public class DropEntry {
                     case 50: // antidotes and stuff
                         return 3000;
                     case 290: // mastery books
-                        if(boss)
+                        if (boss)
+                        {
                             return 40000;
+                        }
                         else
+                        {
                             return 1000;
+                        }
                     case 40: // Scrolls
                     case 41: // Scrolls
                     case 43: // Scrolls
                     case 44: // Scrolls
                     case 48: // pet scrolls
-                        if(boss)
+                        if (boss)
+                        {
                             return 10000;
+                        }
                         else
+                        {
                             return 750;
+                        }
                     case 100: // summon bags
                     case 101: // summon bags
                     case 102: // summon bags
@@ -104,10 +119,14 @@ public class DropEntry {
                     case 70: // throwing stars
                     case 210: // rare monster piece drops
                     case 330: // bullets
-                        if(boss)
+                        if (boss)
+                        {
                             return 2500;
+                        }
                         else
+                        {
                             return 400;
+                        }
                     case 60: // bow arrows
                     case 61: // crossbow arrows
                         mindrop = 10;
@@ -116,10 +135,14 @@ public class DropEntry {
                     case 213: // boss transfrom
                         return 100000;
                     case 280: // skill books
-                        if(boss)
+                        if (boss)
+                        {
                             return 20000;
+                        }
                         else
+                        {
                             return 1000;
+                        }
                     case 381: // monster book things
                     case 382:
                     case 383:
@@ -138,7 +161,8 @@ public class DropEntry {
 
                 }
             case ETC:
-                switch (number) {
+                switch (number)
+                {
                     case 0: // monster pieces
                         return 200000;
                     case 4: // crystal ores
@@ -157,7 +181,8 @@ public class DropEntry {
         }
     }
 
-    public String getQuerySegment() {
+    public String getQuerySegment()
+    {
         StringBuilder sb = new StringBuilder();
         sb.append("(");
         sb.append(monster_id);

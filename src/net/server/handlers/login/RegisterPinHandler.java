@@ -29,15 +29,21 @@ import tools.data.input.SeekableLittleEndianAccessor;
 /*
  * @author Rob
  */
-public final class RegisterPinHandler extends AbstractMaplePacketHandler {
+public final class RegisterPinHandler extends AbstractMaplePacketHandler
+{
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         byte c2 = slea.readByte();
-        if (c2 == 0) {
+        if (c2 == 0)
+        {
             c.updateLoginState(MapleClient.LOGIN_NOTLOGGEDIN);
-        } else {
+        }
+        else
+        {
             String pin = slea.readMapleAsciiString();
-            if (pin != null) {
+            if (pin != null)
+            {
                 c.setPin(pin);
                 c.announce(MaplePacketCreator.pinRegistered());
                 c.updateLoginState(MapleClient.LOGIN_NOTLOGGEDIN);

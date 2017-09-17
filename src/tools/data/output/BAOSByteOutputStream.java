@@ -25,12 +25,13 @@ import java.io.ByteArrayOutputStream;
 
 /**
  * Uses a byte array to output a stream of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 352
  */
-class BAOSByteOutputStream implements ByteOutputStream {
+class BAOSByteOutputStream implements ByteOutputStream
+{
     private ByteArrayOutputStream baos;
 
     /**
@@ -38,7 +39,8 @@ class BAOSByteOutputStream implements ByteOutputStream {
      *
      * @param baos <code>The ByteArrayOutputStream</code> to wrap this around.
      */
-    BAOSByteOutputStream(ByteArrayOutputStream baos) {
+    BAOSByteOutputStream(ByteArrayOutputStream baos)
+    {
         super();
         this.baos = baos;
     }
@@ -50,7 +52,8 @@ class BAOSByteOutputStream implements ByteOutputStream {
      * @see tools.data.output.ByteOutputStream#writeByte(byte)
      */
     @Override
-    public void writeByte(byte b) {
+    public void writeByte(byte b)
+    {
         baos.write(b);
     }
 }

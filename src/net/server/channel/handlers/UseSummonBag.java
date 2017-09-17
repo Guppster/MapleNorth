@@ -33,15 +33,17 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
- *
  * @author AngelSL
  */
-public final class UseSummonBag extends AbstractMaplePacketHandler {
+public final class UseSummonBag extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         //[4A 00][6C 4C F2 02][02 00][63 0B 20 00]
-        if (!c.getPlayer().isAlive()) {
+        if (!c.getPlayer().isAlive())
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
@@ -49,12 +51,15 @@ public final class UseSummonBag extends AbstractMaplePacketHandler {
         short slot = slea.readShort();
         int itemId = slea.readInt();
         Item toUse = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
-        if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemId) {
+        if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemId)
+        {
             MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
             int[][] toSpawn = MapleItemInformationProvider.getInstance().getSummonMobs(itemId);
-            for (int z = 0; z < toSpawn.length; z++) {
+            for (int z = 0; z < toSpawn.length; z++)
+            {
                 int[] toSpawnChild = toSpawn[z];
-                if (Randomizer.nextInt(101) <= toSpawnChild[1]) {
+                if (Randomizer.nextInt(101) <= toSpawnChild[1])
+                {
                     c.getPlayer().getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(toSpawnChild[0]), c.getPlayer().getPosition());
                 }
             }

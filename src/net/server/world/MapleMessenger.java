@@ -26,52 +26,65 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public final class MapleMessenger {
-	
+public final class MapleMessenger
+{
+
     private int id;
     private List<MapleMessengerCharacter> members = new ArrayList<MapleMessengerCharacter>(3);
     private boolean[] pos = new boolean[3];
 
-    public MapleMessenger(int id, MapleMessengerCharacter chrfor) {
-        this.id = id;  
-    	for (int i = 0; i < 3; i++){
-    		pos[i] = false;
-    	}
+    public MapleMessenger(int id, MapleMessengerCharacter chrfor)
+    {
+        this.id = id;
+        for (int i = 0; i < 3; i++)
+        {
+            pos[i] = false;
+        }
         addMember(chrfor, chrfor.getPosition());
     }
-    
-    public int getId() {
+
+    public int getId()
+    {
         return id;
     }
-    
-    public Collection<MapleMessengerCharacter> getMembers() {
+
+    public Collection<MapleMessengerCharacter> getMembers()
+    {
         return Collections.unmodifiableList(members);
     }
-    
-    public void addMember(MapleMessengerCharacter member, int position) {
+
+    public void addMember(MapleMessengerCharacter member, int position)
+    {
         members.add(member);
         member.setPosition(position);
         pos[position] = true;
     }
 
-    public void removeMember(MapleMessengerCharacter member) {
-    	int position = member.getPosition();
+    public void removeMember(MapleMessengerCharacter member)
+    {
+        int position = member.getPosition();
         pos[position] = false;
         members.remove(member);
     }
 
-    public int getLowestPosition() {
-        for (byte i = 0; i < 3; i++) {
-            if (!pos[i]) {
+    public int getLowestPosition()
+    {
+        for (byte i = 0; i < 3; i++)
+        {
+            if (!pos[i])
+            {
                 return i;
             }
         }
         return -1;
     }
 
-    public int getPositionByName(String name) {
-        for (MapleMessengerCharacter messengerchar : members) {
-            if (messengerchar.getName().equals(name)) {
+    public int getPositionByName(String name)
+    {
+        for (MapleMessengerCharacter messengerchar : members)
+        {
+            if (messengerchar.getName().equals(name))
+            {
                 return messengerchar.getPosition();
             }
         }

@@ -47,7 +47,7 @@ function action(mode, type, selection) {
             status--;
         if (status == 1) {
             if (selection == 1) {
-                if(cm.getMeso() >= price) {
+                if (cm.getMeso() >= price) {
                     cm.gainMeso(-price);
                     cm.gainItem(5152034, 1);
                     cm.sendOk("Enjoy!");
@@ -57,22 +57,22 @@ function action(mode, type, selection) {
             } else if (selection == 2) {
                 facenew = Array();
                 if (cm.getPlayer().getGender() == 0)
-                    for(var i = 0; i < mface.length; i++)
-                        facenew.push(mface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace()% 100));
+                    for (var i = 0; i < mface.length; i++)
+                        facenew.push(mface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace() % 100));
                 if (cm.getPlayer().getGender() == 1)
-                    for(var i = 0; i < fface.length; i++)
+                    for (var i = 0; i < fface.length; i++)
                         facenew.push(fface[i] + cm.getPlayer().getFace() % 1000 - (cm.getPlayer().getFace() % 100));
                 cm.sendStyle("Let's see... I can totally transform your face into something new. Don't you want to try it? For #b#t5152034##k, you can get the face of your liking. Take your time in choosing the face of your preference.", facenew);
             }
         }
-        else if (status == 2){
+        else if (status == 2) {
             cm.dispose();
-            if (cm.haveItem(5152034)){
+            if (cm.haveItem(5152034)) {
                 cm.gainItem(5152034, -1);
                 cm.setFace(facenew[selection]);
                 cm.sendOk("Enjoy your new and improved face!");
             } else
-            cm.sendOk("Hmm ... it looks like you don't have the coupon specifically for this place. Sorry to say this, but without the coupon, there's no plastic surgery for you...");
+                cm.sendOk("Hmm ... it looks like you don't have the coupon specifically for this place. Sorry to say this, but without the coupon, there's no plastic surgery for you...");
         }
     }
 }

@@ -19,12 +19,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /* 
 	Map(s): 		Empress' Road : Training Forest III
 	Description: 		Takes you to Entrance to Drill Hall
 */
 
 function enter(pi) {
-	pi.warp(130020000, "east00");
-	return true;
+    pi.warp(130020000, "east00");
+    return true;
 }

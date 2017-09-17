@@ -19,6 +19,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /* The five caves
  * @author Jvlaple
  */
@@ -34,7 +35,7 @@ function enter(pi) {
             // do nothing; send message to player
             pi.getPlayer().dropMessage(6, "Horntail\'s Seal is Blocking this Door.");
             return false;
-        }else {
+        } else {
             pi.getPlayer().changeMap(target, targetPortal);
             return true;
         }
@@ -50,7 +51,7 @@ function enter(pi) {
             // do nothing; send message to player
             pi.getPlayer().dropMessage(6, "Horntail\'s Seal is Blocking this Door.");
             return false;
-        }else {
+        } else {
             pi.getPlayer().changeMap(target, targetPortal);
             return true;
         }
@@ -66,7 +67,7 @@ function enter(pi) {
             // do nothing; send message to player
             pi.getPlayer().dropMessage(6, "Horntail\'s Seal is Blocking this Door.");
             return false;
-        }else {
+        } else {
             pi.getPlayer().changeMap(target, targetPortal);
             return true;
         }
@@ -82,7 +83,7 @@ function enter(pi) {
             // do nothing; send message to player
             pi.getPlayer().dropMessage(6, "Horntail\'s Seal is Blocking this Door.");
             return false;
-        }else {
+        } else {
             pi.getPlayer().changeMap(target, targetPortal);
             return true;
         }
@@ -92,7 +93,7 @@ function enter(pi) {
         var eim = pi.getPlayer().getEventInstance()
         var target = eim.getMapInstance(nextMap);
         var targetPortal = target.getPortal("st00");
-        
+
         var avail = eim.getProperty("5stageclear");
         if (avail == null) {
             if (pi.haveItem(4001092) && pi.isEventLeader()) {
@@ -105,7 +106,7 @@ function enter(pi) {
                 pi.getPlayer().dropMessage(6, "Horntail\'s Seal is blocking this door. Only the leader with the key can lift this seal.");
                 return false;
             }
-        }else {
+        } else {
             pi.getPlayer().changeMap(target, targetPortal);
             return true;
         }

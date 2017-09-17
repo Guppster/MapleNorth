@@ -21,26 +21,33 @@
 */
 package net.mina;
 
-public class MapleCustomEncryption {
-    private static byte rollLeft(byte in, int count) {
+public class MapleCustomEncryption
+{
+    private static byte rollLeft(byte in, int count)
+    {
         int tmp = (int) in & 0xFF;
         tmp = tmp << (count % 8);
         return (byte) ((tmp & 0xFF) | (tmp >> 8));
     }
 
-    private static byte rollRight(byte in, int count) {
+    private static byte rollRight(byte in, int count)
+    {
         int tmp = (int) in & 0xFF;
         tmp = (tmp << 8) >>> (count % 8);
 
         return (byte) ((tmp & 0xFF) | (tmp >>> 8));
     }
 
-    public static byte[] encryptData(byte data[]) {
-        for (int j = 0; j < 6; j++) {
+    public static byte[] encryptData(byte data[])
+    {
+        for (int j = 0; j < 6; j++)
+        {
             byte remember = 0;
             byte dataLength = (byte) (data.length & 0xFF);
-            if (j % 2 == 0) {
-                for (int i = 0; i < data.length; i++) {
+            if (j % 2 == 0)
+            {
+                for (int i = 0; i < data.length; i++)
+                {
                     byte cur = data[i];
                     cur = rollLeft(cur, 3);
                     cur += dataLength;
@@ -52,8 +59,11 @@ public class MapleCustomEncryption {
                     dataLength--;
                     data[i] = cur;
                 }
-            } else {
-                for (int i = data.length - 1; i >= 0; i--) {
+            }
+            else
+            {
+                for (int i = data.length - 1; i >= 0; i--)
+                {
                     byte cur = data[i];
                     cur = rollLeft(cur, 4);
                     cur += dataLength;
@@ -69,13 +79,17 @@ public class MapleCustomEncryption {
         return data;
     }
 
-    public static byte[] decryptData(byte data[]) {
-        for (int j = 1; j <= 6; j++) {
+    public static byte[] decryptData(byte data[])
+    {
+        for (int j = 1; j <= 6; j++)
+        {
             byte remember = 0;
             byte dataLength = (byte) (data.length & 0xFF);
             byte nextRemember;
-            if (j % 2 == 0) {
-                for (int i = 0; i < data.length; i++) {
+            if (j % 2 == 0)
+            {
+                for (int i = 0; i < data.length; i++)
+                {
                     byte cur = data[i];
                     cur -= 0x48;
                     cur = ((byte) ((~cur) & 0xFF));
@@ -88,8 +102,11 @@ public class MapleCustomEncryption {
                     data[i] = cur;
                     dataLength--;
                 }
-            } else {
-                for (int i = data.length - 1; i >= 0; i--) {
+            }
+            else
+            {
+                for (int i = data.length - 1; i >= 0; i--)
+                {
                     byte cur = data[i];
                     cur = rollLeft(cur, 3);
                     cur ^= 0x13;

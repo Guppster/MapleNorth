@@ -25,19 +25,19 @@ BossRushPQ - Rest Spot portal
 */
 
 function enter(pi) {
-        var evLevel = ((pi.getMapId() - 1) % 5) + 1;
-        
-        if(pi.getPlayer().getEventInstance().isEventLeader(pi.getPlayer()) && pi.getPlayer().getEventInstance().getPlayerCount() > 1) {
-                pi.message("Being the party leader, you cannot leave before your teammates leave first or you pass leadership.");
-                return false;
-        }
-        
-        if(pi.getPlayer().getEventInstance().giveEventReward(pi.getPlayer(), evLevel)) {
-                pi.warp(970030000);
-                return true;
-        }
-        else {
-                pi.message("You cannot receive an event prize without having an empty room in your EQUIP, USE, SET-UP or ETC inventory.");
-                return false;
-        }
+    var evLevel = ((pi.getMapId() - 1) % 5) + 1;
+
+    if (pi.getPlayer().getEventInstance().isEventLeader(pi.getPlayer()) && pi.getPlayer().getEventInstance().getPlayerCount() > 1) {
+        pi.message("Being the party leader, you cannot leave before your teammates leave first or you pass leadership.");
+        return false;
+    }
+
+    if (pi.getPlayer().getEventInstance().giveEventReward(pi.getPlayer(), evLevel)) {
+        pi.warp(970030000);
+        return true;
+    }
+    else {
+        pi.message("You cannot receive an event prize without having an empty room in your EQUIP, USE, SET-UP or ETC inventory.");
+        return false;
+    }
 }

@@ -21,21 +21,25 @@
 */
 package client;
 
-public class CharacterNameAndId {
+public class CharacterNameAndId
+{
     private int id;
     private String name;
 
-    public CharacterNameAndId(int id, String name) {
+    public CharacterNameAndId(int id, String name)
+    {
         super();
         this.id = id;
         this.name = name;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 }

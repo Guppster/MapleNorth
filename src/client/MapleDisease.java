@@ -21,7 +21,8 @@
 */
 package client;
 
-public enum MapleDisease {
+public enum MapleDisease
+{
     NULL(0x0),
     SLOW(0x1),
     SEDUCE(0x80),
@@ -34,26 +35,30 @@ public enum MapleDisease {
     DARKNESS(0x10000000000000L),
     WEAKEN(0x4000000000000000L),
     CURSE(0x8000000000000000L);
-    
+
     private long i;
     private boolean first;
-    
-    private MapleDisease(long i) {
+
+    private MapleDisease(long i)
+    {
         this.i = i;
         this.first = false;
     }
 
-    private MapleDisease(long i, boolean first) {
+    private MapleDisease(long i, boolean first)
+    {
         this.i = i;
         this.first = first;
     }
-    
-    public long getValue() {
+
+    public long getValue()
+    {
         return i;
     }
 
-	public boolean isFirst() {
-		return first;
-	}
-	
+    public boolean isFirst()
+    {
+        return first;
+    }
+
 }

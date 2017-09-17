@@ -36,14 +36,14 @@ function action(mode, type, selection) {
         cm.dispose();
     else {
         if (mode == 0 && status >= 0) {
-                cm.dispose();
-                return;
+            cm.dispose();
+            return;
         }
         if (mode == 1)
-                status++;
+            status++;
         else
-                status--;
-        
+            status--;
+
         if (status == 0) {
             cm.sendSimple("Well, hello! Welcome to the Lian Hua Hua Skin-Care! Would you like to have a firm, tight, healthy looking skin like mine?  With #b#tCBD Skin Coupon##k, you can let us take care of the rest and have the kind of skin you've always wanted!\r\n\#L1#Sounds Good! (uses #i5153010# #t5153010#)#l");
         }
@@ -59,7 +59,7 @@ function action(mode, type, selection) {
             cm.gainItem(5153010, -1);
             cm.setSkin(selection);
             cm.sendOk("Enjoy your new and improved skin!");
-            
+
             cm.dispose();
         }
     }

@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Shadower {
+public class Shadower
+{
     public static final int MAPLE_WARRIOR = 4221000;
     public static final int ASSASSINATE = 4221001;
     public static final int SHADOW_SHIFTER = 4220002;

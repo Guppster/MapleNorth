@@ -20,12 +20,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Leviathan Spawner
--- Edited by --------------------------------------------------------------------------------------
-	ThreeStep (based on xQuasar's King Clang spawner)
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ Leviathan Spawner
+ -- Edited by --------------------------------------------------------------------------------------
+ ThreeStep (based on xQuasar's King Clang spawner)
 
-**/
+ **/
 
 importPackage(Packages.client);
 
@@ -45,15 +45,15 @@ function cancelSchedule() {
 function start() {
     var leviathansCanyon = em.getChannelServer().getMapFactory().getMap(240040401);
     var leviathan = Packages.server.life.MapleLifeFactory.getMonster(8220003);
-    if(leviathansCanyon.getMonsterById(8220003) != null) {
-		em.schedule("start", 3 * 60 *60 * 1000);
-		return;
-	}
-	
-	var posX;
+    if (leviathansCanyon.getMonsterById(8220003) != null) {
+        em.schedule("start", 3 * 60 * 60 * 1000);
+        return;
+    }
+
+    var posX;
     var posY = 1125;
-    posX =  Math.floor((Math.random() * 600) - 300);
+    posX = Math.floor((Math.random() * 600) - 300);
     leviathansCanyon.spawnMonsterOnGroundBelow(leviathan, new Packages.java.awt.Point(posX, posY));
     leviathansCanyon.broadcastMessage(Packages.tools.MaplePacketCreator.serverNotice(6, "Leviathan emerges from the canyon and the cold icy wind blows."));
-	em.schedule("start", 3 * 60 *60 * 1000);
+    em.schedule("start", 3 * 60 * 60 * 1000);
 }

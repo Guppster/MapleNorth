@@ -45,12 +45,13 @@ function setup() {
     var mf = eim.getMapFactory();
     instanceId++;
     var map = mf.getMap(910500100);
-    map.addMapTimer(20*60);
+    map.addMapTimer(20 * 60);
     em.schedule("timeOut", 20 * 60000);
     return eim;
 }
 
-function afterSetup(eim) {}
+function afterSetup(eim) {
+}
 
 function playerEntry(eim, player) {
     var map = eim.getMapInstance(910500100);
@@ -81,12 +82,12 @@ function playerDisconnected(eim, player) {
     eim.dispose();
 }
 
-function leftParty(eim, player) {			
+function leftParty(eim, player) {
     // If only 2 players are left, uncompletable:
     var party = eim.getPlayers();
     if (true) {
         for (var i = 0; i < party.size(); i++) {
-            playerExit(eim,party.get(i));
+            playerExit(eim, party.get(i));
         }
         eim.dispose();
     }
@@ -103,7 +104,8 @@ function disbandParty(eim) {
     eim.dispose();
 }
 
-function playerUnregistered(eim, player) {}
+function playerUnregistered(eim, player) {
+}
 
 function playerExit(eim, player) {
     eim.unregisterPlayer(player);
@@ -126,9 +128,11 @@ function clearPQ(eim) {
     eim.dispose();
 }
 
-function monsterKilled(mob, eim) {}
+function monsterKilled(mob, eim) {
+}
 
-function allMonstersDead(eim) {}
+function allMonstersDead(eim) {
+}
 
 function cancelSchedule() {
 }

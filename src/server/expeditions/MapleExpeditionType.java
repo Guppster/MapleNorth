@@ -23,11 +23,11 @@
 package server.expeditions;
 
 /**
-*
-* @author SharpAceX(Alan)
-*/
+ * @author SharpAceX(Alan)
+ */
 
-public enum MapleExpeditionType {
+public enum MapleExpeditionType
+{
 
     BALROG_EASY(3, 30, 50, 255, 5),
     BALROG_NORMAL(6, 30, 50, 255, 5),
@@ -39,14 +39,15 @@ public enum MapleExpeditionType {
     CHAOS_HORNTAIL(6, 30, 120, 255, 5),
     PINKBEAN(6, 30, 120, 255, 5),
     CWKPQ(6, 30, 100, 255, 5);
-    
+
     private int minSize;
     private int maxSize;
     private int minLevel;
     private int maxLevel;
     private int registrationTime;
-        
-    private MapleExpeditionType(int minSize, int maxSize, int minLevel, int maxLevel, int minutes) {
+
+    private MapleExpeditionType(int minSize, int maxSize, int minLevel, int maxLevel, int minutes)
+    {
         this.minSize = minSize;
         this.maxSize = maxSize;
         this.minLevel = minLevel;
@@ -54,23 +55,28 @@ public enum MapleExpeditionType {
         this.registrationTime = minutes;
     }
 
-    public int getMinSize() {
-    	return minSize;
+    public int getMinSize()
+    {
+        return minSize;
     }
-    
-    public int getMaxSize() {
+
+    public int getMaxSize()
+    {
         return maxSize;
     }
-    
-    public int getMinLevel() {
-    	return minLevel;
+
+    public int getMinLevel()
+    {
+        return minLevel;
     }
-    
-    public int getMaxLevel() {
-    	return maxLevel;
+
+    public int getMaxLevel()
+    {
+        return maxLevel;
     }
-    
-    public int getRegistrationTime(){
-    	return registrationTime;
+
+    public int getRegistrationTime()
+    {
+        return registrationTime;
     }
 }

@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Hermit {
+public class Hermit
+{
     public static final int ALCHEMIST = 4110000;
     public static final int MESO_UP = 4111001;
     public static final int SHADOW_PARTNER = 4111002;

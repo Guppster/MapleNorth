@@ -53,7 +53,7 @@ function action(mode, type, selection) {
         cm.dispose();
     else {
         status++;
-        if (status == 1) 
+        if (status == 1)
             cm.sendYesNo("Are you ready to enter the dollhouse map?");
         else if (status == 2) {
             var eim = em.newInstance("DollHouse");

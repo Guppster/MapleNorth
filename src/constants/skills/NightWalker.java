@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class NightWalker {
+public class NightWalker
+{
     public static final int ALCHEMIST = 14110003;
     public static final int DISORDER = 14001002;
     public static final int DARK_SIGHT = 14001003;

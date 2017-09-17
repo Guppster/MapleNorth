@@ -20,12 +20,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Timer2 Spawner
--- Edited by --------------------------------------------------------------------------------------
-	ThreeStep (based on xQuasar's King Clang spawner)
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ Timer2 Spawner
+ -- Edited by --------------------------------------------------------------------------------------
+ ThreeStep (based on xQuasar's King Clang spawner)
 
-**/
+ **/
 
 importPackage(Packages.client);
 
@@ -45,16 +45,16 @@ function cancelSchedule() {
 function start() {
     var lostTime1 = em.getChannelServer().getMapFactory().getMap(220050000);
     var timer2 = Packages.server.life.MapleLifeFactory.getMonster(5220003);
-	
-	if(lostTime1.getMonsterById(5220003) != null) {
-		em.schedule("start", 3 * 60 * 60 * 1000);
-		return;
-	}
-	
+
+    if (lostTime1.getMonsterById(5220003) != null) {
+        em.schedule("start", 3 * 60 * 60 * 1000);
+        return;
+    }
+
     var posX;
     var posY = 1030;
-    posX =  Math.floor((Math.random() * 1400) - 1000);
+    posX = Math.floor((Math.random() * 1400) - 1000);
     lostTime1.spawnMonsterOnGroundBelow(timer2, new Packages.java.awt.Point(posX, posY));
     lostTime1.broadcastMessage(Packages.tools.MaplePacketCreator.serverNotice(6, "Tick-Tock Tick-Tock! Timer makes it's presence known."));
-	em.schedule("start", 3 * 60 * 60 * 1000);
+    em.schedule("start", 3 * 60 * 60 * 1000);
 }

@@ -23,7 +23,8 @@ package net.server.guild;
 
 import client.MapleCharacter;
 
-public class MapleGuildCharacter {
+public class MapleGuildCharacter
+{
     private MapleCharacter character;
     private int level;
     private int id;
@@ -35,7 +36,8 @@ public class MapleGuildCharacter {
     private boolean online;
     private String name;
 
-    public MapleGuildCharacter(MapleCharacter c) {
+    public MapleGuildCharacter(MapleCharacter c)
+    {
         this.character = c;
         this.name = c.getName();
         this.level = c.getLevel();
@@ -49,12 +51,14 @@ public class MapleGuildCharacter {
         this.allianceRank = c.getAllianceRank();
     }
 
-    public MapleGuildCharacter(MapleCharacter c, int _id, int _lv, String _name, int _channel, int _world, int _job, int _rank, int _gid, boolean _on, int _allianceRank) {
+    public MapleGuildCharacter(MapleCharacter c, int _id, int _lv, String _name, int _channel, int _world, int _job, int _rank, int _gid, boolean _on, int _allianceRank)
+    {
         this.character = c;
         this.level = _lv;
         this.id = _id;
         this.name = _name;
-        if (_on) {
+        if (_on)
+        {
             this.channel = _channel;
             this.world = _world;
         }
@@ -64,93 +68,115 @@ public class MapleGuildCharacter {
         this.guildid = _gid;
         this.allianceRank = _allianceRank;
     }
-    
-    public void setCharacter(MapleCharacter ch) {
-        this.character = ch;
-    }
-    
-    public MapleCharacter getCharacter() {
+
+    public MapleCharacter getCharacter()
+    {
         return character;
     }
 
-    public int getLevel() {
+    public void setCharacter(MapleCharacter ch)
+    {
+        this.character = ch;
+    }
+
+    public int getLevel()
+    {
         return level;
     }
 
-    public void setLevel(int l) {
+    public void setLevel(int l)
+    {
         level = l;
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public void setChannel(int ch) {
-        channel = ch;
-    }
-
-    public int getChannel() {
+    public int getChannel()
+    {
         return channel;
     }
 
-    public int getWorld() {
+    public void setChannel(int ch)
+    {
+        channel = ch;
+    }
+
+    public int getWorld()
+    {
         return world;
     }
 
-    public int getJobId() {
+    public int getJobId()
+    {
         return jobid;
     }
 
-    public void setJobId(int job) {
+    public void setJobId(int job)
+    {
         jobid = job;
     }
 
-    public int getGuildId() {
+    public int getGuildId()
+    {
         return guildid;
     }
 
-    public void setGuildId(int gid) {
+    public void setGuildId(int gid)
+    {
         guildid = gid;
         character.setGuildId(gid);
     }
-    
-    public int getGuildRank() {
+
+    public int getGuildRank()
+    {
         return guildrank;
     }
 
-    public void setOfflineGuildRank(int rank) {
-        guildrank = rank;
-    }
-    
-    public void setGuildRank(int rank) {
+    public void setGuildRank(int rank)
+    {
         guildrank = rank;
         character.setGuildRank(rank);
     }
-    
-    public int getAllianceRank() {
+
+    public void setOfflineGuildRank(int rank)
+    {
+        guildrank = rank;
+    }
+
+    public int getAllianceRank()
+    {
         return allianceRank;
     }
-    
-    public void setAllianceRank(int rank) {
+
+    public void setAllianceRank(int rank)
+    {
         allianceRank = rank;
         character.setAllianceRank(rank);
     }
 
-    public boolean isOnline() {
+    public boolean isOnline()
+    {
         return online;
     }
 
-    public void setOnline(boolean f) {
+    public void setOnline(boolean f)
+    {
         online = f;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof MapleGuildCharacter)) {
+    public boolean equals(Object other)
+    {
+        if (!(other instanceof MapleGuildCharacter))
+        {
             return false;
         }
         MapleGuildCharacter o = (MapleGuildCharacter) other;
@@ -158,7 +184,8 @@ public class MapleGuildCharacter {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int hash = 3;
         hash = 19 * hash + this.id;
         hash = 19 * hash + (this.name != null ? this.name.hashCode() : 0);

@@ -23,25 +23,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.gachapon;
 
 /**
-*
-* @author SharpAceX(Alan)
-*/
+ * @author SharpAceX(Alan)
+ */
 
-public abstract class GachaponItems {
+public abstract class GachaponItems
+{
 
-	public abstract int [] getCommonItems();
-	public abstract int [] getUncommonItems();
-	public abstract int [] getRareItems();
-	
-	public int[] getItems(int tier) {
-		if (tier == 0){
-			return getCommonItems();
-		} else if (tier == 1){
-			return getUncommonItems();
-		} else if (tier == 2){
-			return getRareItems();
-		}
-		return null;
-	}
+    public abstract int[] getCommonItems();
+
+    public abstract int[] getUncommonItems();
+
+    public abstract int[] getRareItems();
+
+    public int[] getItems(int tier)
+    {
+        if (tier == 0)
+        {
+            return getCommonItems();
+        }
+        else if (tier == 1)
+        {
+            return getUncommonItems();
+        }
+        else if (tier == 2)
+        {
+            return getRareItems();
+        }
+        return null;
+    }
 }
 

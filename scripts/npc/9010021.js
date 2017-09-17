@@ -19,10 +19,11 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /* 9010021 - Wolf Spirit Ryko
     @author Ronan
  */
- 
+
 function start() {
     cm.sendOk("... I came from distant planes to assist the fight against the #rBlack Magician#k. Right now I search my master, have you seen him?");
     cm.dispose();

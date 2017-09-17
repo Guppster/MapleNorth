@@ -22,6 +22,7 @@
 package net.server;
 
 import client.MapleCharacter;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -30,79 +31,112 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-public class PlayerStorage {
+public class PlayerStorage
+{
     private final ReentrantReadWriteLock locks = new ReentrantReadWriteLock(true);
     private final ReadLock rlock = locks.readLock();
     private final WriteLock wlock = locks.writeLock();
     private final Map<Integer, MapleCharacter> storage = new LinkedHashMap<>();
 
-    public void addPlayer(MapleCharacter chr) {
+    public void addPlayer(MapleCharacter chr)
+    {
         wlock.lock();
-        try {
+        try
+        {
             storage.put(chr.getId(), chr);
-        } finally {
-	    wlock.unlock();
-	}
-    }
-
-    public MapleCharacter removePlayer(int chr) {
-        wlock.lock();
-        try {
-            return storage.remove(chr);
-        } finally {
+        }
+        finally
+        {
             wlock.unlock();
         }
     }
 
-    public MapleCharacter getCharacterByName(String name) {
-        rlock.lock();    
-        try {
-            for (MapleCharacter chr : storage.values()) {
+    public MapleCharacter removePlayer(int chr)
+    {
+        wlock.lock();
+        try
+        {
+            return storage.remove(chr);
+        }
+        finally
+        {
+            wlock.unlock();
+        }
+    }
+
+    public MapleCharacter getCharacterByName(String name)
+    {
+        rlock.lock();
+        try
+        {
+            for (MapleCharacter chr : storage.values())
+            {
                 if (chr.getName().toLowerCase().equals(name.toLowerCase()))
+                {
                     return chr;
+                }
             }
             return null;
-        } finally {
+        }
+        finally
+        {
             rlock.unlock();
         }
     }
 
-    public MapleCharacter getCharacterById(int id) { 
-        rlock.lock();    
-        try {
-            return storage.get(id);
-        } finally {
-            rlock.unlock();
-        }
-    }
-
-    public Collection<MapleCharacter> getAllCharacters() {
+    public MapleCharacter getCharacterById(int id)
+    {
         rlock.lock();
-        try {
-            return storage.values();
-        } finally {
+        try
+        {
+            return storage.get(id);
+        }
+        finally
+        {
             rlock.unlock();
         }
     }
 
-    public final void disconnectAll() {
-	wlock.lock();
-	try {	    
+    public Collection<MapleCharacter> getAllCharacters()
+    {
+        rlock.lock();
+        try
+        {
+            return storage.values();
+        }
+        finally
+        {
+            rlock.unlock();
+        }
+    }
+
+    public final void disconnectAll()
+    {
+        wlock.lock();
+        try
+        {
             final Iterator<MapleCharacter> chrit = storage.values().iterator();
-	    while (chrit.hasNext()) {
+            while (chrit.hasNext())
+            {
                 chrit.next().getClient().disconnect(true, false);
                 chrit.remove();
             }
-	} finally {
-	    wlock.unlock();
-	}
+        }
+        finally
+        {
+            wlock.unlock();
+        }
     }
-    
-    public int getSize() {
+
+    public int getSize()
+    {
         rlock.lock();
-        try {
+        try
+        {
             return storage.size();
-        } finally {
+        }
+        finally
+        {
             rlock.unlock();
         }
     }

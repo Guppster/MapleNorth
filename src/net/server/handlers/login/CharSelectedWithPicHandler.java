@@ -9,35 +9,45 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleClient;
 
-public class CharSelectedWithPicHandler extends AbstractMaplePacketHandler {
+public class CharSelectedWithPicHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
 
         String pic = slea.readMapleAsciiString();
         int charId = slea.readInt();
         String macs = slea.readMapleAsciiString();
-		String hwid = slea.readMapleAsciiString();
+        String hwid = slea.readMapleAsciiString();
         c.updateMacs(macs);
-		c.updateHWID(hwid);
+        c.updateHWID(hwid);
 
-        if (c.hasBannedMac() || c.hasBannedHWID()) {
+        if (c.hasBannedMac() || c.hasBannedHWID())
+        {
             c.getSession().close(true);
             return;
         }
-        if (c.checkPic(pic)) {
-            if (c.getIdleTask() != null) {
+        if (c.checkPic(pic))
+        {
+            if (c.getIdleTask() != null)
+            {
                 c.getIdleTask().cancel(true);
             }
             c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
 
             String[] socket = Server.getInstance().getIP(c.getWorld(), c.getChannel()).split(":");
-            try {
+            try
+            {
                 c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
-            } catch (UnknownHostException | NumberFormatException e) {
+            }
+            catch (UnknownHostException | NumberFormatException e)
+            {
                 e.printStackTrace();
             }
-        } else {
+        }
+        else
+        {
             c.announce(MaplePacketCreator.wrongPic());
         }
     }

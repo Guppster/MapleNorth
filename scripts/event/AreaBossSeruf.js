@@ -21,12 +21,12 @@
 */
 
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Seruf Spawner
--- Edited by --------------------------------------------------------------------------------------
-	ThreeStep (based on xQuasar's King Clang spawner)
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ Seruf Spawner
+ -- Edited by --------------------------------------------------------------------------------------
+ ThreeStep (based on xQuasar's King Clang spawner)
 
-**/
+ **/
 
 importPackage(Packages.client);
 
@@ -46,16 +46,16 @@ function cancelSchedule() {
 function start() {
     var theSeaweedTower = em.getChannelServer().getMapFactory().getMap(230020100);
     var seruf = Packages.server.life.MapleLifeFactory.getMonster(4220001);
-	
-	if(theSeaweedTower.getMonsterById(4220001) != null) {
-		em.schedule("start", 3 * 60 * 60 * 1000);
-		return;
-	}
-	
+
+    if (theSeaweedTower.getMonsterById(4220001) != null) {
+        em.schedule("start", 3 * 60 * 60 * 1000);
+        return;
+    }
+
     var posX;
     var posY = 520;
-    posX =  Math.floor((Math.random() * 2300) - 1500);
+    posX = Math.floor((Math.random() * 2300) - 1500);
     theSeaweedTower.spawnMonsterOnGroundBelow(seruf, new Packages.java.awt.Point(posX, posY));
     theSeaweedTower.broadcastMessage(Packages.tools.MaplePacketCreator.serverNotice(6, "A strange shell has appeared from a grove of seaweed"));
-	em.schedule("start", 3 * 60 * 60 * 1000);
+    em.schedule("start", 3 * 60 * 60 * 1000);
 }

@@ -21,7 +21,8 @@
 */
 package net.server.guild;
 
-public class MapleGuildSummary {
+public class MapleGuildSummary
+{
     private String name;
     private short logoBG;
     private byte logoBGColor;
@@ -29,7 +30,8 @@ public class MapleGuildSummary {
     private byte logoColor;
     private int allianceId;
 
-    public MapleGuildSummary(MapleGuild g) {
+    public MapleGuildSummary(MapleGuild g)
+    {
         this.name = g.getName();
         this.logoBG = (short) g.getLogoBG();
         this.logoBGColor = (byte) g.getLogoBGColor();
@@ -38,27 +40,33 @@ public class MapleGuildSummary {
         this.allianceId = g.getAllianceId();
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public short getLogoBG() {
+    public short getLogoBG()
+    {
         return logoBG;
     }
 
-    public byte getLogoBGColor() {
+    public byte getLogoBGColor()
+    {
         return logoBGColor;
     }
 
-    public short getLogo() {
+    public short getLogo()
+    {
         return logo;
     }
 
-    public byte getLogoColor() {
+    public byte getLogoColor()
+    {
         return logoColor;
     }
 
-    public int getAllianceId() {
+    public int getAllianceId()
+    {
         return allianceId;
     }
 }

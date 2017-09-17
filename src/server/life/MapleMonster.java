@@ -37,6 +37,7 @@ import constants.skills.NightLord;
 import constants.skills.NightWalker;
 import constants.skills.Shadower;
 import constants.skills.SuperGM;
+
 import java.awt.Point;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+
 import net.server.world.MapleParty;
 import net.server.world.MaplePartyCharacter;
 import server.TimerManager;
@@ -61,7 +63,9 @@ import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.Randomizer;
 
-public class MapleMonster extends AbstractLoadedMapleLife {
+public class MapleMonster extends AbstractLoadedMapleLife
+{
+    private final HashMap<Integer, AtomicInteger> takenDamage = new HashMap<>();
     private ChangeableStats ostats = null;  //unused, v83 WZs offers no support for changeable stats.
     private MapleMonsterStats stats;
     private int hp, mp;
@@ -78,173 +82,217 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     private Map<Pair<Integer, Integer>, Integer> skillsUsed = new HashMap<>();
     private List<Integer> stolenItems = new ArrayList<>();
     private int team;
-    private final HashMap<Integer, AtomicInteger> takenDamage = new HashMap<>();
-
     private ReentrantLock monsterLock = new ReentrantLock();
 
-    public MapleMonster(int id, MapleMonsterStats stats) {
+    public MapleMonster(int id, MapleMonsterStats stats)
+    {
         super(id);
         initWithStats(stats);
     }
 
-    public MapleMonster(MapleMonster monster) {
+    public MapleMonster(MapleMonster monster)
+    {
         super(monster);
         initWithStats(monster.stats);
     }
-    
-    public void lockMonster() {
+
+    public void lockMonster()
+    {
         monsterLock.lock();
     }
-    
-    public void unlockMonster() {
+
+    public void unlockMonster()
+    {
         monsterLock.unlock();
     }
 
-    private void initWithStats(MapleMonsterStats stats) {
+    private void initWithStats(MapleMonsterStats stats)
+    {
         setStance(5);
         this.stats = stats;
         hp = stats.getHp();
         mp = stats.getMp();
     }
 
-    public void disableDrops() {
+    public void disableDrops()
+    {
         this.dropsDisabled = true;
     }
 
-    public boolean dropsDisabled() {
+    public boolean dropsDisabled()
+    {
         return dropsDisabled;
     }
 
-    public void setMap(MapleMap map) {
-        this.map = map;
-    }
-
-    public int getHp() {
+    public int getHp()
+    {
         return hp;
     }
 
-    public void setHp(int hp) {
+    public void setHp(int hp)
+    {
         this.hp = hp;
     }
 
-    public int getMaxHp() {
+    public int getMaxHp()
+    {
         return stats.getHp();
     }
 
-    public int getMp() {
+    public int getMp()
+    {
         return mp;
     }
 
-    public void setMp(int mp) {
-        if (mp < 0) {
+    public void setMp(int mp)
+    {
+        if (mp < 0)
+        {
             mp = 0;
         }
         this.mp = mp;
     }
 
-    public int getMaxMp() {
+    public int getMaxMp()
+    {
         return stats.getMp();
     }
 
-    public int getExp() {
+    public int getExp()
+    {
         return stats.getExp();
     }
 
-    public int getLevel() {
+    public int getLevel()
+    {
         return stats.getLevel();
     }
 
-    public int getCP() {
+    public int getCP()
+    {
         return stats.getCP();
     }
 
-    public int getTeam() {
+    public int getTeam()
+    {
         return team;
     }
 
-    public void setTeam(int team) {
+    public void setTeam(int team)
+    {
         this.team = team;
     }
 
-    public int getVenomMulti() {
+    public int getVenomMulti()
+    {
         return this.VenomMultiplier;
     }
 
-    public void setVenomMulti(int multiplier) {
+    public void setVenomMulti(int multiplier)
+    {
         this.VenomMultiplier = multiplier;
     }
 
-    public MapleMonsterStats getStats() {
+    public MapleMonsterStats getStats()
+    {
         return stats;
     }
 
-    public boolean isBoss() {
+    public boolean isBoss()
+    {
         return stats.isBoss();
     }
 
-    public int getAnimationTime(String name) {
+    public void setBoss(boolean boss)
+    {
+        this.stats.setBoss(boss);
+    }
+
+    public int getAnimationTime(String name)
+    {
         return stats.getAnimationTime(name);
     }
 
-    private List<Integer> getRevives() {
+    private List<Integer> getRevives()
+    {
         return stats.getRevives();
     }
 
-    private byte getTagColor() {
+    private byte getTagColor()
+    {
         return stats.getTagColor();
     }
 
-    private byte getTagBgColor() {
+    private byte getTagBgColor()
+    {
         return stats.getTagBgColor();
     }
 
     /**
-     *
-     * @param from the player that dealt the damage
+     * @param from   the player that dealt the damage
      * @param damage
      */
-    public synchronized void damage(MapleCharacter from, int damage) { // may be pointless synchronization
-        if (!isAlive()) {
+    public synchronized void damage(MapleCharacter from, int damage)
+    { // may be pointless synchronization
+        if (!isAlive())
+        {
             return;
         }
         int trueDamage = Math.min(hp, damage); // since magic happens otherwise B^)
-        
-        if(ServerConstants.USE_DEBUG == true) from.dropMessage(5, "Hitted MOB " + this.getId() + ", OID " + this.getObjectId());
+
+        if (ServerConstants.USE_DEBUG == true)
+        {
+            from.dropMessage(5, "Hitted MOB " + this.getId() + ", OID " + this.getObjectId());
+        }
         dispatchMonsterDamaged(from, trueDamage);
 
         hp -= trueDamage;
-        if (!takenDamage.containsKey(from.getId())) {
+        if (!takenDamage.containsKey(from.getId()))
+        {
             takenDamage.put(from.getId(), new AtomicInteger(trueDamage));
-        } else {
+        }
+        else
+        {
             takenDamage.get(from.getId()).addAndGet(trueDamage);
         }
 
-        if (hasBossHPBar()) {
+        if (hasBossHPBar())
+        {
             from.setPlayerAggro(this.hashCode());
             from.getMap().broadcastBossHpMessage(this, this.hashCode(), makeBossHPBarPacket(), getPosition());
-        } else if (!isBoss()) {
+        }
+        else if (!isBoss())
+        {
             int remainingHP = (int) Math.max(1, hp * 100f / getMaxHp());
             byte[] packet = MaplePacketCreator.showMonsterHP(getObjectId(), remainingHP);
-            if (from.getParty() != null) {
-                for (MaplePartyCharacter mpc : from.getParty().getMembers()) {
+            if (from.getParty() != null)
+            {
+                for (MaplePartyCharacter mpc : from.getParty().getMembers())
+                {
                     MapleCharacter member = from.getMap().getCharacterById(mpc.getId()); // god bless
-                    if (member != null) {
+                    if (member != null)
+                    {
                         member.announce(packet.clone()); // clone it just in case of crypto
                     }
                 }
-            } else {
+            }
+            else
+            {
                 from.announce(packet);
             }
         }
     }
 
-    public void heal(int hp, int mp) {
+    public void heal(int hp, int mp)
+    {
         int hp2Heal = getHp() + hp;
         int mp2Heal = getMp() + mp;
-        if (hp2Heal >= getMaxHp()) {
+        if (hp2Heal >= getMaxHp())
+        {
             hp2Heal = getMaxHp();
         }
-        if (mp2Heal >= getMaxMp()) {
+        if (mp2Heal >= getMaxMp())
+        {
             mp2Heal = getMaxMp();
         }
         setHp(hp2Heal);
@@ -252,34 +300,42 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         getMap().broadcastMessage(MaplePacketCreator.healMonster(getObjectId(), hp));
     }
 
-    public boolean isAttackedBy(MapleCharacter chr) {
+    public boolean isAttackedBy(MapleCharacter chr)
+    {
         return takenDamage.containsKey(chr.getId());
     }
 
-    private void distributeExperienceToParty(int pid, int exp, int killer, Map<Integer, Integer> expDist) {
+    private void distributeExperienceToParty(int pid, int exp, int killer, Map<Integer, Integer> expDist)
+    {
         LinkedList<MapleCharacter> members = new LinkedList<>();
         Collection<MapleCharacter> chrs = map.getCharacters();
-        
-        for (MapleCharacter mc : chrs) {
-            if (mc.getPartyId() == pid) {
+
+        for (MapleCharacter mc : chrs)
+        {
+            if (mc.getPartyId() == pid)
+            {
                 members.add(mc);
             }
         }
-        
+
         final int minLevel = getLevel() - 5;
 
         int partyLevel = 0;
         int leechMinLevel = 0;
 
-        for (MapleCharacter mc : members) {
-            if (mc.getLevel() >= minLevel) {
+        for (MapleCharacter mc : members)
+        {
+            if (mc.getLevel() >= minLevel)
+            {
                 leechMinLevel = Math.min(mc.getLevel() - 5, minLevel);
             }
         }
 
         int leechCount = 0;
-        for (MapleCharacter mc : members) {
-            if (mc.getLevel() >= leechMinLevel) {
+        for (MapleCharacter mc : members)
+        {
+            if (mc.getLevel() >= leechMinLevel)
+            {
                 partyLevel += mc.getLevel();
                 leechCount++;
             }
@@ -287,15 +343,18 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
         final int mostDamageCid = getHighestDamagerId();
 
-        for (MapleCharacter mc : members) {
+        for (MapleCharacter mc : members)
+        {
             int id = mc.getId();
             int level = mc.getLevel();
             if (expDist.containsKey(id)
-                    || level >= leechMinLevel) {
+                || level >= leechMinLevel)
+            {
                 boolean isKiller = killer == id;
                 boolean mostDamage = mostDamageCid == id;
                 int xp = (int) (exp * 0.80f * level / partyLevel);
-                if (mostDamage) {
+                if (mostDamage)
+                {
                     xp += (exp * 0.20f);
                 }
                 giveExpToCharacter(mc, xp, isKiller, leechCount);
@@ -303,8 +362,10 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
     }
 
-    public void distributeExperience(int killerId) {
-        if (isAlive()) {
+    public void distributeExperience(int killerId)
+    {
+        if (isAlive())
+        {
             return;
         }
         int exp = getExp();
@@ -312,37 +373,48 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         Map<Integer, Integer> expDist = new HashMap<>();
         Map<Integer, Integer> partyExp = new HashMap<>();
         // 80% of pool is split amongst all the damagers
-        for (Entry<Integer, AtomicInteger> damage : takenDamage.entrySet()) {
+        for (Entry<Integer, AtomicInteger> damage : takenDamage.entrySet())
+        {
             expDist.put(damage.getKey(), (int) (0.80f * exp * damage.getValue().get() / totalHealth));
         }
-        
+
         Collection<MapleCharacter> chrs = map.getCharacters();
-        for (MapleCharacter mc : chrs) {
-            if (expDist.containsKey(mc.getId())) {
+        for (MapleCharacter mc : chrs)
+        {
+            if (expDist.containsKey(mc.getId()))
+            {
                 boolean isKiller = mc.getId() == killerId;
                 int xp = expDist.get(mc.getId());
-                if (isKiller) {
+                if (isKiller)
+                {
                     xp += exp / 5;
                 }
                 MapleParty p = mc.getParty();
-                if (p != null) {
+                if (p != null)
+                {
                     int pID = p.getId();
                     int pXP = xp + (partyExp.containsKey(pID) ? partyExp.get(pID) : 0);
                     partyExp.put(pID, pXP);
-                } else {
+                }
+                else
+                {
                     giveExpToCharacter(mc, xp, isKiller, 1);
                 }
             }
         }
-        
-        for (Entry<Integer, Integer> party : partyExp.entrySet()) {
+
+        for (Entry<Integer, Integer> party : partyExp.entrySet())
+        {
             distributeExperienceToParty(party.getKey(), party.getValue(), killerId, expDist);
         }
     }
 
-    public void giveExpToCharacter(MapleCharacter attacker, int exp, boolean isKiller, int numExpSharers) {
-        if (isKiller) {
-            if (getMap().getEventInstance() != null) {
+    public void giveExpToCharacter(MapleCharacter attacker, int exp, boolean isKiller, int numExpSharers)
+    {
+        if (isKiller)
+        {
+            if (getMap().getEventInstance() != null)
+            {
                 getMap().getEventInstance().monsterKilled(attacker, this);
             }
         }
@@ -350,56 +422,72 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
         int partyExp = 0;
 
-        if (attacker.getHp() > 0) {
+        if (attacker.getHp() > 0)
+        {
             int personalExp = exp * attacker.getExpRate();
 
-            if (exp > 0) {
-                if (partyModifier > 0) {
+            if (exp > 0)
+            {
+                if (partyModifier > 0)
+                {
                     partyExp = (int) (personalExp * ServerConstants.PARTY_EXPERIENCE_MOD * partyModifier / 1000f);
                 }
                 Integer holySymbol = attacker.getBuffedValue(MapleBuffStat.HOLY_SYMBOL);
                 boolean GMHolySymbol = attacker.getBuffSource(MapleBuffStat.HOLY_SYMBOL) == SuperGM.HOLY_SYMBOL;
-                if (holySymbol != null) {
-                    if (numExpSharers == 1 && !GMHolySymbol) {
+                if (holySymbol != null)
+                {
+                    if (numExpSharers == 1 && !GMHolySymbol)
+                    {
                         personalExp *= 1.0 + (holySymbol.doubleValue() / 500.0);
-                    } else {
+                    }
+                    else
+                    {
                         personalExp *= 1.0 + (holySymbol.doubleValue() / 100.0);
                     }
                 }
-                if (stati.containsKey(MonsterStatus.SHOWDOWN)) {
+                if (stati.containsKey(MonsterStatus.SHOWDOWN))
+                {
                     personalExp *= (stati.get(MonsterStatus.SHOWDOWN).getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0 + 1.0);
                 }
             }
-            
+
             attacker.gainExp(personalExp, partyExp, true, false, isKiller);
             attacker.increaseEquipExp(personalExp);
             attacker.mobKilled(getId());
         }
     }
 
-    public MapleCharacter killBy(final MapleCharacter killer) {
+    public MapleCharacter killBy(final MapleCharacter killer)
+    {
         distributeExperience(killer != null ? killer.getId() : 0);
 
-        if (getController() != null) { // this can/should only happen when a hidden gm attacks the monster
+        if (getController() != null)
+        { // this can/should only happen when a hidden gm attacks the monster
             getController().getClient().announce(MaplePacketCreator.stopControllingMonster(this.getObjectId()));
             getController().stopControllingMonster(this);
         }
 
         final List<Integer> toSpawn = this.getRevives(); // this doesn't work (?)
-        if (toSpawn != null) {
+        if (toSpawn != null)
+        {
             final MapleMap reviveMap = killer.getMap();
-            if (toSpawn.contains(9300216) && reviveMap.getId() > 925000000 && reviveMap.getId() < 926000000) {
+            if (toSpawn.contains(9300216) && reviveMap.getId() > 925000000 && reviveMap.getId() < 926000000)
+            {
                 reviveMap.broadcastMessage(MaplePacketCreator.playSound("Dojang/clear"));
                 reviveMap.broadcastMessage(MaplePacketCreator.showEffect("dojang/end/clear"));
             }
             Pair<Integer, String> timeMob = reviveMap.getTimeMob();
-            if (timeMob != null) {
-                if (toSpawn.contains(timeMob.getLeft())) {
+            if (timeMob != null)
+            {
+                if (toSpawn.contains(timeMob.getLeft()))
+                {
                     reviveMap.broadcastMessage(MaplePacketCreator.serverNotice(6, timeMob.getRight()));
                 }
 
-                if (timeMob.getLeft() == 9300338 && (reviveMap.getId() >= 922240100 && reviveMap.getId() <= 922240119)) {
-                    if (!reviveMap.containsNPC(9001108)) {
+                if (timeMob.getLeft() == 9300338 && (reviveMap.getId() >= 922240100 && reviveMap.getId() <= 922240119))
+                {
+                    if (!reviveMap.containsNPC(9001108))
+                    {
                         MapleNPC npc = MapleLifeFactory.getNPC(9001108);
                         npc.setPosition(new Point(172, 9));
                         npc.setCy(9);
@@ -408,65 +496,85 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                         npc.setFh(27);
                         reviveMap.addMapObject(npc);
                         reviveMap.broadcastMessage(MaplePacketCreator.spawnNPC(npc));
-                    } else {
+                    }
+                    else
+                    {
                         reviveMap.toggleHiddenNPC(9001108);
                     }
                 }
             }
-            
-            TimerManager.getInstance().schedule(new Runnable() {
+
+            TimerManager.getInstance().schedule(new Runnable()
+            {
                 @Override
-                public void run() {
-                    for (Integer mid : toSpawn) {
+                public void run()
+                {
+                    for (Integer mid : toSpawn)
+                    {
                         final MapleMonster mob = MapleLifeFactory.getMonster(mid);
                         mob.setPosition(getPosition());
-                        if (dropsDisabled()) {
+                        if (dropsDisabled())
+                        {
                             mob.disableDrops();
                         }
                         reviveMap.spawnMonster(mob);
-                        
-                        if(mob.getId() >= 8810010 && mob.getId() <= 8810017 && reviveMap.isHorntailDefeated()) {
-                            for(int i = 8810018; i >= 8810010; i--)
+
+                        if (mob.getId() >= 8810010 && mob.getId() <= 8810017 && reviveMap.isHorntailDefeated())
+                        {
+                            for (int i = 8810018; i >= 8810010; i--)
+                            {
                                 reviveMap.killMonster(reviveMap.getMonsterById(i), killer, true);
+                            }
                         }
                     }
                 }
             }, getAnimationTime("die1"));
         }
-        else {  // is this even necessary?
+        else
+        {  // is this even necessary?
             System.out.println("[CRITICAL LOSS] toSpawn is null for " + this.getName());
         }
-        
+
         MapleCharacter looter = map.getCharacterById(getHighestDamagerId());
         return looter != null ? looter : killer;
     }
-    
-    public void dispatchMonsterKilled() {
-        if (getMap().getEventInstance() != null) {
-            if (!this.getStats().isFriendly()) {
+
+    public void dispatchMonsterKilled()
+    {
+        if (getMap().getEventInstance() != null)
+        {
+            if (!this.getStats().isFriendly())
+            {
                 getMap().getEventInstance().monsterKilled(this);
-            } else {
+            }
+            else
+            {
                 getMap().getEventInstance().friendlyKilled(this);
             }
         }
-        
-        for (MonsterListener listener : listeners.toArray(new MonsterListener[listeners.size()])) {
+
+        for (MonsterListener listener : listeners.toArray(new MonsterListener[listeners.size()]))
+        {
             listener.monsterKilled(getAnimationTime("die1"));
         }
     }
-    
-    public void dispatchMonsterDamaged(MapleCharacter from, int trueDmg) {
-        for (MonsterListener listener : listeners.toArray(new MonsterListener[listeners.size()])) {
+
+    public void dispatchMonsterDamaged(MapleCharacter from, int trueDmg)
+    {
+        for (MonsterListener listener : listeners.toArray(new MonsterListener[listeners.size()]))
+        {
             listener.monsterDamaged(from, trueDmg);
         }
     }
 
     // should only really be used to determine drop owner
-    private int getHighestDamagerId() {
+    private int getHighestDamagerId()
+    {
         int curId = 0;
         int curDmg = 0;
 
-        for (Entry<Integer, AtomicInteger> damage : takenDamage.entrySet()) {
+        for (Entry<Integer, AtomicInteger> damage : takenDamage.entrySet())
+        {
             curId = damage.getValue().get() >= curDmg ? damage.getKey() : curId;
             curDmg = damage.getKey() == curId ? damage.getValue().get() : curDmg;
         }
@@ -474,86 +582,111 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         return curId;
     }
 
-    public boolean isAlive() {
+    public boolean isAlive()
+    {
         return this.hp > 0;
     }
 
-    public MapleCharacter getController() {
+    public MapleCharacter getController()
+    {
         return controller.get();
     }
 
-    public void setController(MapleCharacter controller) {
+    public void setController(MapleCharacter controller)
+    {
         this.controller = new WeakReference<>(controller);
     }
 
-    public void switchController(MapleCharacter newController, boolean immediateAggro) {
+    public void switchController(MapleCharacter newController, boolean immediateAggro)
+    {
         MapleCharacter controllers = getController();
-        if (controllers == newController) {
+        if (controllers == newController)
+        {
             return;
         }
-        if (controllers != null) {
+        if (controllers != null)
+        {
             controllers.stopControllingMonster(this);
             controllers.getClient().announce(MaplePacketCreator.stopControllingMonster(getObjectId()));
         }
         newController.controlMonster(this, immediateAggro);
         setController(newController);
-        if (immediateAggro) {
+        if (immediateAggro)
+        {
             setControllerHasAggro(true);
         }
         setControllerKnowsAboutAggro(false);
     }
 
-    public void addListener(MonsterListener listener) {
+    public void addListener(MonsterListener listener)
+    {
         listeners.add(listener);
     }
 
-    public boolean isControllerHasAggro() {
+    public boolean isControllerHasAggro()
+    {
         return fake ? false : controllerHasAggro;
     }
 
-    public void setControllerHasAggro(boolean controllerHasAggro) {
-        if (fake) {
+    public void setControllerHasAggro(boolean controllerHasAggro)
+    {
+        if (fake)
+        {
             return;
         }
         this.controllerHasAggro = controllerHasAggro;
     }
 
-    public boolean isControllerKnowsAboutAggro() {
+    public boolean isControllerKnowsAboutAggro()
+    {
         return fake ? false : controllerKnowsAboutAggro;
     }
 
-    public void setControllerKnowsAboutAggro(boolean controllerKnowsAboutAggro) {
-        if (fake) {
+    public void setControllerKnowsAboutAggro(boolean controllerKnowsAboutAggro)
+    {
+        if (fake)
+        {
             return;
         }
         this.controllerKnowsAboutAggro = controllerKnowsAboutAggro;
     }
 
-    public byte[] makeBossHPBarPacket() {
+    public byte[] makeBossHPBarPacket()
+    {
         return MaplePacketCreator.showBossHP(getId(), getHp(), getMaxHp(), getTagColor(), getTagBgColor());
     }
 
-    public boolean hasBossHPBar() {
+    public boolean hasBossHPBar()
+    {
         return isBoss() && getTagColor() > 0;
     }
 
     @Override
-    public void sendSpawnData(MapleClient c) {
-        if (!isAlive()) {
+    public void sendSpawnData(MapleClient c)
+    {
+        if (!isAlive())
+        {
             return;
         }
-        if (isFake()) {
+        if (isFake())
+        {
             c.announce(MaplePacketCreator.spawnFakeMonster(this, 0));
-        } else {
+        }
+        else
+        {
             c.announce(MaplePacketCreator.spawnMonster(this, false));
         }
-        if (stati.size() > 0) {
-            for (final MonsterStatusEffect mse : this.stati.values()) {
+        if (stati.size() > 0)
+        {
+            for (final MonsterStatusEffect mse : this.stati.values())
+            {
                 c.announce(MaplePacketCreator.applyMonsterStatus(getObjectId(), mse, null));
             }
         }
-        if (hasBossHPBar()) {
-            if (this.getMap().countMonster(8810026) > 0 && this.getMap().getId() == 240060200) {
+        if (hasBossHPBar())
+        {
+            if (this.getMap().countMonster(8810026) > 0 && this.getMap().getId() == 240060200)
+            {
                 this.getMap().killAllMonsters();
                 return;
             }
@@ -562,32 +695,40 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     @Override
-    public void sendDestroyData(MapleClient client) {
+    public void sendDestroyData(MapleClient client)
+    {
         client.announce(MaplePacketCreator.killMonster(getObjectId(), false));
     }
 
     @Override
-    public MapleMapObjectType getType() {
+    public MapleMapObjectType getType()
+    {
         return MapleMapObjectType.MONSTER;
     }
 
-    public boolean isMobile() {
+    public boolean isMobile()
+    {
         return stats.isMobile();
     }
 
-    public ElementalEffectiveness getEffectiveness(Element e) {
-        if (stati.size() > 0 && stati.get(MonsterStatus.DOOM) != null) {
+    public ElementalEffectiveness getEffectiveness(Element e)
+    {
+        if (stati.size() > 0 && stati.get(MonsterStatus.DOOM) != null)
+        {
             return ElementalEffectiveness.NORMAL; // like blue snails
         }
         return stats.getEffectiveness(e);
     }
 
-    public boolean applyStatus(MapleCharacter from, final MonsterStatusEffect status, boolean poison, long duration) {
+    public boolean applyStatus(MapleCharacter from, final MonsterStatusEffect status, boolean poison, long duration)
+    {
         return applyStatus(from, status, poison, duration, false);
     }
 
-    public boolean applyStatus(MapleCharacter from, final MonsterStatusEffect status, boolean poison, long duration, boolean venom) {
-        switch (stats.getEffectiveness(status.getSkill().getElement())) {
+    public boolean applyStatus(MapleCharacter from, final MonsterStatusEffect status, boolean poison, long duration, boolean venom)
+    {
+        switch (stats.getEffectiveness(status.getSkill().getElement()))
+        {
             case IMMUNE:
             case STRONG:
             case NEUTRAL:
@@ -595,45 +736,60 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             case NORMAL:
             case WEAK:
                 break;
-            default: {
+            default:
+            {
                 System.out.println("Unknown elemental effectiveness: " + stats.getEffectiveness(status.getSkill().getElement()));
                 return false;
             }
         }
 
-        if (status.getSkill().getId() == FPMage.ELEMENT_COMPOSITION) { // fp compo
+        if (status.getSkill().getId() == FPMage.ELEMENT_COMPOSITION)
+        { // fp compo
             ElementalEffectiveness effectiveness = stats.getEffectiveness(Element.POISON);
-            if (effectiveness == ElementalEffectiveness.IMMUNE || effectiveness == ElementalEffectiveness.STRONG) {
-                return false;
-            }
-        } else if (status.getSkill().getId() == ILMage.ELEMENT_COMPOSITION) { // il compo
-            ElementalEffectiveness effectiveness = stats.getEffectiveness(Element.ICE);
-            if (effectiveness == ElementalEffectiveness.IMMUNE || effectiveness == ElementalEffectiveness.STRONG) {
-                return false;
-            }
-        } else if (status.getSkill().getId() == NightLord.VENOMOUS_STAR || status.getSkill().getId() == Shadower.VENOMOUS_STAB || status.getSkill().getId() == NightWalker.VENOM) {// venom
-            if (stats.getEffectiveness(Element.POISON) == ElementalEffectiveness.WEAK) {
+            if (effectiveness == ElementalEffectiveness.IMMUNE || effectiveness == ElementalEffectiveness.STRONG)
+            {
                 return false;
             }
         }
-        if (poison && getHp() <= 1) {
+        else if (status.getSkill().getId() == ILMage.ELEMENT_COMPOSITION)
+        { // il compo
+            ElementalEffectiveness effectiveness = stats.getEffectiveness(Element.ICE);
+            if (effectiveness == ElementalEffectiveness.IMMUNE || effectiveness == ElementalEffectiveness.STRONG)
+            {
+                return false;
+            }
+        }
+        else if (status.getSkill().getId() == NightLord.VENOMOUS_STAR || status.getSkill().getId() == Shadower.VENOMOUS_STAB || status.getSkill().getId() == NightWalker.VENOM)
+        {// venom
+            if (stats.getEffectiveness(Element.POISON) == ElementalEffectiveness.WEAK)
+            {
+                return false;
+            }
+        }
+        if (poison && getHp() <= 1)
+        {
             return false;
         }
 
         final Map<MonsterStatus, Integer> statis = status.getStati();
-        if (stats.isBoss()) {
+        if (stats.isBoss())
+        {
             if (!(statis.containsKey(MonsterStatus.SPEED)
-                    && statis.containsKey(MonsterStatus.NINJA_AMBUSH)
-                    && statis.containsKey(MonsterStatus.WATK))) {
+                  && statis.containsKey(MonsterStatus.NINJA_AMBUSH)
+                  && statis.containsKey(MonsterStatus.WATK)))
+            {
                 return false;
             }
         }
 
-        for (MonsterStatus stat : statis.keySet()) {
+        for (MonsterStatus stat : statis.keySet())
+        {
             final MonsterStatusEffect oldEffect = stati.get(stat);
-            if (oldEffect != null) {
+            if (oldEffect != null)
+            {
                 oldEffect.removeActiveStatus(stat);
-                if (oldEffect.getStati().isEmpty()) {
+                if (oldEffect.getStati().isEmpty())
+                {
                     oldEffect.cancelTask();
                     oldEffect.cancelDamageSchedule();
                 }
@@ -641,35 +797,45 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
 
         TimerManager timerManager = TimerManager.getInstance();
-        final Runnable cancelTask = new Runnable() {
+        final Runnable cancelTask = new Runnable()
+        {
 
             @Override
-            public void run() {
-                if (isAlive()) {
+            public void run()
+            {
+                if (isAlive())
+                {
                     byte[] packet = MaplePacketCreator.cancelMonsterStatus(getObjectId(), status.getStati());
                     map.broadcastMessage(packet, getPosition());
-                    if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this)) {
+                    if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this))
+                    {
                         getController().getClient().announce(packet);
                     }
                 }
-                for (MonsterStatus stat : status.getStati().keySet()) {
+                for (MonsterStatus stat : status.getStati().keySet())
+                {
                     stati.remove(stat);
                 }
                 setVenomMulti(0);
                 status.cancelDamageSchedule();
             }
         };
-        if (poison) {
+        if (poison)
+        {
             int poisonLevel = from.getSkillLevel(status.getSkill());
             int poisonDamage = Math.min(Short.MAX_VALUE, (int) (getMaxHp() / (70.0 - poisonLevel) + 0.999));
             status.setValue(MonsterStatus.POISON, Integer.valueOf(poisonDamage));
             status.setDamageSchedule(timerManager.register(new DamageTask(poisonDamage, from, status, cancelTask, 0), 1000, 1000));
-        } else if (venom) {
-            if (from.getJob() == MapleJob.NIGHTLORD || from.getJob() == MapleJob.SHADOWER || from.getJob().isA(MapleJob.NIGHTWALKER3)) {
+        }
+        else if (venom)
+        {
+            if (from.getJob() == MapleJob.NIGHTLORD || from.getJob() == MapleJob.SHADOWER || from.getJob().isA(MapleJob.NIGHTWALKER3))
+            {
                 int poisonLevel, matk, id = from.getJob().getId();
                 int skill = (id == 412 ? NightLord.VENOMOUS_STAR : (id == 422 ? Shadower.VENOMOUS_STAB : NightWalker.VENOM));
                 poisonLevel = from.getSkillLevel(SkillFactory.getSkill(skill));
-                if (poisonLevel <= 0) {
+                if (poisonLevel <= 0)
+                {
                     return false;
                 }
                 matk = SkillFactory.getSkill(skill).getEffect(poisonLevel).getMatk();
@@ -677,23 +843,31 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 int maxDmg = (int) Math.ceil(Math.min(Short.MAX_VALUE, 0.2 * luk * matk));
                 int minDmg = (int) Math.ceil(Math.min(Short.MAX_VALUE, 0.1 * luk * matk));
                 int gap = maxDmg - minDmg;
-                if (gap == 0) {
+                if (gap == 0)
+                {
                     gap = 1;
                 }
                 int poisonDamage = 0;
-                for (int i = 0; i < getVenomMulti(); i++) {
+                for (int i = 0; i < getVenomMulti(); i++)
+                {
                     poisonDamage += (Randomizer.nextInt(gap) + minDmg);
                 }
                 poisonDamage = Math.min(Short.MAX_VALUE, poisonDamage);
                 status.setValue(MonsterStatus.VENOMOUS_WEAPON, Integer.valueOf(poisonDamage));
                 status.setDamageSchedule(timerManager.register(new DamageTask(poisonDamage, from, status, cancelTask, 0), 1000, 1000));
-            } else {
+            }
+            else
+            {
                 return false;
             }
 
-        } else if (status.getSkill().getId() == Hermit.SHADOW_WEB || status.getSkill().getId() == NightWalker.SHADOW_WEB) { //Shadow Web
+        }
+        else if (status.getSkill().getId() == Hermit.SHADOW_WEB || status.getSkill().getId() == NightWalker.SHADOW_WEB)
+        { //Shadow Web
             status.setDamageSchedule(timerManager.schedule(new DamageTask((int) (getMaxHp() / 50.0 + 0.999), from, status, cancelTask, 1), 3500));
-        } else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004) { // Ninja Ambush
+        }
+        else if (status.getSkill().getId() == 4121004 || status.getSkill().getId() == 4221004)
+        { // Ninja Ambush
             final Skill skill = SkillFactory.getSkill(status.getSkill().getId());
             final byte level = from.getSkillLevel(skill);
             final int damage = (int) ((from.getStr() + from.getLuk()) * (1.5 + (level * 0.05)) * skill.getEffect(level).getDamage());
@@ -704,33 +878,41 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             status.setValue(MonsterStatus.NINJA_AMBUSH, Integer.valueOf(damage));
             status.setDamageSchedule(timerManager.register(new DamageTask(damage, from, status, cancelTask, 2), 1000, 1000));
         }
-        for (MonsterStatus stat : status.getStati().keySet()) {
+        for (MonsterStatus stat : status.getStati().keySet())
+        {
             stati.put(stat, status);
             alreadyBuffed.add(stat);
         }
         int animationTime = status.getSkill().getAnimationTime();
         byte[] packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), status, null);
         map.broadcastMessage(packet, getPosition());
-        if (getController() != null && !getController().isMapObjectVisible(this)) {
+        if (getController() != null && !getController().isMapObjectVisible(this))
+        {
             getController().getClient().announce(packet);
         }
         status.setCancelTask(timerManager.schedule(cancelTask, duration + animationTime));
         return true;
     }
 
-    public void applyMonsterBuff(final Map<MonsterStatus, Integer> stats, final int x, int skillId, long duration, MobSkill skill, final List<Integer> reflection) {
+    public void applyMonsterBuff(final Map<MonsterStatus, Integer> stats, final int x, int skillId, long duration, MobSkill skill, final List<Integer> reflection)
+    {
         TimerManager timerManager = TimerManager.getInstance();
-        final Runnable cancelTask = new Runnable() {
+        final Runnable cancelTask = new Runnable()
+        {
 
             @Override
-            public void run() {
-                if (isAlive()) {
+            public void run()
+            {
+                if (isAlive())
+                {
                     byte[] packet = MaplePacketCreator.cancelMonsterStatus(getObjectId(), stats);
                     map.broadcastMessage(packet, getPosition());
-                    if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this)) {
+                    if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this))
+                    {
                         getController().getClient().announce(packet);
                     }
-                    for (final MonsterStatus stat : stats.keySet()) {
+                    for (final MonsterStatus stat : stats.keySet())
+                    {
                         stati.remove(stat);
                     }
                 }
@@ -739,25 +921,31 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         final MonsterStatusEffect effect = new MonsterStatusEffect(stats, null, skill, true);
         byte[] packet = MaplePacketCreator.applyMonsterStatus(getObjectId(), effect, reflection);
         map.broadcastMessage(packet, getPosition());
-        for (MonsterStatus stat : stats.keySet()) {
+        for (MonsterStatus stat : stats.keySet())
+        {
             stati.put(stat, effect);
             alreadyBuffed.add(stat);
         }
-        if (getController() != null && !getController().isMapObjectVisible(this)) {
+        if (getController() != null && !getController().isMapObjectVisible(this))
+        {
             getController().getClient().announce(packet);
         }
         effect.setCancelTask(timerManager.schedule(cancelTask, duration));
     }
 
-    public void debuffMob(int skillid) {
+    public void debuffMob(int skillid)
+    {
         //skillid is not going to be used for now until I get warrior debuff working
         MonsterStatus[] stats = {MonsterStatus.WEAPON_ATTACK_UP, MonsterStatus.WEAPON_DEFENSE_UP, MonsterStatus.MAGIC_ATTACK_UP, MonsterStatus.MAGIC_DEFENSE_UP};
-        for (int i = 0; i < stats.length; i++) {
-            if (isBuffed(stats[i])) {
+        for (int i = 0; i < stats.length; i++)
+        {
+            if (isBuffed(stats[i]))
+            {
                 final MonsterStatusEffect oldEffect = stati.get(stats[i]);
                 byte[] packet = MaplePacketCreator.cancelMonsterStatus(getObjectId(), oldEffect.getStati());
                 map.broadcastMessage(packet, getPosition());
-                if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this)) {
+                if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this))
+                {
                     getController().getClient().announce(packet);
                 }
                 stati.remove(stats);
@@ -765,109 +953,273 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
     }
 
-    public boolean isBuffed(MonsterStatus status) {
+    public boolean isBuffed(MonsterStatus status)
+    {
         return stati.containsKey(status);
     }
 
-    public void setFake(boolean fake) {
-        this.fake = fake;
-    }
-
-    public boolean isFake() {
+    public boolean isFake()
+    {
         return fake;
     }
 
-    public MapleMap getMap() {
+    public void setFake(boolean fake)
+    {
+        this.fake = fake;
+    }
+
+    public MapleMap getMap()
+    {
         return map;
     }
 
-    public List<Pair<Integer, Integer>> getSkills() {
+    public void setMap(MapleMap map)
+    {
+        this.map = map;
+    }
+
+    public List<Pair<Integer, Integer>> getSkills()
+    {
         return stats.getSkills();
     }
 
-    public boolean hasSkill(int skillId, int level) {
+    public boolean hasSkill(int skillId, int level)
+    {
         return stats.hasSkill(skillId, level);
     }
 
-    public boolean canUseSkill(MobSkill toUse) {
-        if (toUse == null) {
+    public boolean canUseSkill(MobSkill toUse)
+    {
+        if (toUse == null)
+        {
             return false;
         }
-        for (Pair<Integer, Integer> skill : usedSkills) {
-            if (skill.getLeft() == toUse.getSkillId() && skill.getRight() == toUse.getSkillLevel()) {
+        for (Pair<Integer, Integer> skill : usedSkills)
+        {
+            if (skill.getLeft() == toUse.getSkillId() && skill.getRight() == toUse.getSkillLevel())
+            {
                 return false;
             }
         }
-        if (toUse.getLimit() > 0) {
-            if (this.skillsUsed.containsKey(new Pair<>(toUse.getSkillId(), toUse.getSkillLevel()))) {
+        if (toUse.getLimit() > 0)
+        {
+            if (this.skillsUsed.containsKey(new Pair<>(toUse.getSkillId(), toUse.getSkillLevel())))
+            {
                 int times = this.skillsUsed.get(new Pair<>(toUse.getSkillId(), toUse.getSkillLevel()));
-                if (times >= toUse.getLimit()) {
+                if (times >= toUse.getLimit())
+                {
                     return false;
                 }
             }
         }
-        if (toUse.getSkillId() == 200) {
+        if (toUse.getSkillId() == 200)
+        {
             Collection<MapleMapObject> mmo = getMap().getMapObjects();
             int i = 0;
-            for (MapleMapObject mo : mmo) {
-                if (mo.getType() == MapleMapObjectType.MONSTER) {
+            for (MapleMapObject mo : mmo)
+            {
+                if (mo.getType() == MapleMapObjectType.MONSTER)
+                {
                     i++;
                 }
             }
-            if (i > 100) {
+            if (i > 100)
+            {
                 return false;
             }
         }
         return true;
     }
 
-    public void usedSkill(final int skillId, final int level, long cooltime) {
+    public void usedSkill(final int skillId, final int level, long cooltime)
+    {
         this.usedSkills.add(new Pair<>(skillId, level));
-        if (this.skillsUsed.containsKey(new Pair<>(skillId, level))) {
+        if (this.skillsUsed.containsKey(new Pair<>(skillId, level)))
+        {
             int times = this.skillsUsed.get(new Pair<>(skillId, level)) + 1;
             this.skillsUsed.remove(new Pair<>(skillId, level));
             this.skillsUsed.put(new Pair<>(skillId, level), times);
-        } else {
+        }
+        else
+        {
             this.skillsUsed.put(new Pair<>(skillId, level), 1);
         }
         final MapleMonster mons = this;
         TimerManager tMan = TimerManager.getInstance();
         tMan.schedule(
-                new Runnable() {
+                new Runnable()
+                {
 
                     @Override
-                    public void run() {
+                    public void run()
+                    {
                         mons.clearSkill(skillId, level);
                     }
                 }, cooltime);
     }
 
-    public void clearSkill(int skillId, int level) {
+    public void clearSkill(int skillId, int level)
+    {
         int index = -1;
-        for (Pair<Integer, Integer> skill : usedSkills) {
-            if (skill.getLeft() == skillId && skill.getRight() == level) {
+        for (Pair<Integer, Integer> skill : usedSkills)
+        {
+            if (skill.getLeft() == skillId && skill.getRight() == level)
+            {
                 index = usedSkills.indexOf(skill);
                 break;
             }
         }
-        if (index != -1) {
+        if (index != -1)
+        {
             usedSkills.remove(index);
         }
     }
 
-    public int getNoSkills() {
+    public int getNoSkills()
+    {
         return this.stats.getNoSkills();
     }
 
-    public boolean isFirstAttack() {
+    public boolean isFirstAttack()
+    {
         return this.stats.isFirstAttack();
     }
 
-    public int getBuffToGive() {
+    public int getBuffToGive()
+    {
         return this.stats.getBuffToGive();
     }
 
-    private final class DamageTask implements Runnable {
+    public String getName()
+    {
+        return stats.getName();
+    }
+
+    public void addStolen(int itemId)
+    {
+        stolenItems.add(itemId);
+    }
+
+    public List<Integer> getStolen()
+    {
+        return stolenItems;
+    }
+
+    public void setTempEffectiveness(Element e, ElementalEffectiveness ee, long milli)
+    {
+        final Element fE = e;
+        final ElementalEffectiveness fEE = stats.getEffectiveness(e);
+        if (!stats.getEffectiveness(e).equals(ElementalEffectiveness.WEAK))
+        {
+            stats.setEffectiveness(e, ee);
+            TimerManager.getInstance().schedule(new Runnable()
+            {
+
+                @Override
+                public void run()
+                {
+                    stats.removeEffectiveness(fE);
+                    stats.setEffectiveness(fE, fEE);
+                }
+            }, milli);
+        }
+    }
+
+    public Collection<MonsterStatus> alreadyBuffedStats()
+    {
+        return Collections.unmodifiableCollection(alreadyBuffed);
+    }
+
+    public BanishInfo getBanish()
+    {
+        return stats.getBanishInfo();
+    }
+
+    public int getDropPeriodTime()
+    {
+        return stats.getDropPeriod();
+    }
+
+    public int getPADamage()
+    {
+        return stats.getPADamage();
+    }
+
+    public Map<MonsterStatus, MonsterStatusEffect> getStati()
+    {
+        return stati;
+    }
+
+    public final ChangeableStats getChangedStats()
+    {
+        return ostats;
+    }
+
+    // ---- one can always have fun trying these pieces of codes below in-game rofl ----
+
+    public final int getMobMaxHp()
+    {
+        if (ostats != null)
+        {
+            return ostats.hp;
+        }
+        return stats.getHp();
+    }
+
+    public final void setOverrideStats(final OverrideMonsterStats ostats)
+    {
+        this.ostats = new ChangeableStats(stats, ostats);
+        this.hp = ostats.getHp();
+        this.mp = ostats.getMp();
+    }
+
+    public final void changeLevel(final int newLevel)
+    {
+        changeLevel(newLevel, true);
+    }
+
+    public final void changeLevel(final int newLevel, boolean pqMob)
+    {
+        if (!stats.isChangeable())
+        {
+            return;
+        }
+        this.ostats = new ChangeableStats(stats, newLevel, pqMob);
+        this.hp = ostats.getHp();
+        this.mp = ostats.getMp();
+    }
+
+    private float getDifficultyRate(final int difficulty)
+    {
+        switch (difficulty)
+        {
+            case 6:
+                return (7.7f);
+            case 5:
+                return (5.6f);
+            case 4:
+                return (3.2f);
+            case 3:
+                return (2.1f);
+            case 2:
+                return (1.4f);
+        }
+
+        return (1.0f);
+    }
+
+    private void changeLevelByDifficulty(final int difficulty, boolean pqMob)
+    {
+        changeLevel((int) (this.getLevel() * getDifficultyRate(difficulty)), pqMob);
+    }
+
+    public final void changeDifficulty(final int difficulty, boolean pqMob)
+    {
+        changeLevelByDifficulty(difficulty, pqMob);
+    }
+
+    private final class DamageTask implements Runnable
+    {
 
         private final int dealDamage;
         private final MapleCharacter chr;
@@ -876,7 +1228,8 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         private final int type;
         private final MapleMap map;
 
-        private DamageTask(int dealDamage, MapleCharacter chr, MonsterStatusEffect status, Runnable cancelTask, int type) {
+        private DamageTask(int dealDamage, MapleCharacter chr, MonsterStatusEffect status, Runnable cancelTask, int type)
+        {
             this.dealDamage = dealDamage;
             this.chr = chr;
             this.status = status;
@@ -886,126 +1239,27 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
 
         @Override
-        public void run() {
+        public void run()
+        {
             int damage = dealDamage;
-            if (damage >= hp) {
+            if (damage >= hp)
+            {
                 damage = hp - 1;
-                if (type == 1 || type == 2) {
+                if (type == 1 || type == 2)
+                {
                     map.broadcastMessage(MaplePacketCreator.damageMonster(getObjectId(), damage), getPosition());
                     cancelTask.run();
                     status.getCancelTask().cancel(false);
                 }
             }
-            if (hp > 1 && damage > 0) {
+            if (hp > 1 && damage > 0)
+            {
                 damage(chr, damage);
-                if (type == 1) {
+                if (type == 1)
+                {
                     map.broadcastMessage(MaplePacketCreator.damageMonster(getObjectId(), damage), getPosition());
                 }
             }
         }
-    }
-
-    public String getName() {
-        return stats.getName();
-    }
-
-    public void addStolen(int itemId) {
-        stolenItems.add(itemId);
-    }
-
-    public List<Integer> getStolen() {
-        return stolenItems;
-    }
-
-    public void setTempEffectiveness(Element e, ElementalEffectiveness ee, long milli) {
-        final Element fE = e;
-        final ElementalEffectiveness fEE = stats.getEffectiveness(e);
-        if (!stats.getEffectiveness(e).equals(ElementalEffectiveness.WEAK)) {
-            stats.setEffectiveness(e, ee);
-            TimerManager.getInstance().schedule(new Runnable() {
-
-                @Override
-                public void run() {
-                    stats.removeEffectiveness(fE);
-                    stats.setEffectiveness(fE, fEE);
-                }
-            }, milli);
-        }
-    }
-
-    public Collection<MonsterStatus> alreadyBuffedStats() {
-        return Collections.unmodifiableCollection(alreadyBuffed);
-    }
-
-    public BanishInfo getBanish() {
-        return stats.getBanishInfo();
-    }
-
-    public void setBoss(boolean boss) {
-        this.stats.setBoss(boss);
-    }
-
-    public int getDropPeriodTime() {
-        return stats.getDropPeriod();
-    }
-
-    public int getPADamage() {
-        return stats.getPADamage();
-    }
-
-    public Map<MonsterStatus, MonsterStatusEffect> getStati() {
-        return stati;
-    }
-    
-    // ---- one can always have fun trying these pieces of codes below in-game rofl ----
-    
-    public final ChangeableStats getChangedStats() {
-	return ostats;
-    }
-
-    public final int getMobMaxHp() {
-        if (ostats != null) {
-            return ostats.hp;
-        }
-        return stats.getHp();
-    }
-    
-    public final void setOverrideStats(final OverrideMonsterStats ostats) {
-        this.ostats = new ChangeableStats(stats, ostats);
-        this.hp = ostats.getHp();
-        this.mp = ostats.getMp();
-    }
-	
-    public final void changeLevel(final int newLevel) {
-        changeLevel(newLevel, true);
-    }
-
-    public final void changeLevel(final int newLevel, boolean pqMob) {
-        if (!stats.isChangeable()) {
-            return;
-        }
-        this.ostats = new ChangeableStats(stats, newLevel, pqMob);
-        this.hp = ostats.getHp();
-        this.mp = ostats.getMp();
-    }
-    
-    private float getDifficultyRate(final int difficulty) {
-        switch(difficulty) {
-            case 6: return(7.7f);
-            case 5: return(5.6f);
-            case 4: return(3.2f);
-            case 3: return(2.1f);
-            case 2: return(1.4f);
-        }
-        
-        return(1.0f);
-    }
-    
-    private void changeLevelByDifficulty(final int difficulty, boolean pqMob) {
-        changeLevel((int)(this.getLevel() * getDifficultyRate(difficulty)), pqMob);
-    }
-    
-    public final void changeDifficulty(final int difficulty, boolean pqMob) {
-        changeLevelByDifficulty(difficulty, pqMob);
     }
 }

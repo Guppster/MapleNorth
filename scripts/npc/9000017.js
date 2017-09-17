@@ -36,7 +36,7 @@ function action(mode, type, selection) {
         cm.sendNext(selStr);
     }
     else if (status == 1) {
-	var selStr = "We've got here the knowledge to synthetize the mighty #b#t2049100##k! Of course, making one is not an easy task... But worry not! Just gather some material to me and a fee of #b1,200,000 mesos#k for our services to #bobtain it#k. You still want to do it?";
+        var selStr = "We've got here the knowledge to synthetize the mighty #b#t2049100##k! Of course, making one is not an easy task... But worry not! Just gather some material to me and a fee of #b1,200,000 mesos#k for our services to #bobtain it#k. You still want to do it?";
         cm.sendYesNo(selStr);
     }
 
@@ -45,51 +45,51 @@ function action(mode, type, selection) {
         selectedItem = 0;
 
         var itemSet = new Array(2049100, 7777777);
-        var matSet = new Array(new Array(4031203,4001356,4000136,4000082,4001126,4080100,4000021,4003005));
-        var matQtySet = new Array(new Array(10,6,4,8,8,1,20,12));
+        var matSet = new Array(new Array(4031203, 4001356, 4000136, 4000082, 4001126, 4080100, 4000021, 4003005));
+        var matQtySet = new Array(new Array(10, 6, 4, 8, 8, 1, 20, 12));
         var costSet = new Array(1200000, 7777777);
         item = itemSet[selectedItem];
         mats = matSet[selectedItem];
         matQty = matQtySet[selectedItem];
         cost = costSet[selectedItem];
-                
+
         var prompt = "So, you want us to make some #t" + item + "#? In that case, how many do you want us to make?";
-        cm.sendGetNumber(prompt,1,1,100)
+        cm.sendGetNumber(prompt, 1, 1, 100)
     }
-        
+
     else if (status == 3) {
         qty = selection;
         last_use = false;
-                
+
         var prompt = "You want us to make ";
         if (qty == 1)
             prompt += "a #t" + item + "#?";
         else
             prompt += qty + " #t" + item + "#?";
-                        
+
         prompt += " In that case, we're going to need specific items from you in order to make it. Make sure you have room in your inventory, though!#b";
-                
-        if (mats instanceof Array){
+
+        if (mats instanceof Array) {
             for (var i = 0; i < mats.length; i++) {
-                prompt += "\r\n#i"+mats[i]+"# " + matQty[i] * qty + " #t" + mats[i] + "#";
+                prompt += "\r\n#i" + mats[i] + "# " + matQty[i] * qty + " #t" + mats[i] + "#";
             }
         } else {
-            prompt += "\r\n#i"+mats+"# " + matQty * qty + " #t" + mats + "#";
+            prompt += "\r\n#i" + mats + "# " + matQty * qty + " #t" + mats + "#";
         }
-                
+
         if (cost > 0) {
             prompt += "\r\n#i4031138# " + cost * qty + " meso";
         }
         cm.sendYesNo(prompt);
     }
-    
+
     else if (status == 4) {
         var complete = true;
-                
+
         if (cm.getMeso() < cost * qty) {
             cm.sendOk("Come on! We're not here doing you a favor! We all need money to live properly, so bring the cash so we make deal and start the synthesis.");
         }
-        else if(!cm.canHold(item, qty)) {
+        else if (!cm.canHold(item, qty)) {
             cm.sendOk("You didn't check if you got a slot to spare on your inventory before our business, no?");
         }
         else {
@@ -104,12 +104,12 @@ function action(mode, type, selection) {
             } else {
                 complete = cm.haveItem(mats, matQty * qty);
             }
-            
+
             if (!complete)
                 cm.sendOk("You kidding, right? We won't be able to start the process without all the ingredients at hands. Go get all of them and then talk to us!");
             else {
                 if (mats instanceof Array) {
-                    for (var i = 0; i < mats.length; i++){
+                    for (var i = 0; i < mats.length; i++) {
                         cm.gainItem(mats[i], -matQty[i] * qty);
                     }
                 } else {

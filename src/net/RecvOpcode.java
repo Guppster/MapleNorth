@@ -21,9 +21,10 @@
 */
 package net;
 
-public enum RecvOpcode {
+public enum RecvOpcode
+{
     CUSTOM_PACKET(0x3713),//13 37 lol
-    
+
     LOGIN_PASSWORD(0x01),
     GUEST_LOGIN(0x02),
     SERVERLIST_REREQUEST(0x04),
@@ -186,11 +187,13 @@ public enum RecvOpcode {
     USE_HAMMER(0x104);
     private int code = -2;
 
-    private RecvOpcode(int code) {
+    private RecvOpcode(int code)
+    {
         this.code = code;
     }
 
-    public int getValue() {
+    public int getValue()
+    {
         return code;
     }
 }

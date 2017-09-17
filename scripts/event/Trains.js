@@ -23,7 +23,7 @@ function init() {
     Ludibrium_docked = em.getChannelServer().getMapFactory().getMap(220000110);
     Orbis_Station = em.getChannelServer().getMapFactory().getMap(200000100);
     Ludibrium_Station = em.getChannelServer().getMapFactory().getMap(220000100);
-    
+
     scheduleNew();
 }
 
@@ -31,14 +31,14 @@ function scheduleNew() {
     em.setProperty("docked", "true");
     Orbis_docked.setDocked(true);
     Ludibrium_docked.setDocked(true);
-    
+
     em.setProperty("entry", "true");
     em.schedule("stopEntry", closeTime); //The time to close the gate
     em.schedule("takeoff", beginTime); //The time to begin the ride
 }
 
 function stopEntry() {
-    em.setProperty("entry","false");
+    em.setProperty("entry", "false");
 }
 
 function takeoff() {
@@ -46,11 +46,11 @@ function takeoff() {
     Ludibrium_btf.warpEveryone(Train_to_Orbis.getId());
     Orbis_docked.broadcastShip(false);
     Ludibrium_docked.broadcastShip(false);
-    
-    em.setProperty("docked","false");
+
+    em.setProperty("docked", "false");
     Orbis_docked.setDocked(false);
     Ludibrium_docked.setDocked(false);
-    
+
     em.schedule("arrived", rideTime); //The time that require move to destination
 }
 

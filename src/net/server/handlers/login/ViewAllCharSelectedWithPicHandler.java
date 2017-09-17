@@ -10,10 +10,12 @@ import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleClient;
 
-public class ViewAllCharSelectedWithPicHandler extends AbstractMaplePacketHandler {
+public class ViewAllCharSelectedWithPicHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
 
         String pic = slea.readMapleAsciiString();
         int charId = slea.readInt();
@@ -24,24 +26,32 @@ public class ViewAllCharSelectedWithPicHandler extends AbstractMaplePacketHandle
         String macs = slea.readMapleAsciiString();
         c.updateMacs(macs);
 
-        if (c.hasBannedMac()) {
+        if (c.hasBannedMac())
+        {
             c.getSession().close(true);
             return;
         }
-        if (c.checkPic(pic)) {
-            if (c.getIdleTask() != null) {
+        if (c.checkPic(pic))
+        {
+            if (c.getIdleTask() != null)
+            {
                 c.getIdleTask().cancel(true);
             }
             c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
 
             String[] socket = Server.getInstance().getIP(c.getWorld(), c.getChannel()).split(":");
-            try {
+            try
+            {
                 c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
-            } catch (UnknownHostException e) {
+            }
+            catch (UnknownHostException e)
+            {
                 e.printStackTrace();
             }
 
-        } else {
+        }
+        else
+        {
             c.announce(MaplePacketCreator.wrongPic());
         }
     }

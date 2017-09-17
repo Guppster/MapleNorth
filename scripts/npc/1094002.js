@@ -25,27 +25,27 @@
 
 var rolled = 0;
 
-function start(mode, type, selection){
+function start(mode, type, selection) {
     //cm.sendGetText("Do you want to obtain a glasses?");
-    if(!cm.isQuestStarted(2186)) {
+    if (!cm.isQuestStarted(2186)) {
         cm.sendOk("Just a pile of boxes, nothing special...");
         cm.dispose();
         return;
     }
-    
+
     cm.sendNext("Do you want to obtain a glasses?");
 }
 
 function action(mode, type, selection) {
-    if(!(cm.haveItem(4031853) || cm.haveItem(4031854) || cm.haveItem(4031855))) {
+    if (!(cm.haveItem(4031853) || cm.haveItem(4031854) || cm.haveItem(4031855))) {
         rolled = Math.floor(Math.random() * 3);
-        
-        if(rolled == 0) cm.gainItem(4031853, 1);
-        else if(rolled == 1) cm.gainItem(4031854, 1);
+
+        if (rolled == 0) cm.gainItem(4031853, 1);
+        else if (rolled == 1) cm.gainItem(4031854, 1);
         else cm.gainItem(4031855, 1);
     }
     else cm.sendOk("You #balready have#k the glasses that was here!");
-    
+
     //cm.saveSquadMembers(cm.getText());
     cm.dispose();
 }

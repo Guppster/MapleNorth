@@ -3,7 +3,7 @@ function enter(pi) {
         pi.getPlayer().dropMessage(6, "You need a warp card to activate this portal.");
         return false;
     }
-    
-    pi.warp(120000101,"earth01");
+
+    pi.warp(120000101, "earth01");
     return true;
 }

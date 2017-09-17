@@ -22,10 +22,12 @@
 package server.life;
 
 import client.MapleCharacter;
+
 import java.awt.Point;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SpawnPoint {
+public class SpawnPoint
+{
     private int monster, mobTime, team, fh, f;
     private Point pos;
     private long nextPossibleSpawn;
@@ -33,7 +35,8 @@ public class SpawnPoint {
     private AtomicInteger spawnedMonsters = new AtomicInteger(0);
     private boolean immobile, denySpawn = false;
 
-    public SpawnPoint(final MapleMonster monster, Point pos, boolean immobile, int mobTime, int mobInterval, int team) {
+    public SpawnPoint(final MapleMonster monster, Point pos, boolean immobile, int mobTime, int mobInterval, int team)
+    {
         this.monster = monster.getId();
         this.pos = new Point(pos);
         this.mobTime = mobTime;
@@ -44,83 +47,105 @@ public class SpawnPoint {
         this.mobInterval = mobInterval;
         this.nextPossibleSpawn = System.currentTimeMillis();
     }
-    
-    public int getSpawned() {
+
+    public int getSpawned()
+    {
         return spawnedMonsters.intValue();
     }
-    
-    public void setDenySpawn(boolean val) {
-        denySpawn = val;
-    }
-    
-    public boolean getDenySpawn() {
+
+    public boolean getDenySpawn()
+    {
         return denySpawn;
     }
 
-    public boolean shouldSpawn() {
-    	if (denySpawn || mobTime < 0 || spawnedMonsters.get() > 0) {
+    public void setDenySpawn(boolean val)
+    {
+        denySpawn = val;
+    }
+
+    public boolean shouldSpawn()
+    {
+        if (denySpawn || mobTime < 0 || spawnedMonsters.get() > 0)
+        {
             return false;
         }
         return nextPossibleSpawn <= System.currentTimeMillis();
     }
 
-    public boolean shouldForceSpawn() {
-    	if (mobTime < 0 || spawnedMonsters.get() > 0) {
+    public boolean shouldForceSpawn()
+    {
+        if (mobTime < 0 || spawnedMonsters.get() > 0)
+        {
             return false;
         }
-       
+
         return true;
     }
-    
-    public MapleMonster getMonster() {
+
+    public MapleMonster getMonster()
+    {
         MapleMonster mob = new MapleMonster(MapleLifeFactory.getMonster(monster));
         mob.setPosition(new Point(pos));
         mob.setTeam(team);
         mob.setFh(fh);
         mob.setF(f);
         spawnedMonsters.incrementAndGet();
-        mob.addListener(new MonsterListener() {
+        mob.addListener(new MonsterListener()
+        {
             @Override
-            public void monsterKilled(int aniTime) {
+            public void monsterKilled(int aniTime)
+            {
                 nextPossibleSpawn = System.currentTimeMillis();
-                if (mobTime > 0) {
+                if (mobTime > 0)
+                {
                     nextPossibleSpawn += mobTime * 1000;
-                } else {
+                }
+                else
+                {
                     nextPossibleSpawn += aniTime;
                 }
                 spawnedMonsters.decrementAndGet();
             }
-            
+
             @Override
-            public void monsterDamaged(MapleCharacter from, int trueDmg) {}
+            public void monsterDamaged(MapleCharacter from, int trueDmg)
+            {
+            }
         });
-        if (mobTime == 0) {
+        if (mobTime == 0)
+        {
             nextPossibleSpawn = System.currentTimeMillis() + mobInterval;
         }
         return mob;
     }
-    
-    public int getMonsterId() {
+
+    public int getMonsterId()
+    {
         return monster;
     }
 
-    public Point getPosition() {
+    public Point getPosition()
+    {
         return pos;
     }
 
-    public final int getF() {
+    public final int getF()
+    {
         return f;
     }
 
-    public final int getFh() {
+    public final int getFh()
+    {
         return fh;
     }
-    
-    public int getMobTime() {
+
+    public int getMobTime()
+    {
         return mobTime;
     }
-    
-    public int getTeam() {
+
+    public int getTeam()
+    {
         return team;
     }
 }

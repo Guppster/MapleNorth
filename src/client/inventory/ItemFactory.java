@@ -28,14 +28,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
+
 import tools.DatabaseConnection;
 import tools.Pair;
 
 /**
- *
  * @author Flav
  */
-public enum ItemFactory {
+public enum ItemFactory
+{
 
     INVENTORY(1, false),
     STORAGE(2, true),
@@ -43,31 +44,36 @@ public enum ItemFactory {
     CASH_CYGNUS(4, false),
     CASH_ARAN(5, false),
     MERCHANT(6, false);
+    private static final ReentrantLock lock = new ReentrantLock(true);
     private final int value;
     private final boolean account;
-    private static final ReentrantLock lock = new ReentrantLock(true);
 
-    private ItemFactory(int value, boolean account) {
+    private ItemFactory(int value, boolean account)
+    {
         this.value = value;
         this.account = account;
     }
 
-    public int getValue() {
+    public int getValue()
+    {
         return value;
     }
 
-    public List<Pair<Item, MapleInventoryType>> loadItems(int id, boolean login) throws SQLException {
+    public List<Pair<Item, MapleInventoryType>> loadItems(int id, boolean login) throws SQLException
+    {
         List<Pair<Item, MapleInventoryType>> items = new ArrayList<>();
-		
+
         PreparedStatement ps = null;
         ResultSet rs = null;
         Connection con = DatabaseConnection.getConnection();
-        try {
+        try
+        {
             StringBuilder query = new StringBuilder();
             query.append("SELECT * FROM `inventoryitems` LEFT JOIN `inventoryequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `");
             query.append(account ? "accountid" : "characterid").append("` = ?");
 
-            if (login) {
+            if (login)
+            {
                 query.append(" AND `inventorytype` = ").append(MapleInventoryType.EQUIPPED.getType());
             }
 
@@ -76,10 +82,12 @@ public enum ItemFactory {
             ps.setInt(2, id);
             rs = ps.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next())
+            {
                 MapleInventoryType mit = MapleInventoryType.getByType(rs.getByte("inventorytype"));
 
-                if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
+                if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED))
+                {
                     Equip equip = new Equip(rs.getInt("itemid"), (short) rs.getInt("position"));
                     equip.setOwner(rs.getString("owner"));
                     equip.setQuantity((short) rs.getInt("quantity"));
@@ -108,7 +116,9 @@ public enum ItemFactory {
                     equip.setGiftFrom(rs.getString("giftFrom"));
                     equip.setRingId(rs.getInt("ringid"));
                     items.add(new Pair<Item, MapleInventoryType>(equip, mit));
-                } else {
+                }
+                else
+                {
                     Item item = new Item(rs.getInt("itemid"), (byte) rs.getInt("position"), (short) rs.getInt("quantity"), rs.getInt("petid"));
                     item.setOwner(rs.getString("owner"));
                     item.setExpiration(rs.getLong("expiration"));
@@ -121,27 +131,34 @@ public enum ItemFactory {
             rs.close();
             ps.close();
             con.close();
-        } finally {
-            if (rs != null && !rs.isClosed()) {
+        }
+        finally
+        {
+            if (rs != null && !rs.isClosed())
+            {
                 rs.close();
             }
-            if (ps != null && !ps.isClosed()) {
+            if (ps != null && !ps.isClosed())
+            {
                 ps.close();
             }
-            if (con != null && !con.isClosed()) {
+            if (con != null && !con.isClosed())
+            {
                 con.close();
             }
         }
         return items;
     }
 
-    public synchronized void saveItems(List<Pair<Item, MapleInventoryType>> items, int id, Connection con) throws SQLException {
+    public synchronized void saveItems(List<Pair<Item, MapleInventoryType>> items, int id, Connection con) throws SQLException
+    {
         PreparedStatement ps = null;
         PreparedStatement pse = null;
         ResultSet rs = null;
 
         lock.lock();
-        try {
+        try
+        {
             StringBuilder query = new StringBuilder();
             query.append("DELETE `inventoryitems`, `inventoryequipment` FROM `inventoryitems` LEFT JOIN `inventoryequipment` USING(`inventoryitemid`) WHERE `type` = ? AND `");
             query.append(account ? "accountid" : "characterid").append("` = ?");
@@ -152,8 +169,10 @@ public enum ItemFactory {
             ps.close();
             ps = con.prepareStatement("INSERT INTO `inventoryitems` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 
-            if (!items.isEmpty()) {
-                for (Pair<Item, MapleInventoryType> pair : items) {
+            if (!items.isEmpty())
+            {
+                for (Pair<Item, MapleInventoryType> pair : items)
+                {
                     Item item = pair.getLeft();
                     MapleInventoryType mit = pair.getRight();
                     ps.setInt(1, value);
@@ -172,16 +191,18 @@ public enum ItemFactory {
 
                     pse = con.prepareStatement("INSERT INTO `inventoryequipment` VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-                    if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
+                    if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED))
+                    {
                         rs = ps.getGeneratedKeys();
 
-			if (!rs.next()) {
+                        if (!rs.next())
+                        {
                             throw new RuntimeException("Inserting item failed.");
                         }
 
-                        pse.setInt(1, rs.getInt(1));			
-			rs.close();
-						
+                        pse.setInt(1, rs.getInt(1));
+                        rs.close();
+
                         Equip equip = (Equip) item;
                         pse.setInt(2, equip.getUpgradeSlots());
                         pse.setInt(3, equip.getLevel());
@@ -207,23 +228,28 @@ public enum ItemFactory {
                         pse.setInt(23, equip.getRingId());
                         pse.executeUpdate();
                     }
-                    
+
                     pse.close();
                 }
             }
-			
+
             ps.close();
-        } finally {
-            if (ps != null && !ps.isClosed()) {
+        }
+        finally
+        {
+            if (ps != null && !ps.isClosed())
+            {
                 ps.close();
             }
-            if (pse != null && !pse.isClosed()) {
+            if (pse != null && !pse.isClosed())
+            {
                 pse.close();
             }
-            if(rs != null && !rs.isClosed()) {
-		rs.close();
+            if (rs != null && !rs.isClosed())
+            {
+                rs.close();
             }
-			
+
             lock.unlock();
         }
     }

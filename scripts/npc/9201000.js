@@ -26,7 +26,7 @@
  */
 //var numberOfLoves = 0;
 //var ringSelection = -1;
- 
+
 function start() {
     //    status = -1;
     //    action(1, 0, 0);

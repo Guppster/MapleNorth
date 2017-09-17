@@ -24,44 +24,52 @@ package server.maps;
 import java.awt.Point;
 
 /**
- * 
  * @author Matze
  */
-public class MapleFoothold implements Comparable<MapleFoothold> {
+public class MapleFoothold implements Comparable<MapleFoothold>
+{
     private Point p1;
     private Point p2;
     private int id;
     private int next, prev;
 
-    public MapleFoothold(Point p1, Point p2, int id) {
+    public MapleFoothold(Point p1, Point p2, int id)
+    {
         this.p1 = p1;
         this.p2 = p2;
         this.id = id;
     }
 
-    public boolean isWall() {
+    public boolean isWall()
+    {
         return p1.x == p2.x;
     }
 
-    public int getX1() {
+    public int getX1()
+    {
         return p1.x;
     }
 
-    public int getX2() {
+    public int getX2()
+    {
         return p2.x;
     }
 
-    public int getY1() {
+    public int getY1()
+    {
         return p1.y;
     }
 
-    public int getY2() {
+    public int getY2()
+    {
         return p2.y;
-    }    
-    
+    }
+
     // XXX may need more precision
-    public int calculateFooting(int x) {
-        if (p1.y == p2.y) {
+    public int calculateFooting(int x)
+    {
+        if (p1.y == p2.y)
+        {
             return p2.y; // y at both ends is the same
         }
         int slope = (p1.y - p2.y) / (p1.x - p2.x);
@@ -69,34 +77,45 @@ public class MapleFoothold implements Comparable<MapleFoothold> {
         return (slope * x) + intercept;
     }
 
-    public int compareTo(MapleFoothold o) {
+    public int compareTo(MapleFoothold o)
+    {
         MapleFoothold other = o;
-        if (p2.y < other.getY1()) {
+        if (p2.y < other.getY1())
+        {
             return -1;
-        } else if (p1.y > other.getY2()) {
+        }
+        else if (p1.y > other.getY2())
+        {
             return 1;
-        } else {
+        }
+        else
+        {
             return 0;
         }
     }
 
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public int getNext() {
+    public int getNext()
+    {
         return next;
     }
 
-    public void setNext(int next) {
+    public void setNext(int next)
+    {
         this.next = next;
     }
 
-    public int getPrev() {
+    public int getPrev()
+    {
         return prev;
     }
 
-    public void setPrev(int prev) {
+    public void setPrev(int prev)
+    {
         this.prev = prev;
     }
 }

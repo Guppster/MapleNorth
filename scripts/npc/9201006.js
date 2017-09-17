@@ -20,24 +20,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
-	Debbie
--- By ---------------------------------------------------------------------------------------------
-	Angel (get31720 ragezone)
--- Extra Info -------------------------------------------------------------------------------------
-	Fixed by  [happydud3] & [XotiCraze]
----------------------------------------------------------------------------------------------------
-**/
+ Debbie
+ -- By ---------------------------------------------------------------------------------------------
+ Angel (get31720 ragezone)
+ -- Extra Info -------------------------------------------------------------------------------------
+ Fixed by  [happydud3] & [XotiCraze]
+ ---------------------------------------------------------------------------------------------------
+ **/
 
 var status;
 
-function start() {  
-    status = -1;  
-    action(1, 0, 0);  
-}  
+function start() {
+    status = -1;
+    action(1, 0, 0);
+}
 
-function action(mode, type, selection) {  
+function action(mode, type, selection) {
     if (mode == -1 || mode == 0) {
-        cm.sendOk("Goodbye then"); 
+        cm.sendOk("Goodbye then");
         cm.dispose();
         return;
     } else if (mode == 1) {
@@ -45,7 +45,7 @@ function action(mode, type, selection) {
     } else {
         status--;
     }
-		
+
     switch (status) {
         case 0:
             cm.sendNext("I only warp out people who are here by accident.");
@@ -61,7 +61,7 @@ function action(mode, type, selection) {
                 cm.sendOk("Please continue with the wedding.");
                 cm.dispose();
             } else {
-                cm.warp(680000000,0);
+                cm.warp(680000000, 0);
                 cm.dispose();
             }
             break;

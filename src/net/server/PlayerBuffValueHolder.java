@@ -24,14 +24,15 @@ package net.server;
 import server.MapleStatEffect;
 
 /**
- *
  * @author Danny
  */
-public class PlayerBuffValueHolder {
+public class PlayerBuffValueHolder
+{
     public long startTime;
     public MapleStatEffect effect;
 
-    public PlayerBuffValueHolder(long startTime, MapleStatEffect effect) {
+    public PlayerBuffValueHolder(long startTime, MapleStatEffect effect)
+    {
         this.startTime = startTime;
         this.effect = effect;
     }

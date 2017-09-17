@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class NightLord {
+public class NightLord
+{
     public static final int MAPLE_WARRIOR = 4121000;
     public static final int SHADOW_SHIFTER = 4120002;
     public static final int TAUNT = 4121003;

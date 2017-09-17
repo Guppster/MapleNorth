@@ -57,14 +57,14 @@ function action(mode, type, selection) {
                 beauty = 1;
                 facenew = Array();
                 if (cm.getPlayer().getGender() == 0) {
-                    for(var i = 0; i < mface.length; i++) {
+                    for (var i = 0; i < mface.length; i++) {
                         facenew.push(mface[i] + cm.getPlayer().getFace()
                             % 1000 - (cm.getPlayer().getFace()
                                 % 100));
                     }
                 }
                 if (cm.getPlayer().getGender() == 1) {
-                    for(var i = 0; i < fface.length; i++) {
+                    for (var i = 0; i < fface.length; i++) {
                         facenew.push(fface[i] + cm.getPlayer().getFace()
                             % 1000 - (cm.getPlayer().getFace()
                                 % 100));
@@ -74,14 +74,14 @@ function action(mode, type, selection) {
             } else if (selection == 2) {
                 beauty = 2;
                 if (cm.getPlayer().getGender() == 0) {
-                    for(var i = 0; i < mface.length; i++) {
+                    for (var i = 0; i < mface.length; i++) {
                         facenew.push(mface[i] + cm.getPlayer().getFace()
                             % 1000 - (cm.getPlayer().getFace()
                                 % 100));
                     }
                 }
                 if (cm.getPlayer().getGender() == 1) {
-                    for(var i = 0; i < fface.length; i++) {
+                    for (var i = 0; i < fface.length; i++) {
                         facenew.push(fface[i] + cm.getPlayer().getFace()
                             % 1000 - (cm.getPlayer().getFace()
                                 % 100));
@@ -90,10 +90,10 @@ function action(mode, type, selection) {
                 cm.sendStyle("I can totally transform your face into something new... how about giving us a try? For #b#t5152028##k, you can get the face of your liking...take your time in choosing the face of your preference.", facenew);
             }
         }
-        else if (status == 2){
+        else if (status == 2) {
             cm.dispose();
-            if (beauty == 1){
-                if (cm.haveItem(5152027)){
+            if (beauty == 1) {
+                if (cm.haveItem(5152027)) {
                     cm.gainItem(5152027, -1);
                     cm.setFace(facenew[Math.floor(Math.random() * facenew.length)]);
                     cm.sendOk("Enjoy your new and improved face!");
@@ -101,8 +101,8 @@ function action(mode, type, selection) {
                     cm.sendOk("I'm sorry, but I don't think you have our plastic surgery coupon with you right now. Without the coupon, I'm afraid I can't do it for you..");
                 }
             }
-            if (beauty == 2){
-                if (cm.haveItem(5152028)){
+            if (beauty == 2) {
+                if (cm.haveItem(5152028)) {
                     cm.gainItem(5152028, -1);
                     cm.setFace(facenew[selection]);
                     cm.sendOk("Enjoy your new and improved face!");
@@ -110,7 +110,7 @@ function action(mode, type, selection) {
                     cm.sendOk("I'm sorry, but I don't think you have our plastic surgery coupon with you right now. Without the coupon, I'm afraid I can't do it for you..");
                 }
             }
-            if (beauty == 0){
+            if (beauty == 0) {
                 if (selection == 0 && cm.getMeso() >= regprice) {
                     cm.gainMeso(-regprice);
                     cm.gainItem(5152012, 1);

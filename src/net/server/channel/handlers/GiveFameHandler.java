@@ -31,33 +31,43 @@ import tools.FilePrinter;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class GiveFameHandler extends AbstractMaplePacketHandler {
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+public final class GiveFameHandler extends AbstractMaplePacketHandler
+{
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         MapleCharacter target = (MapleCharacter) c.getPlayer().getMap().getMapObject(slea.readInt());
         int mode = slea.readByte();
         int famechange = 2 * mode - 1;
         MapleCharacter player = c.getPlayer();
-        if (target == null || target.getId() == player.getId() || player.getLevel() < 15) {
+        if (target == null || target.getId() == player.getId() || player.getLevel() < 15)
+        {
             return;
-        } else if (famechange != 1 && famechange != -1) {
-        	AutobanFactory.PACKET_EDIT.alert(c.getPlayer(), c.getPlayer().getName() + " tried to packet edit fame.");
-        	FilePrinter.printError(FilePrinter.EXPLOITS + c.getPlayer().getName() + ".txt", c.getPlayer().getName() + " tried to fame hack with famechange " + famechange + "\r\n");
-        	c.disconnect(true, false);
-        	return;
+        }
+        else if (famechange != 1 && famechange != -1)
+        {
+            AutobanFactory.PACKET_EDIT.alert(c.getPlayer(), c.getPlayer().getName() + " tried to packet edit fame.");
+            FilePrinter.printError(FilePrinter.EXPLOITS + c.getPlayer().getName() + ".txt", c.getPlayer().getName() + " tried to fame hack with famechange " + famechange + "\r\n");
+            c.disconnect(true, false);
+            return;
         }
         FameStatus status = player.canGiveFame(target);
-        if (status == FameStatus.OK || player.isGM()){
-        	 if (Math.abs(target.getFame() + famechange) < 30001) {
-                 target.addFame(famechange);
-                 target.updateSingleStat(MapleStat.FAME, target.getFame());
-             }
-             if (!player.isGM()) {
-                 player.hasGivenFame(target);
-             }
-             c.announce(MaplePacketCreator.giveFameResponse(mode, target.getName(), target.getFame()));
-             target.getClient().announce(MaplePacketCreator.receiveFame(mode, player.getName()));
-        } else {
-        	c.announce(MaplePacketCreator.giveFameErrorResponse(status == FameStatus.NOT_TODAY ? 3 : 4));
+        if (status == FameStatus.OK || player.isGM())
+        {
+            if (Math.abs(target.getFame() + famechange) < 30001)
+            {
+                target.addFame(famechange);
+                target.updateSingleStat(MapleStat.FAME, target.getFame());
+            }
+            if (!player.isGM())
+            {
+                player.hasGivenFame(target);
+            }
+            c.announce(MaplePacketCreator.giveFameResponse(mode, target.getName(), target.getFame()));
+            target.getClient().announce(MaplePacketCreator.receiveFame(mode, player.getName()));
+        }
+        else
+        {
+            c.announce(MaplePacketCreator.giveFameErrorResponse(status == FameStatus.NOT_TODAY ? 3 : 4));
         }
     }
 }

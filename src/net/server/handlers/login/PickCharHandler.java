@@ -22,41 +22,53 @@
 package net.server.handlers.login;
 
 import client.MapleClient;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import net.AbstractMaplePacketHandler;
 import net.server.Server;
 import tools.MaplePacketCreator;
 import tools.Randomizer;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class PickCharHandler extends AbstractMaplePacketHandler {
+public final class PickCharHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         int charId = slea.readInt();
         int world = slea.readInt();//Wuuu? ):
         c.setWorld(world);
         String macs = slea.readMapleAsciiString();
         c.updateMacs(macs);
-        if (c.hasBannedMac()) {
+        if (c.hasBannedMac())
+        {
             c.getSession().close(true);
             return;
         }
-        try {
+        try
+        {
             c.setChannel(Randomizer.nextInt(Server.getInstance().getWorld(world).getChannels().size()));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
             c.setChannel(1);
         }
-        if (c.getIdleTask() != null) {
+        if (c.getIdleTask() != null)
+        {
             c.getIdleTask().cancel(true);
         }
         c.updateLoginState(MapleClient.LOGIN_SERVER_TRANSITION);
         String[] socket = Server.getInstance().getIP(c.getWorld(), c.getChannel()).split(":");
-        try {
+        try
+        {
             c.announce(MaplePacketCreator.getServerIP(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1]), charId));
-        } catch (UnknownHostException e) {
+        }
+        catch (UnknownHostException e)
+        {
             e.printStackTrace();
         }
     }

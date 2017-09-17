@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Bowmaster {
+public class Bowmaster
+{
     public static final int MAPLE_WARRIOR = 3121000;
     public static final int SHARP_EYES = 3121002;
     public static final int HURRICANE = 3121004;

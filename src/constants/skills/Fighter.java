@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Fighter {
+public class Fighter
+{
     public static final int SWORD_MASTERY = 1100000;
     public static final int AXE_MASTERY = 1100001;
     public static final int FINAL_ATTACK_SWORD = 1100002;

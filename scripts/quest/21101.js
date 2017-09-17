@@ -25,7 +25,7 @@ status = -1;
 
 function start(mode, type, selection) {
     status++;
-    if(mode == 0 && type == 0)
+    if (mode == 0 && type == 0)
         status -= 2;
     else if (mode != 1) {
         if (mode == 0)
@@ -37,12 +37,12 @@ function start(mode, type, selection) {
         qm.sendYesNo("#b(Are you certain that you were the hero that wielded the #p1201001#? Yes, you're sure. You better grab the #p1201001# really tightly. Surely it will react to you.)#k");
     } else if (status == 1) {
         if (qm.getPlayer().getJob().getId() == 2000) {
-			if(!qm.canHold(1142129)) {
-				cm.sendOk("Wow, your #bequip#k inventory is full. I need you to make at least 1 empty slot to complete this quest.");
-				qm.dispose();
-				return;
-			}
-			qm.gainItem(1142129, true);
+            if (!qm.canHold(1142129)) {
+                cm.sendOk("Wow, your #bequip#k inventory is full. I need you to make at least 1 empty slot to complete this quest.");
+                qm.dispose();
+                return;
+            }
+            qm.gainItem(1142129, true);
             qm.completeQuest();
             qm.changeJobById(2100);
             qm.getPlayer().setStr(35);

@@ -17,29 +17,29 @@ Jan Christian Meyer <vimes@odinms.de>
   
     You should have received a copy of the GNU Affero General Public License  
     along with this program.  If not, see <http://www.gnu.org/licenses/>.  
-*/      
-   
-/**  
-Rooney - Happyville Warp NPC
-**/   
-   
-var status = 0;   
-   
-function start() {   
-    action(1, 0, 0);   
-}   
-   
-function action(mode, type, selection) {   
-    if (status == 0) {   
+*/
+
+/**
+ Rooney - Happyville Warp NPC
+ **/
+
+var status = 0;
+
+function start() {
+    action(1, 0, 0);
+}
+
+function action(mode, type, selection) {
+    if (status == 0) {
         cm.sendYesNo("Santa told me to go to here, only he didn't told me when...  I hope i'm here on the right time! Oh! By the way, I'm Rooney, I can take you to #bHappyVille#k. Are you ready to go?");
-        status++;   
-    } else {   
-        if ((status == 1 && type == 1 && selection == -1 && mode == 0) || mode == -1) {   
-            cm.dispose();   
+        status++;
+    } else {
+        if ((status == 1 && type == 1 && selection == -1 && mode == 0) || mode == -1) {
+            cm.dispose();
         } else {
             cm.getPlayer().saveLocation("HAPPYVILLE");
             cm.warp(209000000, 0);
-            cm.dispose();   
-        }   
-    }   
+            cm.dispose();
+        }
+    }
 }

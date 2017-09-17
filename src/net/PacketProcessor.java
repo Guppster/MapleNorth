@@ -49,45 +49,31 @@ import net.server.handlers.login.ViewAllCharSelectedWithPicHandler;
 import net.server.handlers.login.ViewAllPicRegisterHandler;
 import net.server.handlers.login.ViewCharHandler;
 
-public final class PacketProcessor {
+public final class PacketProcessor
+{
 
     private final static Map<String, PacketProcessor> instances = new LinkedHashMap<>();
     private MaplePacketHandler[] handlers;
 
-    private PacketProcessor() {
+    private PacketProcessor()
+    {
         int maxRecvOp = 0;
-        for (RecvOpcode op : RecvOpcode.values()) {
-            if (op.getValue() > maxRecvOp) {
+        for (RecvOpcode op : RecvOpcode.values())
+        {
+            if (op.getValue() > maxRecvOp)
+            {
                 maxRecvOp = op.getValue();
             }
         }
         handlers = new MaplePacketHandler[maxRecvOp + 1];
     }
 
-    public MaplePacketHandler getHandler(short packetId) {
-        if (packetId > handlers.length) {
-            return null;
-        }
-        MaplePacketHandler handler = handlers[packetId];
-        if (handler != null) {
-            return handler;
-        }
-        return null;
-    }
-
-    public void registerHandler(RecvOpcode code, MaplePacketHandler handler) {
-        try {
-            handlers[code.getValue()] = handler;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
-            System.out.println("Error registering handler - " + code.name());
-        }
-    }
-
-    public synchronized static PacketProcessor getProcessor(int world, int channel) {
+    public synchronized static PacketProcessor getProcessor(int world, int channel)
+    {
         final String lolpair = world + " " + channel;
         PacketProcessor processor = instances.get(lolpair);
-        if (processor == null) {
+        if (processor == null)
+        {
             processor = new PacketProcessor();
             processor.reset(channel);
             instances.put(lolpair, processor);
@@ -95,12 +81,41 @@ public final class PacketProcessor {
         return processor;
     }
 
-    public void reset(int channel) {
+    public MaplePacketHandler getHandler(short packetId)
+    {
+        if (packetId > handlers.length)
+        {
+            return null;
+        }
+        MaplePacketHandler handler = handlers[packetId];
+        if (handler != null)
+        {
+            return handler;
+        }
+        return null;
+    }
+
+    public void registerHandler(RecvOpcode code, MaplePacketHandler handler)
+    {
+        try
+        {
+            handlers[code.getValue()] = handler;
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            e.printStackTrace();
+            System.out.println("Error registering handler - " + code.name());
+        }
+    }
+
+    public void reset(int channel)
+    {
         handlers = new MaplePacketHandler[handlers.length];
 
         registerHandler(RecvOpcode.PONG, new KeepAliveHandler());
         registerHandler(RecvOpcode.CUSTOM_PACKET, new CustomPacketHandler());
-        if (channel < 0) {//login
+        if (channel < 0)
+        {//login
             registerHandler(RecvOpcode.ACCEPT_TOS, new AcceptToSHandler());
             registerHandler(RecvOpcode.AFTER_LOGIN, new AfterLoginHandler());
             registerHandler(RecvOpcode.SERVERLIST_REREQUEST, new ServerlistRequestHandler());
@@ -122,7 +137,9 @@ public final class PacketProcessor {
             registerHandler(RecvOpcode.SET_GENDER, new SetGenderHandler());
             registerHandler(RecvOpcode.VIEW_ALL_WITH_PIC, new ViewAllCharSelectedWithPicHandler());
             registerHandler(RecvOpcode.VIEW_ALL_PIC_REGISTER, new ViewAllPicRegisterHandler());
-        } else {
+        }
+        else
+        {
             //CHANNEL HANDLERS
             registerHandler(RecvOpcode.CHANGE_CHANNEL, new ChangeChannelHandler());
             registerHandler(RecvOpcode.STRANGE_DATA, LoginRequiringNoOpHandler.getInstance());

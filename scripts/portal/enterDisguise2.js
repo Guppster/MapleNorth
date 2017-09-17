@@ -27,20 +27,20 @@
 importPackage(Packages.server.life);
 
 function enter(pi) {
-	if(pi.isQuestStarted(20301) || pi.isQuestStarted(20302) || pi.isQuestStarted(20303) || pi.isQuestStarted(20304) || pi.isQuestStarted(20305)) {
-		var map = pi.getClient().getChannelServer().getMapFactory().getMap(108010610);
-		spawnMob(3345, -452, 9001009, map);
-		pi.warp(108010610, "out00");
-	} else {
-		pi.warp(130010020, "out00");
-	}
-	return true;
+    if (pi.isQuestStarted(20301) || pi.isQuestStarted(20302) || pi.isQuestStarted(20303) || pi.isQuestStarted(20304) || pi.isQuestStarted(20305)) {
+        var map = pi.getClient().getChannelServer().getMapFactory().getMap(108010610);
+        spawnMob(3345, -452, 9001009, map);
+        pi.warp(108010610, "out00");
+    } else {
+        pi.warp(130010020, "out00");
+    }
+    return true;
 }
 
 function spawnMob(x, y, id, map) {
-	if(map.getMonsterById(id) != null)
-		return;
-		
-	var mob = MapleLifeFactory.getMonster(id);
-	map.spawnMonsterOnGroundBelow(mob, new java.awt.Point(x, y));
+    if (map.getMonsterById(id) != null)
+        return;
+
+    var mob = MapleLifeFactory.getMonster(id);
+    map.spawnMonsterOnGroundBelow(mob, new java.awt.Point(x, y));
 }

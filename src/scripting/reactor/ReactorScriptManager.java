@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting.reactor;
 
 import client.MapleClient;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import javax.script.Invocable;
 import javax.script.ScriptException;
+
 import scripting.AbstractScriptManager;
 import server.maps.MapleReactor;
 import server.maps.ReactorDropEntry;
@@ -40,61 +42,80 @@ import tools.FilePrinter;
 /**
  * @author Lerk
  */
-public class ReactorScriptManager extends AbstractScriptManager {
+public class ReactorScriptManager extends AbstractScriptManager
+{
 
     private static ReactorScriptManager instance = new ReactorScriptManager();
     private Map<Integer, List<ReactorDropEntry>> drops = new HashMap<>();
 
-    public synchronized static ReactorScriptManager getInstance() {
+    public synchronized static ReactorScriptManager getInstance()
+    {
         return instance;
     }
-    
-    public void onHit(MapleClient c, MapleReactor reactor) {
-        try {
+
+    public void onHit(MapleClient c, MapleReactor reactor)
+    {
+        try
+        {
             Invocable iv = getInvocable("reactor/" + reactor.getId() + ".js", c);
             if (iv == null) return;
-            
+
             ReactorActionManager rm = new ReactorActionManager(c, reactor, iv);
             engine.put("rm", rm);
             iv.invokeFunction("hit");
-        } catch(final NoSuchMethodException e) {
+        }
+        catch (final NoSuchMethodException e)
+        {
             //do nothing, hit is OPTIONAL
         }
-        catch (final ScriptException | NullPointerException e) {
+        catch (final ScriptException | NullPointerException e)
+        {
             FilePrinter.printError(FilePrinter.REACTOR + reactor.getId() + ".txt", e);
         }
     }
 
-    public void act(MapleClient c, MapleReactor reactor) {
-        try {
+    public void act(MapleClient c, MapleReactor reactor)
+    {
+        try
+        {
             Invocable iv = getInvocable("reactor/" + reactor.getId() + ".js", c);
             if (iv == null) return;
-            
+
             ReactorActionManager rm = new ReactorActionManager(c, reactor, iv);
             engine.put("rm", rm);
             iv.invokeFunction("act");
-        } catch (final ScriptException | NoSuchMethodException | NullPointerException e) {
+        }
+        catch (final ScriptException | NoSuchMethodException | NullPointerException e)
+        {
             FilePrinter.printError(FilePrinter.REACTOR + reactor.getId() + ".txt", e);
         }
     }
 
-    public List<ReactorDropEntry> getDrops(int rid) {
+    public List<ReactorDropEntry> getDrops(int rid)
+    {
         List<ReactorDropEntry> ret = drops.get(rid);
-        if (ret == null) {
+        if (ret == null)
+        {
             ret = new LinkedList<>();
-            try {
+            try
+            {
                 Connection con = DatabaseConnection.getConnection();
-                try (PreparedStatement ps = con.prepareStatement("SELECT itemid, chance, questid FROM reactordrops WHERE reactorid = ? AND chance >= 0")) {
+                try (PreparedStatement ps = con.prepareStatement("SELECT itemid, chance, questid FROM reactordrops WHERE reactorid = ? AND chance >= 0"))
+                {
                     ps.setInt(1, rid);
-                    try (ResultSet rs = ps.executeQuery()) {
-                        while (rs.next()) {
+                    try (ResultSet rs = ps.executeQuery())
+                    {
+                        while (rs.next())
+                        {
                             ret.add(new ReactorDropEntry(rs.getInt("itemid"), rs.getInt("chance"), rs.getInt("questid")));
                         }
                     }
                 }
-                
+
                 con.close();
-            } catch (Throwable e) {
+            }
+            catch (Throwable e)
+            {
                 FilePrinter.printError(FilePrinter.REACTOR + rid + ".txt", e);
             }
             drops.put(rid, ret);
@@ -102,31 +123,41 @@ public class ReactorScriptManager extends AbstractScriptManager {
         return ret;
     }
 
-    public void clearDrops() {
+    public void clearDrops()
+    {
         drops.clear();
     }
 
-    public void touch(MapleClient c, MapleReactor reactor) {
+    public void touch(MapleClient c, MapleReactor reactor)
+    {
         touching(c, reactor, true);
     }
 
-    public void untouch(MapleClient c, MapleReactor reactor) {
+    public void untouch(MapleClient c, MapleReactor reactor)
+    {
         touching(c, reactor, false);
     }
 
-    public synchronized void touching(MapleClient c, MapleReactor reactor, boolean touching) {
-        try {
+    public synchronized void touching(MapleClient c, MapleReactor reactor, boolean touching)
+    {
+        try
+        {
             Invocable iv = getInvocable("reactor/" + reactor.getId() + ".js", c);
             if (iv == null) return;
-            
+
             ReactorActionManager rm = new ReactorActionManager(c, reactor, iv);
             engine.put("rm", rm);
-            if (touching) {
+            if (touching)
+            {
                 iv.invokeFunction("touch");
-            } else {
+            }
+            else
+            {
                 iv.invokeFunction("untouch");
             }
-        } catch (final ScriptException | NoSuchMethodException | NullPointerException ute) {
+        }
+        catch (final ScriptException | NoSuchMethodException | NullPointerException ute)
+        {
             FilePrinter.printError(FilePrinter.REACTOR + reactor.getId() + ".txt", ute);
         }
     }

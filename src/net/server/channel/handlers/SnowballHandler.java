@@ -29,12 +29,13 @@ import server.maps.MapleMap;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
- *
  * @author kevintjuh93
  */
-public final class SnowballHandler extends AbstractMaplePacketHandler{
+public final class SnowballHandler extends AbstractMaplePacketHandler
+{
 
-    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         //D3 00 02 00 00 A5 01
         MapleCharacter chr = c.getPlayer();
         MapleMap map = chr.getMap();
@@ -50,16 +51,25 @@ public final class SnowballHandler extends AbstractMaplePacketHandler{
         chr.setLastSnowballAttack(System.currentTimeMillis());
         int damage = 0;
         if (what < 2 && othersnowball.getSnowmanHP() > 0)
+        {
             damage = 10;
-        else if (what == 2 || what == 3) {
+        }
+        else if (what == 2 || what == 3)
+        {
             if (Math.random() < 0.03)
+            {
                 damage = 45;
+            }
             else
+            {
                 damage = 15;
+            }
         }
 
         if (what >= 0 && what <= 4)
+        {
             snowball.hit(what, damage);
+        }
 
     }
 }

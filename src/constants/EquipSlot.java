@@ -1,10 +1,10 @@
 package constants;
 
 /**
- *
  * @author The Spookster
  */
-public enum EquipSlot {
+public enum EquipSlot
+{
 
     HAT("Cp", -1),
     SPECIAL_HAT("HrCp", -1),
@@ -33,42 +33,55 @@ public enum EquipSlot {
     private String name;
     private int[] allowed;
 
-    private EquipSlot() {
+    private EquipSlot()
+    {
     }
 
-    private EquipSlot(String wz, int... in) {
+    private EquipSlot(String wz, int... in)
+    {
         name = wz;
         allowed = in;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public boolean isAllowed(int slot, boolean cash) {
-        if (slot < 0) {
-            if (allowed != null) {
-                for (Integer allow : allowed) {
-                    int condition = cash ? allow - 100 : allow;
-                    if (slot == condition) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return cash && slot < 0;
-    }
-
-    public static EquipSlot getFromTextSlot(String slot) {
-        if (!slot.isEmpty()) {
-            for (EquipSlot c : values()) {
-                if (c.getName() != null) {
-                    if (c.getName().equals(slot)) {
+    public static EquipSlot getFromTextSlot(String slot)
+    {
+        if (!slot.isEmpty())
+        {
+            for (EquipSlot c : values())
+            {
+                if (c.getName() != null)
+                {
+                    if (c.getName().equals(slot))
+                    {
                         return c;
                     }
                 }
             }
         }
         return PET_EQUIP;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public boolean isAllowed(int slot, boolean cash)
+    {
+        if (slot < 0)
+        {
+            if (allowed != null)
+            {
+                for (Integer allow : allowed)
+                {
+                    int condition = cash ? allow - 100 : allow;
+                    if (slot == condition)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return cash && slot < 0;
     }
 }

@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Outlaw {
+public class Outlaw
+{
     public static final int OCTOPUS = 5211001;
     public static final int GAVIOTA = 5211002;
     public static final int FLAME_THROWER = 5211004;

@@ -29,22 +29,27 @@ import constants.ServerConstants;
 /**
  * @author Ronan
  */
-public class CharacterAutosaverWorker implements Runnable {
+public class CharacterAutosaverWorker implements Runnable
+{
     private World wserv;
-    
+
+    public CharacterAutosaverWorker(World world)
+    {
+        wserv = world;
+    }
+
     @Override
-    public void run() {
-        if(!ServerConstants.USE_AUTOSAVE) return;
-        
+    public void run()
+    {
+        if (!ServerConstants.USE_AUTOSAVE) return;
+
         PlayerStorage ps = wserv.getPlayerStorage();
-        for(MapleCharacter chr: ps.getAllCharacters()) {
-            if(chr != null && chr.isLoggedin()) {
+        for (MapleCharacter chr : ps.getAllCharacters())
+        {
+            if (chr != null && chr.isLoggedin())
+            {
                 chr.saveToDB(false);
             }
         }
-    }
-    
-    public CharacterAutosaverWorker(World world) {
-        wserv = world;
     }
 }

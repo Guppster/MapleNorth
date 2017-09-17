@@ -23,7 +23,7 @@ function enter(pi) {
     try {
         var toMap = pi.getPlayer().getSavedLocation("FREE_MARKET");
         pi.warp(toMap, pi.getMarketPortalId(toMap));
-    } catch(err) {
+    } catch (err) {
         pi.warp(100000000);
     }
     return true;

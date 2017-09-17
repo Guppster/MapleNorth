@@ -22,7 +22,7 @@
 /**
  * @Author Ronan
  * 3rd Job Event - Kenta's Mount Quest
-**/
+ **/
 importPackage(Packages.tools);
 
 var entryMap = 923010000;
@@ -42,7 +42,7 @@ function setLobbyRange() {
 }
 
 function init() {
-    em.setProperty("noEntry","false");
+    em.setProperty("noEntry", "false");
 }
 
 function respawnStages(eim) {
@@ -56,28 +56,29 @@ function respawnStages(eim) {
 
 function playerEntry(eim, player) {
     var mapObj = eim.getInstanceMap(entryMap);
-    
+
     mapObj.resetPQ(1);
     mapObj.instanceMapForceRespawn();
     respawnStages(eim);
-    
+
     player.changeMap(entryMap, 0);
-    em.setProperty("noEntry","true");
-    
+    em.setProperty("noEntry", "true");
+
     player.getClient().getSession().write(MaplePacketCreator.getClock(eventTime * 60));
     eim.startEventTimer(eventTime * 60000);
 }
 
-function playerUnregistered(eim, player) {}
+function playerUnregistered(eim, player) {
+}
 
 function playerExit(eim, player) {
     var api = player.getClient().getAbstractPlayerInteraction();
     api.removeAll(4031507);
     api.removeAll(4031508);
-    
+
     eim.unregisterPlayer(player);
     eim.dispose();
-    em.setProperty("noEntry","false");
+    em.setProperty("noEntry", "false");
 }
 
 function scheduledTimeout(eim) {
@@ -91,37 +92,41 @@ function playerDisconnected(eim, player) {
 }
 
 function changedMap(eim, chr, mapid) {
-    if(mapid < minMapId || mapid > maxMapId) playerExit(eim, chr);
+    if (mapid < minMapId || mapid > maxMapId) playerExit(eim, chr);
 }
 
 function clearPQ(eim) {
     eim.stopEventTimer();
     eim.setEventCleared();
-    
+
     var player = eim.getPlayers().get(0);
     eim.unregisterPlayer(player);
     player.changeMap(exitMap);
-    
+
     eim.dispose();
-    em.setProperty("noEntry","false");
+    em.setProperty("noEntry", "false");
 }
 
-function monsterKilled(mob, eim) {}
+function monsterKilled(mob, eim) {
+}
 
 function monsterValue(eim, mobId) {
-        return 1;
+    return 1;
 }
 
 function friendlyKilled(mob, eim) {
-    if(em.getProperty("noEntry") != "false") {
+    if (em.getProperty("noEntry") != "false") {
         var player = eim.getPlayers().get(0);
         playerExit(eim, player);
         player.changeMap(exitMap);
     }
 }
 
-function allMonstersDead(eim) {}
+function allMonstersDead(eim) {
+}
 
-function cancelSchedule() {}
+function cancelSchedule() {
+}
 
-function dispose() {}
+function dispose() {
+}

@@ -19,7 +19,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-var toMap = new Array(550000000, 551000000, 540000000,540000000);
+var toMap = new Array(550000000, 551000000, 540000000, 540000000);
 var inMap = new Array(540000000, 540000000, 551000000, 550000000);
 var cost = new Array(10000, 50000, 50000, 10000);
 var location;
@@ -27,17 +27,17 @@ var text = "Where would you like to travel?\n\n";
 var status = 0;
 
 function start() {
-	if (cm.getPlayer().getMap().getId() != 540000000) {
-		for (var i = 0; i < toMap.length; i ++) {
-			if (inMap[i] == cm.getPlayer().getMap().getId()) {
-				location = i;
-				break;
-			}
-		}
-		text +="\t\r\n#b#L0##m" + toMap[location] + "# (" + cost[location] + "mesos)#l#k";
-	} else {
-    	text += "\t\r\n#b#L0##m" + toMap[0] + "# (" + cost[0] + "mesos)#l\n\t\r\n#L1##m" + toMap[1] + "# (" + cost[1] + "mesos)#l#k";
-	}
+    if (cm.getPlayer().getMap().getId() != 540000000) {
+        for (var i = 0; i < toMap.length; i++) {
+            if (inMap[i] == cm.getPlayer().getMap().getId()) {
+                location = i;
+                break;
+            }
+        }
+        text += "\t\r\n#b#L0##m" + toMap[location] + "# (" + cost[location] + "mesos)#l#k";
+    } else {
+        text += "\t\r\n#b#L0##m" + toMap[0] + "# (" + cost[0] + "mesos)#l\n\t\r\n#L1##m" + toMap[1] + "# (" + cost[1] + "mesos)#l#k";
+    }
     cm.sendSimple(text);
 }
 
@@ -46,12 +46,12 @@ function action(mode, type, selection) {
         cm.dispose();
         return;
     } else if (mode == 0) {
-    	cm.sendNext("You know where to come if you need a ride!");
+        cm.sendNext("You know where to come if you need a ride!");
         cm.dispose();
         return;
     } else {
         status++;
-     }
+    }
     if (status == 1) {
         if (cm.getPlayer().getMap().getId() == 540000000) {
             location = selection;
@@ -60,7 +60,7 @@ function action(mode, type, selection) {
             cm.dipose();
             return;
         }
-        cm.sendYesNo("Would you like to travel to #b#m"+toMap[location]+"##k? To head over to #b#m"+toMap[location]+"##k, it'll cost you cost you #b" + cost[location] + "#k. Would you like to go right now?");
+        cm.sendYesNo("Would you like to travel to #b#m" + toMap[location] + "##k? To head over to #b#m" + toMap[location] + "##k, it'll cost you cost you #b" + cost[location] + "#k. Would you like to go right now?");
     } else if (status == 2) {
         if (cm.getMeso() < cost[location]) {
             cm.sendNext("You do not seem to have enough mesos.");

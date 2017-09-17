@@ -28,34 +28,43 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- *
  * @author Danny//changed to map :3
  */
-public class PlayerBuffStorage {
+public class PlayerBuffStorage
+{
+    private final Lock mutex = new ReentrantLock();
     private int id = (int) (Math.random() * 100);
-    private final Lock mutex = new ReentrantLock();    
     private Map<Integer, List<PlayerBuffValueHolder>> buffs = new HashMap<Integer, List<PlayerBuffValueHolder>>();
 
-    public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore) {
+    public void addBuffsToStorage(int chrid, List<PlayerBuffValueHolder> toStore)
+    {
         mutex.lock();
-        try {
+        try
+        {
             buffs.put(chrid, toStore);//Old one will be replaced if it's in here.
-        } finally {
+        }
+        finally
+        {
             mutex.unlock();
         }
     }
 
-    public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid) {
+    public List<PlayerBuffValueHolder> getBuffsFromStorage(int chrid)
+    {
         mutex.lock();
-        try {
+        try
+        {
             return buffs.remove(chrid);
-        } finally {
+        }
+        finally
+        {
             mutex.unlock();
-        }        
+        }
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + id;
@@ -63,18 +72,23 @@ public class PlayerBuffStorage {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
             return true;
         }
-        if (obj == null) {
+        if (obj == null)
+        {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
+        {
             return false;
         }
         final PlayerBuffStorage other = (PlayerBuffStorage) obj;
-        if (id != other.id) {
+        if (id != other.id)
+        {
             return false;
         }
         return true;

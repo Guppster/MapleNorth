@@ -29,9 +29,9 @@ var questionNum;
 
 function start() {
     status = -1;
-    questions = new Array("Which of these items does the Flaming Raccoon NOT drop?","Which NPC is responsible for transporting travellers from Kerning City to Zipangu, and back?","Which of the items sold at the Mushroom Shrine increases your attack power?","Which of these items do the Extras NOT drop?","Which of these items DO NOT exist??","What's the name of the vegetable store owner in Showa Town?","Which of these items DO exist?","What is the name of the strongest boss in the Mushroom Shrine?","Which one of these items has a mis-matched class or level description?","Which of these noodles are NOT being sold by Robo at the Mushroom Shrine?","Which of these NPCs do NOT stand in front of Showa Movie Theater?")
-    answers = new Array(new Array("Raccoon Firewood","Solid Horn","Red Brick"),new Array("Peli","Spinel","Poli"),new Array("Takoyaki","Yakisoba","Tempura"),new Array("Extra A's Badge","Extra B's Corset","Extra C's Necklace"),new Array("Frozen Tuna","Fan","Fly Swatter"),new Array("Sami","Kami","Umi"),new Array("Cloud Fox's Tooth","Ghost's Bouquet","Dark Cloud Fox's Tail"),new Array("Black Crow","Blue Mushmom","Himegami"),new Array("Bamboo Spear - Warrior-only Weapon","Pico-Pico Hammer - One-handed Sword","Mystic Cane - Level 51 equip"),new Array("Kinoko Ramen (Pig Skull)","Kinoko Ramen (Salt)","Mushroom Miso Ramen"),new Array("Skye","Furano","Shinta"));
-    correctAnswer = new Array(1,1,0,1,2,2,2,0,0,2,2);
+    questions = new Array("Which of these items does the Flaming Raccoon NOT drop?", "Which NPC is responsible for transporting travellers from Kerning City to Zipangu, and back?", "Which of the items sold at the Mushroom Shrine increases your attack power?", "Which of these items do the Extras NOT drop?", "Which of these items DO NOT exist??", "What's the name of the vegetable store owner in Showa Town?", "Which of these items DO exist?", "What is the name of the strongest boss in the Mushroom Shrine?", "Which one of these items has a mis-matched class or level description?", "Which of these noodles are NOT being sold by Robo at the Mushroom Shrine?", "Which of these NPCs do NOT stand in front of Showa Movie Theater?")
+    answers = new Array(new Array("Raccoon Firewood", "Solid Horn", "Red Brick"), new Array("Peli", "Spinel", "Poli"), new Array("Takoyaki", "Yakisoba", "Tempura"), new Array("Extra A's Badge", "Extra B's Corset", "Extra C's Necklace"), new Array("Frozen Tuna", "Fan", "Fly Swatter"), new Array("Sami", "Kami", "Umi"), new Array("Cloud Fox's Tooth", "Ghost's Bouquet", "Dark Cloud Fox's Tail"), new Array("Black Crow", "Blue Mushmom", "Himegami"), new Array("Bamboo Spear - Warrior-only Weapon", "Pico-Pico Hammer - One-handed Sword", "Mystic Cane - Level 51 equip"), new Array("Kinoko Ramen (Pig Skull)", "Kinoko Ramen (Salt)", "Mushroom Miso Ramen"), new Array("Skye", "Furano", "Shinta"));
+    correctAnswer = new Array(1, 1, 0, 1, 2, 2, 2, 0, 0, 2, 2);
     action(1, 0, 0);
 }
 
@@ -45,7 +45,7 @@ function action(mode, type, selection) {
         else
             status--;
         if (status == 0 && mode == 1) {
-            if (cm.isQuestStarted(8012) && !cm.haveItem(4031064)){ //quest in progress
+            if (cm.isQuestStarted(8012) && !cm.haveItem(4031064)) { //quest in progress
                 cm.sendYesNo("Did you get them all? Are you going to try to answer all of my questions?");
             }
             else { //quest not started or already completed
@@ -55,7 +55,7 @@ function action(mode, type, selection) {
         }
         else if (status == 1 && mode == 1) {
             var hasChicken = true;
-            if (!cm.haveItem(2020001,300)) hasChicken=false;
+            if (!cm.haveItem(2020001, 300)) hasChicken = false;
             if (!hasChicken) {
                 cm.sendOk("What? No! 300! THREE. HUNDRED. No less. Hand over more if you want, but I need at least 300. Not all of us can be as big and as fed as you...");
                 cm.dispose();
@@ -66,7 +66,7 @@ function action(mode, type, selection) {
             }
         }
         else if (status == 7 && mode == 1) { //2-6 are the questions
-            if (selection != correctAnswer.pop()){
+            if (selection != correctAnswer.pop()) {
                 cm.sendNext("Hmmm...all humans make mistakes anyway! If you want to take another crack at it, then bring me 300 Fried Chicken.")
                 cm.dispose();
             }
@@ -82,7 +82,7 @@ function action(mode, type, selection) {
         else if (status >= 2 && status <= 6 && mode == 1) {//questions
             var cont = true;
             if (status > 2) {
-                if (selection != correctAnswer.pop()){
+                if (selection != correctAnswer.pop()) {
                     cm.sendNext("Hmmm...all humans make mistakes anyway! If you want to take another crack at it, then bring me 300 Fried Chicken.")
                     cm.dispose();
                     cont = false;
@@ -90,7 +90,7 @@ function action(mode, type, selection) {
             }
             if (cont) {
                 questionNum = Math.floor(Math.random() * questions.length);
-                if (questionNum != (questions.length - 1)){
+                if (questionNum != (questions.length - 1)) {
                     var temp;
                     temp = questions[questionNum];
                     questions[questionNum] = questions[questions.length - 1];

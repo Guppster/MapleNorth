@@ -21,8 +21,8 @@
 */
 function enter(pi) {
     /**
-	 *female00.js
-	 */
+     *female00.js
+     */
     var gender = pi.getPlayer().getGender();
     if (gender == 1) {
         pi.warp(670010200, 4);

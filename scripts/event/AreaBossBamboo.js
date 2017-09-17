@@ -20,12 +20,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Bamboo Warrior Spawner
--- Edited by --------------------------------------------------------------------------------------
-	Ronan (based on xQuasar's King Clang spawner)
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ Bamboo Warrior Spawner
+ -- Edited by --------------------------------------------------------------------------------------
+ Ronan (based on xQuasar's King Clang spawner)
 
-**/
+ **/
 function init() {
     scheduleNew();
 }
@@ -42,13 +42,13 @@ function cancelSchedule() {
 function start() {
     var mapObj = em.getChannelServer().getMapFactory().getMap(800020120);
     var mobObj = Packages.server.life.MapleLifeFactory.getMonster(6090002);
-	
-	if(mapObj.getMonsterById(6090002) != null) {
-		em.schedule("start", 3 * 60 *60 * 1000);
-		return;
-	}
-	
+
+    if (mapObj.getMonsterById(6090002) != null) {
+        em.schedule("start", 3 * 60 * 60 * 1000);
+        return;
+    }
+
     mapObj.spawnMonsterOnGroundBelow(mobObj, new Packages.java.awt.Point(560, 50));
     mapObj.broadcastMessage(Packages.tools.MaplePacketCreator.serverNotice(6, "From amongst the ruins shrouded by the mists, Bamboo Warrior appears."));
-	em.schedule("start", 3 * 60 *60 * 1000);
+    em.schedule("start", 3 * 60 * 60 * 1000);
 }

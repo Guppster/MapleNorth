@@ -24,29 +24,35 @@ package client.inventory;
 /*
  * @author Leifde
  */
-public class PetCommand {
+public class PetCommand
+{
     private int petId, skillId, prob, inc;
 
-    public PetCommand(int petId, int skillId, int prob, int inc) {
+    public PetCommand(int petId, int skillId, int prob, int inc)
+    {
         this.petId = petId;
         this.skillId = skillId;
         this.prob = prob;
         this.inc = inc;
     }
 
-    public int getPetId() {
+    public int getPetId()
+    {
         return petId;
     }
 
-    public int getSkillId() {
+    public int getSkillId()
+    {
         return skillId;
     }
 
-    public int getProbability() {
+    public int getProbability()
+    {
         return prob;
     }
 
-    public int getIncrease() {
+    public int getIncrease()
+    {
         return inc;
     }
 }

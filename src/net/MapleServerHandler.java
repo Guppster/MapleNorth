@@ -42,49 +42,61 @@ import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleClient;
 import constants.ServerConstants;
 
-public class MapleServerHandler extends IoHandlerAdapter {
+public class MapleServerHandler extends IoHandlerAdapter
+{
 
-    private PacketProcessor processor;
-    private int world = -1, channel = -1;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     private static AtomicLong sessionId = new AtomicLong(7777);
-    
-    public MapleServerHandler() {
+    private PacketProcessor processor;
+    private int world = -1, channel = -1;
+
+    public MapleServerHandler()
+    {
         this.processor = PacketProcessor.getProcessor(-1, -1);
     }
 
-    public MapleServerHandler(int world, int channel) {
+    public MapleServerHandler(int world, int channel)
+    {
         this.processor = PacketProcessor.getProcessor(world, channel);
         this.world = world;
         this.channel = channel;
     }
 
     @Override
-    public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-    	System.out.println("disconnect by exception");
+    public void exceptionCaught(IoSession session, Throwable cause) throws Exception
+    {
+        System.out.println("disconnect by exception");
         cause.printStackTrace();
-        
-        if (cause instanceof IOException || cause instanceof ClassCastException) {
+
+        if (cause instanceof IOException || cause instanceof ClassCastException)
+        {
             return;
         }
         MapleClient mc = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-        if (mc != null && mc.getPlayer() != null) {
+        if (mc != null && mc.getPlayer() != null)
+        {
             FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, cause, "Exception caught by: " + mc.getPlayer());
         }
     }
 
     @Override
-    public void sessionOpened(IoSession session) {
-        if (!Server.getInstance().isOnline()) {
+    public void sessionOpened(IoSession session)
+    {
+        if (!Server.getInstance().isOnline())
+        {
             session.close(true);
             return;
         }
-        if (channel > -1 && world > -1) {
-            if (Server.getInstance().getChannel(world, channel) == null) {
+        if (channel > -1 && world > -1)
+        {
+            if (Server.getInstance().getChannel(world, channel) == null)
+            {
                 session.close(true);
                 return;
             }
-        } else {
+        }
+        else
+        {
             FilePrinter.print(FilePrinter.SESSION, "IoSession with " + session.getRemoteAddress() + " opened on " + sdf.format(Calendar.getInstance().getTime()), false);
         }
 
@@ -104,20 +116,28 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void sessionClosed(IoSession session) throws Exception {
+    public void sessionClosed(IoSession session) throws Exception
+    {
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-        if (client != null) {
-            try {
+        if (client != null)
+        {
+            try
+            {
                 boolean inCashShop = false;
-                if (client.getPlayer() != null) {
+                if (client.getPlayer() != null)
+                {
                     inCashShop = client.getPlayer().getCashShop().isOpened();
                 }
                 client.disconnect(false, inCashShop);
-            } catch (Throwable t) {
+            }
+            catch (Throwable t)
+            {
                 FilePrinter.printError(FilePrinter.ACCOUNT_STUCK, t);
-            } finally {
+            }
+            finally
+            {
                 session.close();
-                session.removeAttribute(MapleClient.CLIENT_KEY);      
+                session.removeAttribute(MapleClient.CLIENT_KEY);
                 //client.empty();
             }
         }
@@ -125,36 +145,44 @@ public class MapleServerHandler extends IoHandlerAdapter {
     }
 
     @Override
-    public void messageReceived(IoSession session, Object message) {
+    public void messageReceived(IoSession session, Object message)
+    {
         byte[] content = (byte[]) message;
         SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
         short packetId = slea.readShort();
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-        
-        if(ServerConstants.USE_DEBUG_SHOW_RCVD_PACKET) System.out.println("Received packet id " + packetId);
+
+        if (ServerConstants.USE_DEBUG_SHOW_RCVD_PACKET) System.out.println("Received packet id " + packetId);
         final MaplePacketHandler packetHandler = processor.getHandler(packetId);
-        if (packetHandler != null && packetHandler.validateState(client)) {
-            try {
-            	MapleLogger.logRecv(client, packetId, message);
+        if (packetHandler != null && packetHandler.validateState(client))
+        {
+            try
+            {
+                MapleLogger.logRecv(client, packetId, message);
                 packetHandler.handlePacket(slea, client);
-            } catch (final Throwable t) {
+            }
+            catch (final Throwable t)
+            {
                 FilePrinter.printError(FilePrinter.PACKET_HANDLER + packetHandler.getClass().getName() + ".txt", t, "Error for " + (client.getPlayer() == null ? "" : "player ; " + client.getPlayer() + " on map ; " + client.getPlayer().getMapId() + " - ") + "account ; " + client.getAccountName() + "\r\n" + slea.toString());
                 //client.announce(MaplePacketCreator.enableActions());//bugs sometimes
             }
         }
     }
-    
+
     @Override
-    public void messageSent(IoSession session, Object message) {
-    	byte[] content = (byte[]) message;
-    	SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
-    	slea.readShort(); //packetId
+    public void messageSent(IoSession session, Object message)
+    {
+        byte[] content = (byte[]) message;
+        SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
+        slea.readShort(); //packetId
     }
-    
+
     @Override
-    public void sessionIdle(final IoSession session, final IdleStatus status) throws Exception {
+    public void sessionIdle(final IoSession session, final IdleStatus status) throws Exception
+    {
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
-        if (client != null) {
+        if (client != null)
+        {
             client.sendPing();
         }
         super.sessionIdle(session, status);

@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class DawnWarrior {
+public class DawnWarrior
+{
     public static final int MAX_HP_INCREASE = 11000000;
     public static final int IRON_BODY = 11001001;
     public static final int SOUL = 11001004;

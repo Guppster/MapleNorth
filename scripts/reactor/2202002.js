@@ -26,9 +26,9 @@
  * 
 */
 
-function act(){
-	if(rm.isQuestActive(3238)) {
-		rm.warp(922000020);
-	}
-	else rm.warp(922000009);
+function act() {
+    if (rm.isQuestActive(3238)) {
+        rm.warp(922000020);
+    }
+    else rm.warp(922000009);
 }

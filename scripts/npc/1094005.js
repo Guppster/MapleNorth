@@ -18,17 +18,18 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*
     Author: XxOsirisxX （BubblesDev 0.75)
     NPC: Bush - Abel Glasses Quest
 */
 
-function start(mode, type, selection){
+function start(mode, type, selection) {
     cm.sendGetText("Do you want to obtain a glasses?");
 }
 
 function action(mode, type, selection) {
-    if(!(cm.haveItem(4031853) || cm.haveItem(4031854) || cm.haveItem(4031855)))
+    if (!(cm.haveItem(4031853) || cm.haveItem(4031854) || cm.haveItem(4031855)))
         cm.gainItem(4031854, 1);
     cm.saveSquadMembers(cm.getText());
     cm.dispose();

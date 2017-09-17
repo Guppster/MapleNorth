@@ -22,27 +22,27 @@
 importPackage(Packages.server.life);
 
 function enter(pi) {
-	if(pi.isQuestStarted(21301)) {
-		if(pi.getPlayerCount(108010700) != 0) {
-			pi.message("The portal is blocked from the other side. I wonder if someone is already fighting the Thief Crow?");
-			return false;
-		} else {
-			var map = pi.getClient().getChannelServer().getMapFactory().getMap(108010700);
-			spawnMob(2732, 3, 9001013, map);
-			
-			pi.playPortalSound();
-			pi.warp(108010700, "west00");
-		}
-	} else {
-		pi.warp(140020300, 1);
-	}
-	return true;
+    if (pi.isQuestStarted(21301)) {
+        if (pi.getPlayerCount(108010700) != 0) {
+            pi.message("The portal is blocked from the other side. I wonder if someone is already fighting the Thief Crow?");
+            return false;
+        } else {
+            var map = pi.getClient().getChannelServer().getMapFactory().getMap(108010700);
+            spawnMob(2732, 3, 9001013, map);
+
+            pi.playPortalSound();
+            pi.warp(108010700, "west00");
+        }
+    } else {
+        pi.warp(140020300, 1);
+    }
+    return true;
 }
 
 function spawnMob(x, y, id, map) {
-	if(map.getMonsterById(id) != null)
-		return;
-		
-	var mob = MapleLifeFactory.getMonster(id);
-	map.spawnMonsterOnGroundBelow(mob, new java.awt.Point(x, y));
+    if (map.getMonsterById(id) != null)
+        return;
+
+    var mob = MapleLifeFactory.getMonster(id);
+    map.spawnMonsterOnGroundBelow(mob, new java.awt.Point(x, y));
 }

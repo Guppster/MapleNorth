@@ -44,23 +44,23 @@ function action(mode, type, selection) {
             status--;
         if (status == 1) {
             if (selection == 1) {
-                if(cm.getMeso() >= price) {
+                if (cm.getMeso() >= price) {
                     cm.gainMeso(-price);
                     cm.gainItem(5153009, 1);
                     cm.sendOk("Enjoy!");
-                } else 
+                } else
                     cm.sendOk("You don't have enough mesos to buy a coupon!");
                 cm.dispose();
-            } else if (selection == 2) 
+            } else if (selection == 2)
                 cm.sendStyle("With our specialized machine, you can see the way you'll look after the treatment PRIOR to the procedure. What kind of a look are you looking for? Go ahead and choose the style of your liking~!", skin);
         }
-        else if (status == 2){
+        else if (status == 2) {
             cm.dispose();
-            if (cm.haveItem(5153009)){
+            if (cm.haveItem(5153009)) {
                 cm.gainItem(5153009, -1);
                 cm.setSkin(skin[selection]);
                 cm.sendOk("Enjoy your new and improved skin!");
-            } else 
+            } else
                 cm.sendOk("Um...you don't have the skin-care coupon you need to receive the treatment. Sorry, but I am afraid we can't do it for you...");
         }
     }

@@ -24,7 +24,8 @@ package client;
 /**
  * @author PurpleMadness Patrick :O
  */
-public class MapleMount {
+public class MapleMount
+{
     private int itemid;
     private int skillid;
     private int tiredness;
@@ -33,7 +34,8 @@ public class MapleMount {
     private MapleCharacter owner;
     private boolean active;
 
-    public MapleMount(MapleCharacter owner, int id, int skillid) {
+    public MapleMount(MapleCharacter owner, int id, int skillid)
+    {
         this.itemid = id;
         this.skillid = skillid;
         this.tiredness = 0;
@@ -43,11 +45,18 @@ public class MapleMount {
         active = true;
     }
 
-    public int getItemId() {
+    public int getItemId()
+    {
         return itemid;
     }
 
-    public int getSkillId() {
+    public void setItemId(int newitemid)
+    {
+        this.itemid = newitemid;
+    }
+
+    public int getSkillId()
+    {
         return skillid;
     }
 
@@ -63,61 +72,71 @@ public class MapleMount {
      * 1902010 - Frog
      * 1902011 - Turtle
      * 1902012 - Yeti
+     *
      * @return the id
      */
-    public int getId() {
-        if (this.itemid < 1903000) {
+    public int getId()
+    {
+        if (this.itemid < 1903000)
+        {
             return itemid - 1901999;
         }
         return 5;
     }
 
-    public int getTiredness() {
+    public int getTiredness()
+    {
         return tiredness;
     }
 
-    public int getExp() {
-        return exp;
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setTiredness(int newtiredness) {
+    public void setTiredness(int newtiredness)
+    {
         this.tiredness = newtiredness;
-        if (tiredness < 0) {
+        if (tiredness < 0)
+        {
             tiredness = 0;
         }
     }
-    
-    public int incrementAndGetTiredness() {
+
+    public int getExp()
+    {
+        return exp;
+    }
+
+    public void setExp(int newexp)
+    {
+        this.exp = newexp;
+    }
+
+    public int getLevel()
+    {
+        return level;
+    }
+
+    public void setLevel(int newlevel)
+    {
+        this.level = newlevel;
+    }
+
+    public int incrementAndGetTiredness()
+    {
         this.tiredness++;
         return this.tiredness;
     }
 
-    public void setExp(int newexp) {
-        this.exp = newexp;
+    public boolean isActive()
+    {
+        return active;
     }
 
-    public void setLevel(int newlevel) {
-        this.level = newlevel;
-    }
-
-    public void setItemId(int newitemid) {
-        this.itemid = newitemid;
-    }
-
-    public void setActive(boolean set) {
+    public void setActive(boolean set)
+    {
         this.active = set;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-    
-    public void empty() {
-        if(owner != null) owner.getClient().getWorldServer().unregisterMountHunger(owner);
+    public void empty()
+    {
+        if (owner != null) owner.getClient().getWorldServer().unregisterMountHunger(owner);
         this.owner = null;
-    }    
+    }
 }

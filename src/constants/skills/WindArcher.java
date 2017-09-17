@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class WindArcher {
+public class WindArcher
+{
     public static final int CRITICAL_SHOT = 13000000;
     public static final int FOCUS = 13001002;
     public static final int STORM = 13001004;

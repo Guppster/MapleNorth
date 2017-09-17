@@ -30,30 +30,27 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
 import provider.MapleDataProviderFactory;
 import tools.data.input.GenericLittleEndianAccessor;
 import tools.data.input.InputStreamByteStream;
 import tools.data.input.LittleEndianAccessor;
 
-public class ListWZFile {
+public class ListWZFile
+{
+    private static Collection<String> modernImgs = new HashSet<String>();
     private LittleEndianAccessor lea;
     private List<String> entries = new ArrayList<String>();
-    private static Collection<String> modernImgs = new HashSet<String>();
 
-    public static byte[] xorBytes(byte[] a, byte[] b) {
-        byte[] wusched = new byte[a.length];
-        for (int i = 0; i < a.length; i++) {
-            wusched[i] = (byte) (a[i] ^ b[i]);
-        }
-        return wusched;
-    }
-
-    public ListWZFile(File listwz) throws FileNotFoundException {
+    public ListWZFile(File listwz) throws FileNotFoundException
+    {
         lea = new GenericLittleEndianAccessor(new InputStreamByteStream(new BufferedInputStream(new FileInputStream(listwz))));
-        while (lea.available() > 0) {
+        while (lea.available() > 0)
+        {
             int l = lea.readInt() * 2;
             byte[] chunk = new byte[l];
-            for (int i = 0; i < chunk.length; i++) {
+            for (int i = 0; i < chunk.length; i++)
+            {
                 chunk[i] = lea.readByte();
             }
             lea.readChar();
@@ -63,24 +60,41 @@ public class ListWZFile {
         entries = Collections.unmodifiableList(entries);
     }
 
-    public List<String> getEntries() {
-        return entries;
+    public static byte[] xorBytes(byte[] a, byte[] b)
+    {
+        byte[] wusched = new byte[a.length];
+        for (int i = 0; i < a.length; i++)
+        {
+            wusched[i] = (byte) (a[i] ^ b[i]);
+        }
+        return wusched;
     }
 
-    public static void init() {
+    public static void init()
+    {
         final String listWz = System.getProperty("listwz");
-        if (listWz != null) {
+        if (listWz != null)
+        {
             ListWZFile listwz;
-            try {
+            try
+            {
                 listwz = new ListWZFile(MapleDataProviderFactory.fileInWZPath("List.wz"));
                 modernImgs = new HashSet<String>(listwz.getEntries());
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 e.printStackTrace();
             }
         }
     }
 
-    public static boolean isModernImgFile(String path) {
+    public static boolean isModernImgFile(String path)
+    {
         return modernImgs.contains(path);
+    }
+
+    public List<String> getEntries()
+    {
+        return entries;
     }
 }

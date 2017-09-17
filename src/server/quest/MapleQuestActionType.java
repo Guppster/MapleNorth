@@ -22,47 +22,78 @@
 package server.quest;
 
 /**
- *
  * @author Matze
  */
-public enum MapleQuestActionType {
+public enum MapleQuestActionType
+{
     UNDEFINED(-1), EXP(0), ITEM(1), NEXTQUEST(2), MESO(3), QUEST(4), SKILL(5), FAME(6), BUFF(7), PETSKILL(8), YES(9), NO(10), NPC(11), MIN_LEVEL(12), NORMAL_AUTO_START(13), ZERO(14);
     final byte type;
 
-    private MapleQuestActionType(int type) {
+    private MapleQuestActionType(int type)
+    {
         this.type = (byte) type;
     }
 
-    public static MapleQuestActionType getByWZName(String name) {
-        if (name.equals("exp")) {
+    public static MapleQuestActionType getByWZName(String name)
+    {
+        if (name.equals("exp"))
+        {
             return EXP;
-        } else if (name.equals("money")) {
+        }
+        else if (name.equals("money"))
+        {
             return MESO;
-        } else if (name.equals("item")) {
+        }
+        else if (name.equals("item"))
+        {
             return ITEM;
-        } else if (name.equals("skill")) {
+        }
+        else if (name.equals("skill"))
+        {
             return SKILL;
-        } else if (name.equals("nextQuest")) {
+        }
+        else if (name.equals("nextQuest"))
+        {
             return NEXTQUEST;
-        } else if (name.equals("pop")) {
+        }
+        else if (name.equals("pop"))
+        {
             return FAME;
-        } else if (name.equals("buffItemID")) {
+        }
+        else if (name.equals("buffItemID"))
+        {
             return BUFF;
-        } else if (name.equals("petskill")) {
+        }
+        else if (name.equals("petskill"))
+        {
             return PETSKILL;
-        } else if (name.equals("no")) {
+        }
+        else if (name.equals("no"))
+        {
             return NO;
-        } else if (name.equals("yes")) {
+        }
+        else if (name.equals("yes"))
+        {
             return YES;
-        } else if (name.equals("npc")) {
+        }
+        else if (name.equals("npc"))
+        {
             return NPC;
-        } else if (name.equals("lvmin")) {
+        }
+        else if (name.equals("lvmin"))
+        {
             return MIN_LEVEL;
-        } else if (name.equals("normalAutoStart")) {
+        }
+        else if (name.equals("normalAutoStart"))
+        {
             return NORMAL_AUTO_START;
-        } else if (name.equals("0")) {
+        }
+        else if (name.equals("0"))
+        {
             return ZERO;
-        } else {
+        }
+        else
+        {
             return UNDEFINED;
         }
     }

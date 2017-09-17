@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting.map;
 
 import client.MapleClient;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -35,37 +36,48 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
 import tools.FilePrinter;
 
-public class MapScriptManager {
+public class MapScriptManager
+{
 
     private static MapScriptManager instance = new MapScriptManager();
     private Map<String, Invocable> scripts = new HashMap<>();
     private ScriptEngineFactory sef;
 
-    private MapScriptManager() {
+    private MapScriptManager()
+    {
         ScriptEngineManager sem = new ScriptEngineManager();
         sef = sem.getEngineByName("javascript").getFactory();
     }
 
-    public static MapScriptManager getInstance() {
+    public static MapScriptManager getInstance()
+    {
         return instance;
     }
 
-    public void reloadScripts() {
+    public void reloadScripts()
+    {
         scripts.clear();
     }
 
-    public boolean scriptExists(String scriptName, boolean firstUser) {
+    public boolean scriptExists(String scriptName, boolean firstUser)
+    {
         File scriptFile = new File("scripts/map/" + (firstUser ? "onFirstUserEnter/" : "onUserEnter/") + scriptName + ".js");
         return scriptFile.exists();
     }
 
-    public void getMapScript(MapleClient c, String scriptName, boolean firstUser) {
-        if (scripts.containsKey(scriptName)) {
-            try {
+    public void getMapScript(MapleClient c, String scriptName, boolean firstUser)
+    {
+        if (scripts.containsKey(scriptName))
+        {
+            try
+            {
                 scripts.get(scriptName).invokeFunction("start", new MapScriptMethods(c));
-            } catch (final ScriptException | NoSuchMethodException e) {
+            }
+            catch (final ScriptException | NoSuchMethodException e)
+            {
                 e.printStackTrace();
             }
             return;
@@ -73,27 +85,39 @@ public class MapScriptManager {
         String type = firstUser ? "onFirstUserEnter/" : "onUserEnter/";
 
         File scriptFile = new File("scripts/map/" + type + scriptName + ".js");
-        if (!scriptExists(scriptName, firstUser)) {
+        if (!scriptExists(scriptName, firstUser))
+        {
             return;
         }
         FileReader fr = null;
         ScriptEngine portal = sef.getScriptEngine();
-        try {
+        try
+        {
             fr = new FileReader(scriptFile);
             CompiledScript compiled = ((Compilable) portal).compile(fr);
             compiled.eval();
             final Invocable script = ((Invocable) portal);
             scripts.put(scriptName, script);
             script.invokeFunction("start", new MapScriptMethods(c));
-        } catch (final UndeclaredThrowableException | ScriptException ute) {
+        }
+        catch (final UndeclaredThrowableException | ScriptException ute)
+        {
             FilePrinter.printError(FilePrinter.MAP_SCRIPT + type + scriptName + ".txt", ute);
-        } catch (final Exception e) {
+        }
+        catch (final Exception e)
+        {
             FilePrinter.printError(FilePrinter.MAP_SCRIPT + type + scriptName + ".txt", e);
-        } finally {
-            if (fr != null) {
-                try {
+        }
+        finally
+        {
+            if (fr != null)
+            {
+                try
+                {
                     fr.close();
-                } catch (IOException e) {
+                }
+                catch (IOException e)
+                {
                     e.printStackTrace();
                 }
             }

@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Spearman {
+public class Spearman
+{
     public static final int SPEAR_MASTERY = 1300000;
     public static final int POLEARM_MASTERY = 1300001;
     public static final int FINAL_ATTACK_SPEAR = 1300002;

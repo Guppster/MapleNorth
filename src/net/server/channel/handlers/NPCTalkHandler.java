@@ -32,51 +32,69 @@ import tools.FilePrinter;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class NPCTalkHandler extends AbstractMaplePacketHandler {
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        if (!c.getPlayer().isAlive()) {
+public final class NPCTalkHandler extends AbstractMaplePacketHandler
+{
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
+        if (!c.getPlayer().isAlive())
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
-        
-        if(System.currentTimeMillis() - c.getPlayer().getNpcCooldown() < ServerConstants.BLOCK_NPC_RACE_CONDT) {
+
+        if (System.currentTimeMillis() - c.getPlayer().getNpcCooldown() < ServerConstants.BLOCK_NPC_RACE_CONDT)
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
-        
+
         int oid = slea.readInt();
         MapleMapObject obj = c.getPlayer().getMap().getMapObject(oid);
-        if (obj instanceof MapleNPC) {
+        if (obj instanceof MapleNPC)
+        {
             MapleNPC npc = (MapleNPC) obj;
-            if(ServerConstants.USE_DEBUG == true) c.getPlayer().dropMessage(5, "Talking to NPC " + npc.getId());
-            
-            if (npc.getId() == 9010009) {   //is duey
+            if (ServerConstants.USE_DEBUG == true) c.getPlayer().dropMessage(5, "Talking to NPC " + npc.getId());
+
+            if (npc.getId() == 9010009)
+            {   //is duey
                 c.getPlayer().setNpcCooldown(System.currentTimeMillis());
                 c.announce(MaplePacketCreator.sendDuey((byte) 8, DueyHandler.loadItems(c.getPlayer())));
-            } else {
-                if (c.getCM() != null || c.getQM() != null) {
+            }
+            else
+            {
+                if (c.getCM() != null || c.getQM() != null)
+                {
                     c.announce(MaplePacketCreator.enableActions());
                     return;
                 }
-                if(npc.getId() >= 9100100 && npc.getId() <= 9100200) {
+                if (npc.getId() >= 9100100 && npc.getId() <= 9100200)
+                {
                     // Custom handling for gachapon scripts to reduce the amount of scripts needed.
                     NPCScriptManager.getInstance().start(c, npc.getId(), "gachapon", null);
-                } else {
+                }
+                else
+                {
                     boolean hasNpcScript = NPCScriptManager.getInstance().start(c, npc.getId(), oid, null);
-                    if (!hasNpcScript) {
-                        if (!npc.hasShop()) {
+                    if (!hasNpcScript)
+                    {
+                        if (!npc.hasShop())
+                        {
                             FilePrinter.printError(FilePrinter.NPC_UNCODED, "NPC " + npc.getName() + "(" + npc.getId() + ") is not coded.\r\n");
                             return;
-                        } else if(c.getPlayer().getShop() != null) {
+                        }
+                        else if (c.getPlayer().getShop() != null)
+                        {
                             c.announce(MaplePacketCreator.enableActions());
                             return;
                         }
-                        
+
                         npc.sendShop(c);
                     }
                 }
             }
-        } else if (obj instanceof PlayerNPCs) {
+        }
+        else if (obj instanceof PlayerNPCs)
+        {
             NPCScriptManager.getInstance().start(c, ((PlayerNPCs) obj).getId(), null);
         }
     }

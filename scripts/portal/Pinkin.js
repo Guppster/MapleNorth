@@ -25,6 +25,6 @@ Vs Pink Bean - Ressurection stage portal
 */
 
 function enter(pi) {
-        pi.warp(270050100);
-        return true;
+    pi.warp(270050100);
+    return true;
 }

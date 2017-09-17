@@ -23,36 +23,47 @@ package net.server.channel.handlers;
 
 import client.MapleClient;
 import constants.skills.DarkKnight;
+
 import java.util.Collection;
+
 import net.AbstractMaplePacketHandler;
 import server.maps.MapleSummon;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
- *
  * @author BubblesDev
  */
-public final class BeholderHandler extends AbstractMaplePacketHandler {//Summon Skills noobs
+public final class BeholderHandler extends AbstractMaplePacketHandler
+{//Summon Skills noobs
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         //System.out.println(slea.toString());
         Collection<MapleSummon> summons = c.getPlayer().getSummonsValues();
         int oid = slea.readInt();
         MapleSummon summon = null;
-        for (MapleSummon sum : summons) {
-            if (sum.getObjectId() == oid) {
+        for (MapleSummon sum : summons)
+        {
+            if (sum.getObjectId() == oid)
+            {
                 summon = sum;
             }
         }
-        if (summon != null) {
+        if (summon != null)
+        {
             int skillId = slea.readInt();
-            if (skillId == DarkKnight.AURA_OF_BEHOLDER) {
+            if (skillId == DarkKnight.AURA_OF_BEHOLDER)
+            {
                 slea.readShort(); //Not sure.
-            } else if (skillId == DarkKnight.HEX_OF_BEHOLDER) {
+            }
+            else if (skillId == DarkKnight.HEX_OF_BEHOLDER)
+            {
                 slea.readByte(); //Not sure.
             }            //show to others here
-        } else {
+        }
+        else
+        {
             c.getPlayer().clearSummons();
         }
     }

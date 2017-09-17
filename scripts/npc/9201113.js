@@ -82,12 +82,12 @@ function action(mode, type, selection) {
         } else if (status == 1) {
             if (selection == 1) {
                 expedition = cm.getExpedition(cwkpq);
-                if(expedition != null) {
+                if (expedition != null) {
                     cm.sendOk("Someone already taken the initiative to be the leader of the expedition. Try joining them!");
                     cm.dispose();
                     return;
                 }
-                
+
                 cm.createExpedition(cwkpq);
                 cm.sendOk("The #rCrimsonwood Keep Party Quest Expedition#k has been created.\r\n\r\nTalk to me again to view the current team, or start the fight!");
                 cm.dispose();
@@ -125,7 +125,7 @@ function action(mode, type, selection) {
                     cm.dispose();
                     return;
                 }
-                
+
                 cm.sendOk("The expedition will begin and you will now be escorted to the #bEntrance to CWKPQ Altar#k.");
                 status = 4;
             } else if (selection == 3) {
@@ -144,12 +144,12 @@ function action(mode, type, selection) {
 
             em.setProperty("leader", player.getName());
             em.setProperty("channel", player.getClient().getChannel());
-            if(!em.startInstance(expedition)) {
+            if (!em.startInstance(expedition)) {
                 cm.sendOk("Another expedition has taken the initiative to complete the Crimsonwood Keep Party Quest, lets pray for those brave souls.");
                 cm.dispose();
                 return;
             }
-            
+
             cm.dispose();
             return;
         } else if (status == 6) {

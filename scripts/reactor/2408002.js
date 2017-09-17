@@ -62,9 +62,9 @@ function act() {
             break;
         }
     }
-    
+
     eim.setIntProperty(vvpStage + "stageclear", 1);
-    
+
     var tehWomanfred = new Item(vvpKey, 0, 1);
     var theWomanfred = womanfred.getReactorByName("keyDrop1");
     var dropper = eim.getPlayers().get(0);

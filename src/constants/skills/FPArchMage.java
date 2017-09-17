@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class FPArchMage {
+public class FPArchMage
+{
     public static final int MAPLE_WARRIOR = 2121000;
     public static final int BIG_BANG = 2121001;
     public static final int MANA_REFLECTION = 2121002;

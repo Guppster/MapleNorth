@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class ThunderBreaker {
+public class ThunderBreaker
+{
     public static final int DASH = 15001003;
     public static final int IMPROVE_MAX_HP = 15100000;
     public static final int KNUCKLER_MASTERY = 15100001;

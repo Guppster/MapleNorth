@@ -33,44 +33,52 @@ import server.MapleInventoryManipulator;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class PetFoodHandler extends AbstractMaplePacketHandler {
+public final class PetFoodHandler extends AbstractMaplePacketHandler
+{
 
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         MapleCharacter chr = c.getPlayer();
         AutobanManager abm = chr.getAutobanManager();
-        if (abm.getLastSpam(2) + 500 > System.currentTimeMillis()) {
+        if (abm.getLastSpam(2) + 500 > System.currentTimeMillis())
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
         abm.spam(2);
         abm.setTimestamp(1, slea.readInt(), 3);
-        if (chr.getNoPets() == 0) {
+        if (chr.getNoPets() == 0)
+        {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
         int previousFullness = 100;
         byte slot = 0;
         MaplePet[] pets = chr.getPets();
-        for (byte i = 0; i < 3; i++) {
-            if (pets[i] != null) {
-                if (pets[i].getFullness() < previousFullness) {
+        for (byte i = 0; i < 3; i++)
+        {
+            if (pets[i] != null)
+            {
+                if (pets[i].getFullness() < previousFullness)
+                {
                     slot = i;
                     previousFullness = pets[i].getFullness();
                 }
             }
         }
-        
+
         MaplePet pet = chr.getPet(slot);
-        if(pet == null) return;
-        
+        if (pet == null) return;
+
         short pos = slea.readShort();
         int itemId = slea.readInt();
         Item use = chr.getInventory(MapleInventoryType.USE).getItem(pos);
-        if (use == null || (itemId / 10000) != 212 || use.getItemId() != itemId) {
+        if (use == null || (itemId / 10000) != 212 || use.getItemId() != itemId)
+        {
             return;
         }
-        
+
         // 50% chance to get +1 closeness
         pet.gainClosenessFullness(chr, (Randomizer.nextInt(101) <= 50) ? 1 : 0, 30, 1);
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, pos, (short) 1, false);

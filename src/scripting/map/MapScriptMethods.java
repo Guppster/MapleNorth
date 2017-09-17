@@ -27,16 +27,20 @@ import scripting.AbstractPlayerInteraction;
 import server.quest.MapleQuest;
 import tools.MaplePacketCreator;
 
-public class MapScriptMethods extends AbstractPlayerInteraction {
-   
-	private String rewardstring = " title has been rewarded. Please see NPC Dalair to receive your Medal.";
-    
-	public MapScriptMethods(MapleClient c) {
+public class MapScriptMethods extends AbstractPlayerInteraction
+{
+
+    private String rewardstring = " title has been rewarded. Please see NPC Dalair to receive your Medal.";
+
+    public MapScriptMethods(MapleClient c)
+    {
         super(c);
     }
 
-    public void displayAranIntro() {
-        switch (c.getPlayer().getMapId()) {
+    public void displayAranIntro()
+    {
+        switch (c.getPlayer().getMapId())
+        {
             case 914090010:
                 lockUI();
                 c.announce(MaplePacketCreator.showIntro("Effect/Direction1.img/aranTutorial/Scene0"));
@@ -57,44 +61,55 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         }
     }
 
-    public void startExplorerExperience() {
+    public void startExplorerExperience()
+    {
         if (c.getPlayer().getMapId() == 1020100) //Swordman
         {
             c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/swordman/Scene" + c.getPlayer().getGender()));
-        } else if (c.getPlayer().getMapId() == 1020200) //Magician
+        }
+        else if (c.getPlayer().getMapId() == 1020200) //Magician
         {
             c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/magician/Scene" + c.getPlayer().getGender()));
-        } else if (c.getPlayer().getMapId() == 1020300) //Archer
+        }
+        else if (c.getPlayer().getMapId() == 1020300) //Archer
         {
             c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/archer/Scene" + c.getPlayer().getGender()));
-        } else if (c.getPlayer().getMapId() == 1020400) //Rogue
+        }
+        else if (c.getPlayer().getMapId() == 1020400) //Rogue
         {
             c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/rogue/Scene" + c.getPlayer().getGender()));
-        } else if (c.getPlayer().getMapId() == 1020500) //Pirate
+        }
+        else if (c.getPlayer().getMapId() == 1020500) //Pirate
         {
             c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/pirate/Scene" + c.getPlayer().getGender()));
         }
     }
 
-    public void goAdventure() {
+    public void goAdventure()
+    {
         lockUI();
         c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/goAdventure/Scene" + c.getPlayer().getGender()));
     }
 
-    public void goLith() {
+    public void goLith()
+    {
         lockUI();
         c.announce(MaplePacketCreator.showIntro("Effect/Direction3.img/goLith/Scene" + c.getPlayer().getGender()));
     }
 
-    public void explorerQuest(short questid, String questName) {
+    public void explorerQuest(short questid, String questName)
+    {
         MapleQuest quest = MapleQuest.getInstance(questid);
-        if (!isQuestStarted(questid)) {
-            if (!quest.forceStart(getPlayer(), 9000066)) {
+        if (!isQuestStarted(questid))
+        {
+            if (!quest.forceStart(getPlayer(), 9000066))
+            {
                 return;
             }
         }
         MapleQuestStatus q = getPlayer().getQuest(quest);
-        if (!q.addMedalMap(getPlayer().getMapId())) {
+        if (!q.addMedalMap(getPlayer().getMapId()))
+        {
             return;
         }
         String status = Integer.toString(q.getMedalProgress());
@@ -102,11 +117,14 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         getPlayer().announce(MaplePacketCreator.updateQuest(q, true));
         StringBuilder smp = new StringBuilder();
         StringBuilder etm = new StringBuilder();
-        if (status.equals(infoex)) {
+        if (status.equals(infoex))
+        {
             etm.append("Earned the ").append(questName).append(" title!");
             smp.append("You have earned the <").append(questName).append(">").append(rewardstring);
             getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
-        } else {
+        }
+        else
+        {
             getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/" + infoex + " regions explored."));
             etm.append("Trying for the ").append(questName).append(" title.");
             smp.append("You made progress on the ").append(questName).append(" title. ").append(status).append("/").append(infoex);
@@ -115,25 +133,32 @@ public class MapScriptMethods extends AbstractPlayerInteraction {
         showInfoText(smp.toString());
     }
 
-    public void touchTheSky() { //29004
+    public void touchTheSky()
+    { //29004
         MapleQuest quest = MapleQuest.getInstance(29004);
-        if (!isQuestStarted(29004)) {
-            if (!quest.forceStart(getPlayer(), 9000066)) {
+        if (!isQuestStarted(29004))
+        {
+            if (!quest.forceStart(getPlayer(), 9000066))
+            {
                 return;
             }
         }
         MapleQuestStatus q = getPlayer().getQuest(quest);
-        if (!q.addMedalMap(getPlayer().getMapId())) {
+        if (!q.addMedalMap(getPlayer().getMapId()))
+        {
             return;
         }
         String status = Integer.toString(q.getMedalProgress());
         getPlayer().announce(MaplePacketCreator.updateQuest(q, true));
         getPlayer().announce(MaplePacketCreator.earnTitleMessage(status + "/5 Completed"));
         getPlayer().announce(MaplePacketCreator.earnTitleMessage("The One Who's Touched the Sky title in progress."));
-        if (Integer.toString(q.getMedalProgress()).equals(quest.getInfoEx())) {
+        if (Integer.toString(q.getMedalProgress()).equals(quest.getInfoEx()))
+        {
             showInfoText("The One Who's Touched the Sky" + rewardstring);
             getPlayer().announce(MaplePacketCreator.getShowQuestCompletion(quest.getId()));
-        } else {
+        }
+        else
+        {
             showInfoText("The One Who's Touched the Sky title in progress. " + status + "/5 Completed");
         }
     }

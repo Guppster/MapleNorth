@@ -21,17 +21,17 @@
 */
 
 /**
-        @Author Ronan
+ @Author Ronan
 
-        2060005 - Kenta
-	Enter 3rd job mount event
-**/
+ 2060005 - Kenta
+ Enter 3rd job mount event
+ **/
 
 function start() {
-    if(cm.isQuestCompleted(6002)) {
+    if (cm.isQuestCompleted(6002)) {
         cm.sendOk("Thanks for saving the pork.");
     }
-    else if(cm.isQuestStarted(6002)) {
+    else if (cm.isQuestStarted(6002)) {
         var em = cm.getEventManager("3rdJob_mount");
         if (em == null)
             cm.sendOk("Sorry, but 3rd job advancement (mount) is closed.");
@@ -48,6 +48,6 @@ function start() {
     else {
         cm.sendSimple("Only few adventurers, from a selected public, are eligible to protect the Watch Hog.");
     }
-    
+
     cm.dispose();
 }

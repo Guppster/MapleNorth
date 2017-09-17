@@ -20,6 +20,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 function start() {
-	cm.warp(109030001, 0);
-	cm.dispose();
+    cm.warp(109030001, 0);
+    cm.dispose();
 }

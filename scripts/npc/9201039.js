@@ -44,10 +44,10 @@ function action(mode, type, selection) {
     if (status == 1) {
         hairnew = Array();
         if (cm.getPlayer().getGender() == 0)
-            for(var i = 0; i < mhair.length; i++)
+            for (var i = 0; i < mhair.length; i++)
                 hairnew.push(mhair[i]);
         else
-            for(var j = 0; j < fhair.length; j++)
+            for (var j = 0; j < fhair.length; j++)
                 hairnew.push(fhair[j]);
         cm.sendNext("Here we go!");
     } else {

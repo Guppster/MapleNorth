@@ -20,13 +20,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
-	Assistant Nancy
--- By ---------------------------------------------------------------------------------------------
-	Angel (get31720 ragezone)
--- Extra Info -------------------------------------------------------------------------------------
-	Fixed by  [happydud3] & [XotiCraze]
----------------------------------------------------------------------------------------------------
-**/
+ Assistant Nancy
+ -- By ---------------------------------------------------------------------------------------------
+ Angel (get31720 ragezone)
+ -- Extra Info -------------------------------------------------------------------------------------
+ Fixed by  [happydud3] & [XotiCraze]
+ ---------------------------------------------------------------------------------------------------
+ **/
 
 var status;
 var i;
@@ -38,7 +38,7 @@ function start() {
 
 function action(mode, type, selection) {
     if (mode == -1 || mode == 0) {
-        cm.sendOk("Goodbye then"); 
+        cm.sendOk("Goodbye then");
         cm.dispose();
         return;
     } else if (mode == 1) {
@@ -46,7 +46,7 @@ function action(mode, type, selection) {
     } else {
         status--;
     }
-	
+
     var engagementRings = Array(4031360, 4031358, 4031362, 4031364);
     var hasEngage = false;
     for (i = 0; i < engagementRings.length && !hasEngage; i++) {
@@ -77,7 +77,7 @@ function action(mode, type, selection) {
             selection = 20; // Random.
         }
     } else if (status == 1) {
-        switch(selection) {
+        switch (selection) {
             case 0:
                 cm.warp(680000300);
                 cm.sendOk("Enjoy! Cherish your Photos Forever!");
@@ -88,7 +88,7 @@ function action(mode, type, selection) {
                 cm.dispose();
                 break;
             default:
-                cm.warp(680000000,0);
+                cm.warp(680000000, 0);
                 cm.dispose();
                 break;
         }

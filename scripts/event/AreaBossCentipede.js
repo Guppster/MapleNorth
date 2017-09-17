@@ -20,12 +20,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
--- Odin JavaScript --------------------------------------------------------------------------------
-	Centipede Spawner
--- Edited by --------------------------------------------------------------------------------------
-	Ronan (based on xQuasar's King Clang spawner)
+ -- Odin JavaScript --------------------------------------------------------------------------------
+ Centipede Spawner
+ -- Edited by --------------------------------------------------------------------------------------
+ Ronan (based on xQuasar's King Clang spawner)
 
-**/
+ **/
 function init() {
     scheduleNew();
 }
@@ -42,13 +42,13 @@ function cancelSchedule() {
 function start() {
     var herbGarden = em.getChannelServer().getMapFactory().getMap(251010102);
     var gcent = Packages.server.life.MapleLifeFactory.getMonster(5220004);
-	
-	if(herbGarden.getMonsterById(5220004) != null) {
-		em.schedule("start", 3 * 60 *60 * 1000);
-		return;
-	}
-	
+
+    if (herbGarden.getMonsterById(5220004) != null) {
+        em.schedule("start", 3 * 60 * 60 * 1000);
+        return;
+    }
+
     herbGarden.spawnMonsterOnGroundBelow(gcent, new Packages.java.awt.Point(560, 50));
     herbGarden.broadcastMessage(Packages.tools.MaplePacketCreator.serverNotice(6, "From the mists surrounding the herb garden, the gargantuous Giant Centipede appears."));
-	em.schedule("start", 3 * 60 *60 * 1000);
+    em.schedule("start", 3 * 60 * 60 * 1000);
 }

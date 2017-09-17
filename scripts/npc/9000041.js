@@ -26,7 +26,7 @@
         * @author Ronan Lana
 */
 
-var options = ["EQUIP","USE","SET-UP","ETC"];
+var options = ["EQUIP", "USE", "SET-UP", "ETC"];
 var name;
 var status;
 var selectedType = 0;
@@ -37,7 +37,7 @@ function numberWithCommas(x) {  // I ain't interessed in finding a way to parse 
 
 function start() {
     status = -1;
-    action(1, 0, 0); 
+    action(1, 0, 0);
 }
 
 function action(mode, type, selection) {
@@ -55,16 +55,16 @@ function action(mode, type, selection) {
     }
 
     else if (status == 1) {
-	selectedType = selection;
+        selectedType = selection;
         cm.sendGetText("From what item on your #r" + options[selectedType] + "#k inventory do you want to start the transaction?");
     }
 
     else if (status == 2) {
         name = cm.getText();
-	var res = cm.getPlayer().sellAllItemsFromName(selectedType + 1, name);
+        var res = cm.getPlayer().sellAllItemsFromName(selectedType + 1, name);
 
-        if(res > -1) cm.sendOk("Transaction complete! You received #r" + numberWithCommas(res) + " mesos#k from this action.");
-	else cm.sendOk("There is no #b'" + name + "'#k in your #b" + options[selectedType] + "#k inventory!");
+        if (res > -1) cm.sendOk("Transaction complete! You received #r" + numberWithCommas(res) + " mesos#k from this action.");
+        else cm.sendOk("There is no #b'" + name + "'#k in your #b" + options[selectedType] + "#k inventory!");
 
         cm.dispose();
     }

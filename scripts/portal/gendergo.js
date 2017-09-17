@@ -1,6 +1,6 @@
 function enter(pi) {
     var map = pi.getPlayer().getMap();
-    if(pi.getPortal().getName() == "female00") {
+    if (pi.getPortal().getName() == "female00") {
         if (pi.getPlayer().getGender() == 1) {
             pi.warp(map.getId(), "female01");
             return true;

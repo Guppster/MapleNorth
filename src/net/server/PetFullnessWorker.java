@@ -27,15 +27,18 @@ import net.server.world.World;
 /**
  * @author Ronan
  */
-public class PetFullnessWorker implements Runnable {
+public class PetFullnessWorker implements Runnable
+{
     private World wserv;
-    
-    @Override
-    public void run() {
-        wserv.runPetSchedule();
-    }
-    
-    public PetFullnessWorker(World world) {
+
+    public PetFullnessWorker(World world)
+    {
         wserv = world;
+    }
+
+    @Override
+    public void run()
+    {
+        wserv.runPetSchedule();
     }
 }

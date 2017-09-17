@@ -23,7 +23,8 @@ package server.maps;
 
 import java.awt.Point;
 
-public abstract class AbstractMapleMapObject implements MapleMapObject {
+public abstract class AbstractMapleMapObject implements MapleMapObject
+{
     private Point position = new Point();
     private int objectId;
 
@@ -31,28 +32,33 @@ public abstract class AbstractMapleMapObject implements MapleMapObject {
     public abstract MapleMapObjectType getType();
 
     @Override
-    public Point getPosition() {
+    public Point getPosition()
+    {
         return new Point(position);
     }
 
     @Override
-    public void setPosition(Point position) {
+    public void setPosition(Point position)
+    {
         this.position.x = position.x;
         this.position.y = position.y;
     }
 
     @Override
-    public int getObjectId() {
+    public int getObjectId()
+    {
         return objectId;
     }
 
     @Override
-    public void setObjectId(int id) {
+    public void setObjectId(int id)
+    {
         this.objectId = id;
     }
-    
+
     @Override
-    public void nullifyPosition() {
+    public void nullifyPosition()
+    {
         this.position = null;
-    }    
+    }
 }

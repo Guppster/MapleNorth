@@ -22,12 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.maps;
 
 import client.MapleClient;
+
 import java.awt.Point;
+
 import scripting.portal.PortalScriptManager;
 import server.MaplePortal;
 import tools.MaplePacketCreator;
 
-public class MapleGenericPortal implements MaplePortal {
+public class MapleGenericPortal implements MaplePortal
+{
 
     private String name;
     private String target;
@@ -39,106 +42,130 @@ public class MapleGenericPortal implements MaplePortal {
     private String scriptName;
     private boolean portalState;
 
-    public MapleGenericPortal(int type) {
+    public MapleGenericPortal(int type)
+    {
         this.type = type;
     }
 
     @Override
-    public int getId() {
+    public int getId()
+    {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(int id)
+    {
         this.id = id;
     }
 
     @Override
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
     @Override
-    public Point getPosition() {
+    public Point getPosition()
+    {
         return position;
     }
 
+    public void setPosition(Point position)
+    {
+        this.position = position;
+    }
+
     @Override
-    public String getTarget() {
+    public String getTarget()
+    {
         return target;
     }
 
-    @Override
-    public void setPortalStatus(boolean newStatus) {
-        this.status = newStatus;
+    public void setTarget(String target)
+    {
+        this.target = target;
     }
 
     @Override
-    public boolean getPortalStatus() {
+    public boolean getPortalStatus()
+    {
         return status;
     }
 
     @Override
-    public int getTargetMapId() {
+    public void setPortalStatus(boolean newStatus)
+    {
+        this.status = newStatus;
+    }
+
+    @Override
+    public int getTargetMapId()
+    {
         return targetmap;
     }
 
-    @Override
-    public int getType() {
-        return type;
-    }
-
-    @Override
-    public String getScriptName() {
-        return scriptName;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPosition(Point position) {
-        this.position = position;
-    }
-
-    public void setTarget(String target) {
-        this.target = target;
-    }
-
-    public void setTargetMapId(int targetmapid) {
+    public void setTargetMapId(int targetmapid)
+    {
         this.targetmap = targetmapid;
     }
 
     @Override
-    public void setScriptName(String scriptName) {
+    public int getType()
+    {
+        return type;
+    }
+
+    @Override
+    public String getScriptName()
+    {
+        return scriptName;
+    }
+
+    @Override
+    public void setScriptName(String scriptName)
+    {
         this.scriptName = scriptName;
     }
 
     @Override
-    public void enterPortal(MapleClient c) {
+    public void enterPortal(MapleClient c)
+    {
         boolean changed = false;
-        if (getScriptName() != null) {
+        if (getScriptName() != null)
+        {
             changed = PortalScriptManager.getInstance().executePortalScript(this, c);
-        } else if (getTargetMapId() != 999999999) {
+        }
+        else if (getTargetMapId() != 999999999)
+        {
             MapleMap to = c.getPlayer().getEventInstance() == null ? c.getChannelServer().getMapFactory().getMap(getTargetMapId()) : c.getPlayer().getEventInstance().getMapInstance(getTargetMapId());
             MaplePortal pto = to.getPortal(getTarget());
-            if (pto == null) {// fallback for missing portals - no real life case anymore - interesting for not implemented areas
+            if (pto == null)
+            {// fallback for missing portals - no real life case anymore - interesting for not implemented areas
                 pto = to.getPortal(0);
             }
             c.getPlayer().changeMap(to, pto); //late resolving makes this harder but prevents us from loading the whole world at once
             changed = true;
         }
-        if (!changed) {
+        if (!changed)
+        {
             c.announce(MaplePacketCreator.enableActions());
         }
     }
 
     @Override
-    public void setPortalState(boolean state) {
-        this.portalState = state;
+    public boolean getPortalState()
+    {
+        return portalState;
     }
 
     @Override
-    public boolean getPortalState() {
-        return portalState;
+    public void setPortalState(boolean state)
+    {
+        this.portalState = state;
     }
 }

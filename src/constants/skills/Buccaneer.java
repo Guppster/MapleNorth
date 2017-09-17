@@ -22,10 +22,10 @@
 package constants.skills;
 
 /**
- *
  * @author BubblesDev
  */
-public class Buccaneer {
+public class Buccaneer
+{
     public static final int MAPLE_WARRIOR = 5121000;
     public static final int ENERGY_ORB = 5121002;
     public static final int SUPER_TRANSFORMATION = 5121003;

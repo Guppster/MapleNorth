@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import server.life.MapleLifeFactory.BanishInfo;
 import server.life.MapleLifeFactory.loseItem;
 import server.life.MapleLifeFactory.selfDestruction;
@@ -35,7 +36,8 @@ import tools.Pair;
 /**
  * @author Frz
  */
-public class MapleMonsterStats {
+public class MapleMonsterStats
+{
     private boolean changeable;
     private int exp, hp, mp, level, PADamage, PDDamage, MADamage, MDDamage, dropPeriod, cp, buffToGive, removeAfter;
     private boolean boss, undead, ffaLoot, isExplosiveReward, firstAttack, removeOnMiss;
@@ -51,286 +53,360 @@ public class MapleMonsterStats {
     private selfDestruction selfDestruction = null;
     private boolean friendly;
 
-    public void setChange(boolean change) {
+    public void setChange(boolean change)
+    {
         this.changeable = change;
     }
 
-    public boolean isChangeable() {
+    public boolean isChangeable()
+    {
         return changeable;
     }
-    
-    public int getExp() {
+
+    public int getExp()
+    {
         return exp;
     }
 
-    public void setExp(int exp) {
+    public void setExp(int exp)
+    {
         this.exp = exp;
     }
 
-    public int getHp() {
+    public int getHp()
+    {
         return hp;
     }
 
-    public void setHp(int hp) {
+    public void setHp(int hp)
+    {
         this.hp = hp;
     }
 
-    public int getMp() {
+    public int getMp()
+    {
         return mp;
     }
 
-    public void setMp(int mp) {
+    public void setMp(int mp)
+    {
         this.mp = mp;
     }
 
-    public int getLevel() {
+    public int getLevel()
+    {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(int level)
+    {
         this.level = level;
     }
 
-    public int removeAfter() {
+    public int removeAfter()
+    {
         return removeAfter;
     }
 
-    public void setRemoveAfter(int removeAfter) {
+    public void setRemoveAfter(int removeAfter)
+    {
         this.removeAfter = removeAfter;
     }
 
-    public int getDropPeriod() {
+    public int getDropPeriod()
+    {
         return dropPeriod;
     }
 
-    public void setDropPeriod(int dropPeriod) {
+    public void setDropPeriod(int dropPeriod)
+    {
         this.dropPeriod = dropPeriod;
     }
 
-    public void setBoss(boolean boss) {
-        this.boss = boss;
-    }
-
-    public boolean isBoss() {
+    public boolean isBoss()
+    {
         return boss;
     }
 
-    public void setFfaLoot(boolean ffaLoot) {
-        this.ffaLoot = ffaLoot;
+    public void setBoss(boolean boss)
+    {
+        this.boss = boss;
     }
 
-    public boolean isFfaLoot() {
+    public boolean isFfaLoot()
+    {
         return ffaLoot;
     }
 
-    public void setAnimationTime(String name, int delay) {
+    public void setFfaLoot(boolean ffaLoot)
+    {
+        this.ffaLoot = ffaLoot;
+    }
+
+    public void setAnimationTime(String name, int delay)
+    {
         animationTimes.put(name, delay);
     }
 
-    public int getAnimationTime(String name) {
+    public int getAnimationTime(String name)
+    {
         Integer ret = animationTimes.get(name);
-        if (ret == null) {
+        if (ret == null)
+        {
             return 500;
         }
         return ret.intValue();
     }
 
-    public boolean isMobile() {
+    public boolean isMobile()
+    {
         return animationTimes.containsKey("move") || animationTimes.containsKey("fly");
     }
 
-    public List<Integer> getRevives() {
+    public List<Integer> getRevives()
+    {
         return revives;
     }
 
-    public void setRevives(List<Integer> revives) {
+    public void setRevives(List<Integer> revives)
+    {
         this.revives = revives;
     }
 
-    public void setUndead(boolean undead) {
-        this.undead = undead;
-    }
-
-    public boolean getUndead() {
+    public boolean getUndead()
+    {
         return undead;
     }
 
-    public void setEffectiveness(Element e, ElementalEffectiveness ee) {
+    public void setUndead(boolean undead)
+    {
+        this.undead = undead;
+    }
+
+    public void setEffectiveness(Element e, ElementalEffectiveness ee)
+    {
         resistance.put(e, ee);
     }
 
-    public ElementalEffectiveness getEffectiveness(Element e) {
+    public ElementalEffectiveness getEffectiveness(Element e)
+    {
         ElementalEffectiveness elementalEffectiveness = resistance.get(e);
-        if (elementalEffectiveness == null) {
+        if (elementalEffectiveness == null)
+        {
             return ElementalEffectiveness.NORMAL;
-        } else {
+        }
+        else
+        {
             return elementalEffectiveness;
         }
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name)
+    {
         this.name = name;
     }
 
-    public byte getTagColor() {
+    public byte getTagColor()
+    {
         return tagColor;
     }
 
-    public void setTagColor(int tagColor) {
+    public void setTagColor(int tagColor)
+    {
         this.tagColor = (byte) tagColor;
     }
 
-    public byte getTagBgColor() {
+    public byte getTagBgColor()
+    {
         return tagBgColor;
     }
 
-    public void setTagBgColor(int tagBgColor) {
+    public void setTagBgColor(int tagBgColor)
+    {
         this.tagBgColor = (byte) tagBgColor;
     }
 
-    public void setSkills(List<Pair<Integer, Integer>> skills) {
-        for (Pair<Integer, Integer> skill : skills) {
+    public List<Pair<Integer, Integer>> getSkills()
+    {
+        return Collections.unmodifiableList(this.skills);
+    }
+
+    public void setSkills(List<Pair<Integer, Integer>> skills)
+    {
+        for (Pair<Integer, Integer> skill : skills)
+        {
             this.skills.add(skill);
         }
     }
 
-    public List<Pair<Integer, Integer>> getSkills() {
-        return Collections.unmodifiableList(this.skills);
-    }
-
-    public int getNoSkills() {
+    public int getNoSkills()
+    {
         return this.skills.size();
     }
 
-    public boolean hasSkill(int skillId, int level) {
-        for (Pair<Integer, Integer> skill : skills) {
-            if (skill.getLeft() == skillId && skill.getRight() == level) {
+    public boolean hasSkill(int skillId, int level)
+    {
+        for (Pair<Integer, Integer> skill : skills)
+        {
+            if (skill.getLeft() == skillId && skill.getRight() == level)
+            {
                 return true;
             }
         }
         return false;
     }
 
-    public void setFirstAttack(boolean firstAttack) {
-        this.firstAttack = firstAttack;
-    }
-
-    public boolean isFirstAttack() {
+    public boolean isFirstAttack()
+    {
         return firstAttack;
     }
 
-    public void setBuffToGive(int buff) {
-        this.buffToGive = buff;
+    public void setFirstAttack(boolean firstAttack)
+    {
+        this.firstAttack = firstAttack;
     }
 
-    public int getBuffToGive() {
+    public int getBuffToGive()
+    {
         return buffToGive;
     }
 
-    void removeEffectiveness(Element e) {
+    public void setBuffToGive(int buff)
+    {
+        this.buffToGive = buff;
+    }
+
+    void removeEffectiveness(Element e)
+    {
         resistance.remove(e);
     }
 
-    public BanishInfo getBanishInfo() {
+    public BanishInfo getBanishInfo()
+    {
         return banish;
     }
 
-    public void setBanishInfo(BanishInfo banish) {
+    public void setBanishInfo(BanishInfo banish)
+    {
         this.banish = banish;
     }
 
-    public int getPADamage() {
+    public int getPADamage()
+    {
         return PADamage;
     }
 
-    public void setPADamage(int PADamage) {
+    public void setPADamage(int PADamage)
+    {
         this.PADamage = PADamage;
     }
 
-    public int getCP() {
+    public int getCP()
+    {
         return cp;
     }
 
-    public void setCP(int cp) {
+    public void setCP(int cp)
+    {
         this.cp = cp;
     }
 
-    public List<loseItem> loseItem() {
+    public List<loseItem> loseItem()
+    {
         return loseItem;
     }
 
-    public void addLoseItem(loseItem li) {
-        if (loseItem == null) {
+    public void addLoseItem(loseItem li)
+    {
+        if (loseItem == null)
+        {
             loseItem = new LinkedList<loseItem>();
         }
         loseItem.add(li);
     }
 
-    public selfDestruction selfDestruction() {
+    public selfDestruction selfDestruction()
+    {
         return selfDestruction;
     }
 
-    public void setSelfDestruction(selfDestruction sd) {
+    public void setSelfDestruction(selfDestruction sd)
+    {
         this.selfDestruction = sd;
     }
-    
-    public void setExplosiveReward(boolean isExplosiveReward) {
-        this.isExplosiveReward = isExplosiveReward;
-    }
 
-    public boolean isExplosiveReward() {
+    public boolean isExplosiveReward()
+    {
         return isExplosiveReward;
     }
 
-    public void setRemoveOnMiss(boolean removeOnMiss) {
+    public void setExplosiveReward(boolean isExplosiveReward)
+    {
+        this.isExplosiveReward = isExplosiveReward;
+    }
+
+    public void setRemoveOnMiss(boolean removeOnMiss)
+    {
         this.removeOnMiss = removeOnMiss;
     }
 
-    public boolean removeOnMiss() {
+    public boolean removeOnMiss()
+    {
         return removeOnMiss;
     }
 
-    public void setCool(Pair<Integer, Integer> cool) {
+    public Pair<Integer, Integer> getCool()
+    {
+        return cool;
+    }
+
+    public void setCool(Pair<Integer, Integer> cool)
+    {
         this.cool = cool;
     }
 
-    public Pair<Integer, Integer> getCool() {
-        return cool;
-    }
-    
-    public int getPDDamage() {
+    public int getPDDamage()
+    {
         return PDDamage;
     }
-    
-    public int getMADamage() {
-        return MADamage;
-    }
-    
-    public int getMDDamage() {
-        return MDDamage;
-    }
-    
-    public boolean isFriendly() {
-        return friendly;
-    }
-    
-    public void setFriendly(boolean value) {
-        this.friendly = value;
-    }
-    
-    public void setPDDamage(int PDDamage) {
+
+    public void setPDDamage(int PDDamage)
+    {
         this.PDDamage = PDDamage;
     }
-    
-    public void setMADamage(int MADamage) {
+
+    public int getMADamage()
+    {
+        return MADamage;
+    }
+
+    public void setMADamage(int MADamage)
+    {
         this.MADamage = MADamage;
     }
-    
-    public void setMDDamage(int MDDamage) {
+
+    public int getMDDamage()
+    {
+        return MDDamage;
+    }
+
+    public void setMDDamage(int MDDamage)
+    {
         this.MDDamage = MDDamage;
-    } 
+    }
+
+    public boolean isFriendly()
+    {
+        return friendly;
+    }
+
+    public void setFriendly(boolean value)
+    {
+        this.friendly = value;
+    }
 }
