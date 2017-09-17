@@ -21,22 +21,24 @@
 */
 package net.server.channel.handlers;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import client.MapleCharacter;
 import client.MapleClient;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
+import constants.ServerConstants;
 import net.AbstractMaplePacketHandler;
+import server.MapleInventoryManipulator;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
-import constants.ServerConstants;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author TheRamon
@@ -102,20 +104,28 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
         {
             List<MapleMapObject> itemList = character.getMap().getMapObjectsInRange(character.getPosition(), Double.POSITIVE_INFINITY, Collections.singletonList(MapleMapObjectType.ITEM));
 
+            List<MapleMapItem> excludedItems = new ArrayList<>();
+
             for (MapleMapObject item : itemList)
             {
                 MapleMapItem mapItem = (MapleMapItem) item;
 
+                if(excludedItems.contains(mapItem)) continue;
+
                 int ownerId = mapItem.getOwner();
 
-                if ((ownerId <= 0 ||
-                     character.getId() == ownerId ||
-                     character.isPartyMember(ownerId) ||
-                     System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000))
+                if (ownerId <= 0 ||
+                    character.getId() == ownerId ||
+                    character.isPartyMember(ownerId) ||
+                    System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000)
                 {
-                    character.pickupItem(item, petIndex);
+                    if (!character.pickupItem(item, petIndex))
+                    {
+                        excludedItems.add(mapItem);
+                    }
                 }
             }
+            return;
         }
 
         character.pickupItem(ob, petIndex);

@@ -2753,11 +2753,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         pickupItem(ob, -1);
     }
 
-    public final void pickupItem(MapleMapObject ob, int petIndex)
+    public final boolean pickupItem(MapleMapObject ob, int petIndex)
     {     // yes, one picks the MapleMapObject, not the MapleMapItem
         if (ob == null)
         {                                               // pet index refers to the one picking up the item
-            return;
+            return false;
         }
 
         if (ob instanceof MapleMapItem)
@@ -2766,7 +2766,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
             if (System.currentTimeMillis() - mapitem.getDropTime() < 900)
             {
                 client.announce(MaplePacketCreator.enableActions());
-                return;
+                return false;
             }
 
             boolean isPet = petIndex > -1;
@@ -2801,17 +2801,17 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                         else
                         {
                             client.announce(MaplePacketCreator.enableActions());
-                            return;
+                            return false;
                         }
                     }
                     else
                     {
                         client.announce(MaplePacketCreator.showItemUnavailable());
                         client.announce(MaplePacketCreator.enableActions());
-                        return;
+                        return false;
                     }
                     client.announce(MaplePacketCreator.enableActions());
-                    return;
+                    return false;
                 }
 
                 synchronized (mapitem)
@@ -2820,13 +2820,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                     {
                         client.announce(MaplePacketCreator.showItemUnavailable());
                         client.announce(MaplePacketCreator.enableActions());
-                        return;
+                        return false;
                     }
                     if (mapitem.isPickedUp())
                     {
                         client.announce(MaplePacketCreator.showItemUnavailable());
                         client.announce(MaplePacketCreator.enableActions());
-                        return;
+                        return false;
                     }
                     if (mapitem.getMeso() > 0)
                     {
@@ -2835,7 +2835,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                             int mesosamm = mapitem.getMeso();
                             if (mesosamm > 50000 * this.getMesoRate())
                             {
-                                return;
+                                return false;
                             }
                             int partynum = 0;
                             for (MaplePartyCharacter partymem : this.getParty().getMembers())
@@ -2881,7 +2881,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                             if (!MapleInventoryManipulator.addFromDrop(client, mapitem.getItem(), true))
                             {
                                 client.announce(MaplePacketCreator.enableActions());
-                                return;
+                                return false;
                             }
                         }
                     }
@@ -2910,7 +2910,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                     else
                     {
                         client.announce(MaplePacketCreator.enableActions());
-                        return;
+                        return false;
                     }
 
                     this.getMap().pickItemDrop(pickupPacket, mapitem);
@@ -2920,9 +2920,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
             {
                 client.announce(MaplePacketCreator.getInventoryFull());
                 client.announce(MaplePacketCreator.getShowInventoryFull());
+                return false;
             }
         }
         client.announce(MaplePacketCreator.enableActions());
+        return true;
     }
 
     public int countItem(int itemid)
