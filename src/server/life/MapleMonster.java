@@ -312,6 +312,8 @@ public class MapleMonster extends AbstractLoadedMapleLife
         final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
         final List<MonsterDropEntry> drops = mi.retrieveDrop(this.getId());
 
+        int exp = getExp();
+
         for (MonsterDropEntry drop : drops)
         {
             if (drop.getItemId() == 0)
@@ -319,13 +321,10 @@ public class MapleMonster extends AbstractLoadedMapleLife
                 Map<Integer, Integer> nxDist = new HashMap<>();
                 Map<Integer, Integer> partyNx = new HashMap<>();
 
-                int mesoValue = Randomizer.nextInt(drop.Maximum - drop.Minimum) + drop.Minimum * map.getCharacterById(killerId).getMesoRate();
-                if (mesoValue <= 0) mesoValue = Integer.MAX_VALUE;
-
                 int nxValue;
 
-                //50% chance to get (meso/4) nx, and if that doesnt succeed, have 50% chance to get half that
-                nxValue = fairRoll(mesoValue / 4) == 0 ? fairRoll((mesoValue/4)/2) : 0;
+                //50% chance to get (exp/4) nx, and if that doesnt succeed, have 50% chance to get half that
+                nxValue = fairRoll(exp / 4) == 0 ? fairRoll((exp/4)/2) : 0;
 
                 if(nxValue == 0) return;
 
