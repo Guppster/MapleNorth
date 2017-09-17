@@ -233,7 +233,8 @@ public class MapleMonster extends AbstractLoadedMapleLife
      * @param damage
      */
     public synchronized void damage(MapleCharacter from, int damage)
-    { // may be pointless synchronization
+    {
+        // may be pointless synchronization
         if (!isAlive())
         {
             return;
@@ -305,14 +306,69 @@ public class MapleMonster extends AbstractLoadedMapleLife
         return takenDamage.containsKey(chr.getId());
     }
 
-    private void distributeExperienceToParty(int pid, int exp, int killer, Map<Integer, Integer> expDist)
+    public void distributeNX(int killerId)
     {
-        LinkedList<MapleCharacter> members = new LinkedList<>();
+        //Get how much mesos this monster drops
+        final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
+        final MonsterDropEntry mesoDropEntry = mi.retrieveDrop(this.getId()).get(0);
+
+        Map<Integer, Integer> nxDist = new HashMap<>();
+        Map<Integer, Integer> partyNx = new HashMap<>();
+
+        int mesoValue = Randomizer.rand(mesoDropEntry.Minimum, mesoDropEntry.Maximum);
+        int nxValue = (int)(mesoValue * 1.5);
+
+        // 80% of pool is split amongst all the damagers
+        for (Entry<Integer, AtomicInteger> damageEntry : takenDamage.entrySet())
+        {
+            nxDist.put(damageEntry.getKey(), (int) (0.80f * nxValue * damageEntry.getValue().get() / this.hp));
+        }
+
         Collection<MapleCharacter> chrs = map.getCharacters();
 
         for (MapleCharacter mc : chrs)
         {
-            if (mc.getPartyId() == pid)
+            if (nxDist.containsKey(mc.getId()))
+            {
+                boolean isKiller = mc.getId() == killerId;
+                int nx = nxDist.get(mc.getId());
+
+                if (isKiller)
+                {
+                    nx += nxValue / 5;
+                }
+
+                MapleParty p = mc.getParty();
+
+                if (p != null)
+                {
+                    int partyID = p.getId();
+                    int partyNX = nx + (partyNx.getOrDefault(partyID, 0));
+
+                    partyNx.put(partyID, partyNX);
+                }
+                else
+                {
+                    giveNXToCharacter(mc, nx, isKiller, 1);
+                }
+            }
+        }
+
+        for (Entry<Integer, Integer> party : partyNx.entrySet())
+        {
+            distributeNXToParty(party.getKey(), party.getValue(), killerId, nxDist);
+        }
+
+    }
+
+    private void distributeNXToParty(Integer partyID, Integer partyNX, int killerId, Map<Integer, Integer> nxDist)
+    {
+        LinkedList<MapleCharacter> members = new LinkedList<>();
+        Collection<MapleCharacter> characters = map.getCharacters();
+
+        for (MapleCharacter mc : characters)
+        {
+            if (mc.getPartyId() == partyID)
             {
                 members.add(mc);
             }
@@ -332,6 +388,90 @@ public class MapleMonster extends AbstractLoadedMapleLife
         }
 
         int leechCount = 0;
+
+        for (MapleCharacter mc : members)
+        {
+            if (mc.getLevel() >= leechMinLevel)
+            {
+                partyLevel += mc.getLevel();
+                leechCount++;
+            }
+        }
+
+        final int mostDamageCid = getHighestDamagerId();
+
+        for (MapleCharacter character : members)
+        {
+            int id = character.getId();
+            int level = character.getLevel();
+
+            if (nxDist.containsKey(id) || level >= leechMinLevel)
+            {
+                boolean isKiller = (killerId == id);
+
+                boolean mostDamage = (mostDamageCid == id);
+
+                int nx = (int) (partyNX * 0.80f * level / partyLevel);
+
+                if (mostDamage)
+                {
+                    nx += (partyNX * 0.20f);
+                }
+
+                giveNXToCharacter(character, nx, isKiller, leechCount);
+            }
+        }
+    }
+
+    private void giveNXToCharacter(MapleCharacter character, int nx, boolean isKiller, int numNXSharers)
+    {
+        final int partyModifier = numNXSharers > 1 ? (110 + (5 * (numNXSharers - 2))) : 0;
+
+        int partyNX = 0;
+
+        if (character.getHp() > 0)
+        {
+            if (nx > 0)
+            {
+                if (partyModifier > 0)
+                {
+                    partyNX = (int) (nx * ServerConstants.PARTY_EXPERIENCE_MOD * partyModifier / 1000f);
+                }
+            }
+
+            character.getCashShop().gainCash(1, nx);
+            character.announce(MaplePacketCreator.earnTitleMessage("Gained " + nx + " NX!"));
+        }
+    }
+
+    private void distributeExperienceToParty(int partyID, int exp, int killer, Map<Integer, Integer> expDist)
+    {
+        LinkedList<MapleCharacter> members = new LinkedList<>();
+        Collection<MapleCharacter> chrs = map.getCharacters();
+
+        for (MapleCharacter mc : chrs)
+        {
+            if (mc.getPartyId() == partyID)
+            {
+                members.add(mc);
+            }
+        }
+
+        final int minLevel = getLevel() - 5;
+
+        int partyLevel = 0;
+        int leechMinLevel = 0;
+
+        for (MapleCharacter mc : members)
+        {
+            if (mc.getLevel() >= minLevel)
+            {
+                leechMinLevel = Math.min(mc.getLevel() - 5, minLevel);
+            }
+        }
+
+        int leechCount = 0;
+
         for (MapleCharacter mc : members)
         {
             if (mc.getLevel() >= leechMinLevel)
@@ -374,10 +514,6 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
         Map<Integer, Integer> expDist = new HashMap<>();
         Map<Integer, Integer> partyExp = new HashMap<>();
-
-        //check bounds for each party member
-        //multiply the nxGain by 1.5.
-        //leader gets 75%. Rest of party splits 25%
 
         // 80% of pool is split amongst all the damagers
         for (Entry<Integer, AtomicInteger> damage : takenDamage.entrySet())
@@ -514,27 +650,23 @@ public class MapleMonster extends AbstractLoadedMapleLife
                 }
             }
 
-            TimerManager.getInstance().schedule(new Runnable()
+            TimerManager.getInstance().schedule(() ->
             {
-                @Override
-                public void run()
+                for (Integer mid : toSpawn)
                 {
-                    for (Integer mid : toSpawn)
+                    final MapleMonster mob = MapleLifeFactory.getMonster(mid);
+                    mob.setPosition(getPosition());
+                    if (dropsDisabled())
                     {
-                        final MapleMonster mob = MapleLifeFactory.getMonster(mid);
-                        mob.setPosition(getPosition());
-                        if (dropsDisabled())
-                        {
-                            mob.disableDrops();
-                        }
-                        reviveMap.spawnMonster(mob);
+                        mob.disableDrops();
+                    }
+                    reviveMap.spawnMonster(mob);
 
-                        if (mob.getId() >= 8810010 && mob.getId() <= 8810017 && reviveMap.isHorntailDefeated())
+                    if (mob.getId() >= 8810010 && mob.getId() <= 8810017 && reviveMap.isHorntailDefeated())
+                    {
+                        for (int i = 8810018; i >= 8810010; i--)
                         {
-                            for (int i = 8810018; i >= 8810010; i--)
-                            {
-                                reviveMap.killMonster(reviveMap.getMonsterById(i), killer, true);
-                            }
+                            reviveMap.killMonster(reviveMap.getMonsterById(i), killer, true);
                         }
                     }
                 }
