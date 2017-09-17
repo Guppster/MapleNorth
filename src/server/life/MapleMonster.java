@@ -308,7 +308,6 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
     public void distributeNX(int killerId)
     {
-
         //Get how much mesos this monster drops
         final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
         final MonsterDropEntry mesoDropEntry = mi.retrieveDrop(this.getId()).get(0);
@@ -316,7 +315,9 @@ public class MapleMonster extends AbstractLoadedMapleLife
         Map<Integer, Integer> nxDist = new HashMap<>();
         Map<Integer, Integer> partyNx = new HashMap<>();
 
-        int mesoValue = Randomizer.rand(mesoDropEntry.Minimum, mesoDropEntry.Maximum);
+        int mesoValue = Randomizer.nextInt(mesoDropEntry.Maximum - mesoDropEntry.Minimum) + mesoDropEntry.Minimum * map.getCharacterById(killerId).getMesoRate();
+        if (mesoValue <= 0) mesoValue = Integer.MAX_VALUE;
+
         int nxValue = (int)(mesoValue * 1.5);
 
         // 80% of pool is split amongst all the damagers
@@ -325,21 +326,21 @@ public class MapleMonster extends AbstractLoadedMapleLife
             nxDist.put(damageEntry.getKey(), (int) (0.80f * nxValue * damageEntry.getValue().get() / this.hp));
         }
 
-        Collection<MapleCharacter> chrs = map.getCharacters();
+        Collection<MapleCharacter> characters = map.getCharacters();
 
-        for (MapleCharacter mc : chrs)
+        for (MapleCharacter character : characters)
         {
-            if (nxDist.containsKey(mc.getId()))
+            if (nxDist.containsKey(character.getId()))
             {
-                boolean isKiller = mc.getId() == killerId;
-                int nx = nxDist.get(mc.getId());
+                boolean isKiller = character.getId() == killerId;
+                int nx = nxDist.get(character.getId());
 
                 if (isKiller)
                 {
                     nx += nxValue / 5;
                 }
 
-                MapleParty p = mc.getParty();
+                MapleParty p = character.getParty();
 
                 if (p != null)
                 {
@@ -350,7 +351,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
                 }
                 else
                 {
-                    giveNXToCharacter(mc, nx, isKiller, 1);
+                    giveNXToCharacter(character, nx, isKiller, 1);
                 }
             }
         }

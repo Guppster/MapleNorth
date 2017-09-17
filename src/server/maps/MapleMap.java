@@ -871,14 +871,7 @@ public class MapleMap
         final MapleMapItem mdrop = new MapleMapItem(meso, droppos, dropper, owner, droptype, playerDrop);
         mdrop.setDropTime(System.currentTimeMillis());
 
-        spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation()
-        {
-            @Override
-            public void sendPackets(MapleClient c)
-            {
-                c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
-            }
-        }, null);
+        spawnAndAddRangedMapObject(mdrop, c -> c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1)), null);
 
         registerItemDrop(mdrop);
     }

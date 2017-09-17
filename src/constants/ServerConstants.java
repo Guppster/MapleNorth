@@ -33,10 +33,10 @@ public class ServerConstants
     public static final boolean USE_ENFORCE_MDOOR_POSITION = true;  //Forces mystic door to be spawned near spawnpoints. (since things bugs out other way, and this helps players to locate the door faster)
     public static final boolean USE_ERASE_UNTRADEABLE_DROP = true;  //Forces flagged untradeable items to disappear when dropped.
     //Server Rates And Experience
-    public static final int EXP_RATE = 10;
-    public static final int MESO_RATE = 10;
-    public static final int DROP_RATE = 10;
-    public static final int BOSS_DROP_RATE = 20;
+    public static final int EXP_RATE = 4;
+    public static final int MESO_RATE = 2;
+    public static final int DROP_RATE = 2;
+    public static final int BOSS_DROP_RATE = 2;
     public static final int PARTY_EXPERIENCE_MOD = 1;           //Change for event stuff.
     public static final double EQUIP_EXPERIENCE_MOD = 10.0;     //Rate for equipment exp needed, grows linearly. Set 1.0 for default (about 100~200 same-level range mobs killed to pass equip from level 1 to 2).
     public static final double PQ_BONUS_EXP_MOD = 0.5;
@@ -90,7 +90,6 @@ public class ServerConstants
     public static final boolean GM_PETS_NEVER_HUNGRY = true;    //If true, pets and mounts owned by GMs will never grow hungry.
     //Event End Timestamp
     public static final long EVENT_END_TIMESTAMP = 1428897600000L;
-    public static final int NX_GAIN_LEVEL_RANGE = 10;
     //Database Configuration
     public static String DB_URL = "";
     public static String DB_USER = "";
