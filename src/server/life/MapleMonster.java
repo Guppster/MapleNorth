@@ -354,9 +354,9 @@ public class MapleMonster extends AbstractLoadedMapleLife
             }
         }
 
-        for (Entry<Integer, Integer> party : partyNx.entrySet())
+        for (Entry<Integer, Integer> partyMember : partyNx.entrySet())
         {
-            distributeNXToParty(party.getKey(), party.getValue(), killerId, nxDist);
+            distributeNXToParty(partyMember.getKey(), partyMember.getValue(), killerId, nxDist);
         }
 
     }
@@ -425,23 +425,8 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
     private void giveNXToCharacter(MapleCharacter character, int nx, boolean isKiller, int numNXSharers)
     {
-        final int partyModifier = numNXSharers > 1 ? (110 + (5 * (numNXSharers - 2))) : 0;
-
-        int partyNX = 0;
-
-        if (character.getHp() > 0)
-        {
-            if (nx > 0)
-            {
-                if (partyModifier > 0)
-                {
-                    partyNX = (int) (nx * ServerConstants.PARTY_EXPERIENCE_MOD * partyModifier / 1000f);
-                }
-            }
-
             character.getCashShop().gainCash(1, nx);
             character.announce(MaplePacketCreator.earnTitleMessage("Gained " + nx + " NX!"));
-        }
     }
 
     private void distributeExperienceToParty(int partyID, int exp, int killer, Map<Integer, Integer> expDist)
@@ -487,8 +472,8 @@ public class MapleMonster extends AbstractLoadedMapleLife
         {
             int id = mc.getId();
             int level = mc.getLevel();
-            if (expDist.containsKey(id)
-                || level >= leechMinLevel)
+
+            if (expDist.containsKey(id) || level >= leechMinLevel)
             {
                 boolean isKiller = killer == id;
                 boolean mostDamage = mostDamageCid == id;
@@ -549,9 +534,9 @@ public class MapleMonster extends AbstractLoadedMapleLife
             }
         }
 
-        for (Entry<Integer, Integer> party : partyExp.entrySet())
+        for (Entry<Integer, Integer> partyMember : partyExp.entrySet())
         {
-            distributeExperienceToParty(party.getKey(), party.getValue(), killerId, expDist);
+            distributeExperienceToParty(partyMember.getKey(), partyMember.getValue(), killerId, expDist);
         }
     }
 
@@ -606,6 +591,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
     public MapleCharacter killBy(final MapleCharacter killer)
     {
         distributeExperience(killer != null ? killer.getId() : 0);
+        distributeNX(killer != null ? killer.getId() : 0);
 
         if (getController() != null)
         { // this can/should only happen when a hidden gm attacks the monster
