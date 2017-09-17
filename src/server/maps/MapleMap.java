@@ -610,21 +610,24 @@ public class MapleMap
         return new Pair(getRoundedCoordinate(angle), Integer.valueOf((int) distn));
     }
 
-    private void dropFromMonster(final MapleCharacter chr, final MapleMonster mob)
+    private void dropFromMonster(final MapleCharacter character, final MapleMonster mob)
     {
         if (mob.dropsDisabled() || !dropsOn)
         {
             return;
         }
-        final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0);
-        final int mobpos = mob.getPosition().x;
-        int chRate = chr.getDropRate();
+
         Item idrop;
+        final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+        final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : character.getParty() != null ? 1 : 0);
+        final int mobpos = mob.getPosition().x;
+        int chRate = character.getDropRate();
         byte d = 1;
+
         Point pos = new Point(0, mob.getPosition().y);
 
         Map<MonsterStatus, MonsterStatusEffect> stati = mob.getStati();
+
         if (stati.containsKey(MonsterStatus.SHOWDOWN))
         {
             chRate *= (stati.get(MonsterStatus.SHOWDOWN).getStati().get(MonsterStatus.SHOWDOWN).doubleValue() / 100.0 + 1.0);
@@ -652,14 +655,14 @@ public class MapleMap
 
                     if (mesos > 0)
                     {
-                        if (chr.getBuffedValue(MapleBuffStat.MESOUP) != null)
+                        if (character.getBuffedValue(MapleBuffStat.MESOUP) != null)
                         {
-                            mesos = (int) (mesos * chr.getBuffedValue(MapleBuffStat.MESOUP).doubleValue() / 100.0);
+                            mesos = (int) (mesos * character.getBuffedValue(MapleBuffStat.MESOUP).doubleValue() / 100.0);
                         }
-                        mesos = mesos * chr.getMesoRate();
+                        mesos = mesos * character.getMesoRate();
                         if (mesos <= 0) mesos = Integer.MAX_VALUE;
 
-                        spawnMesoDrop(mesos, calcDropPos(pos, mob.getPosition()), mob, chr, false, droptype);
+                        spawnMesoDrop(mesos, calcDropPos(pos, mob.getPosition()), mob, character, false, droptype);
                     }
                 }
                 else
@@ -672,7 +675,7 @@ public class MapleMap
                     {
                         idrop = new Item(de.itemId, (short) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1));
                     }
-                    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.questid);
+                    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, character, droptype, de.questid);
                 }
                 d++;
             }
@@ -701,7 +704,7 @@ public class MapleMap
                     {
                         idrop = new Item(de.itemId, (short) 0, (short) (de.Maximum != 1 ? Randomizer.nextInt(de.Maximum - de.Minimum) + de.Minimum : 1));
                     }
-                    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, chr, droptype, de.questid);
+                    spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, character, droptype, de.questid);
                     d++;
                 }
             }
@@ -1185,16 +1188,12 @@ public class MapleMap
             broadcastMessage(MaplePacketCreator.killMonster(monster.getObjectId(), animation), monster.getPosition());
             return;
         }
+
         if (monster.getStats().getLevel() >= chr.getLevel() + 30 && !chr.isGM())
         {
             AutobanFactory.GENERAL.alert(chr, " for killing a " + monster.getName() + " which is over 30 levels higher.");
         }
-        /*if (chr.getQuest(MapleQuest.getInstance(29400)).getStatus().equals(MapleQuestStatus.Status.STARTED)) {
-         if (chr.getLevel() >= 120 && monster.getStats().getLevel() >= 120) {
-         //FIX MEDAL SHET
-         } else if (monster.getStats().getLevel() >= chr.getLevel()) {
-         }
-         }*/
+
         int buff = monster.getBuffToGive();
         if (buff > -1)
         {

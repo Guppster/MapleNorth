@@ -90,6 +90,7 @@ public class ServerConstants
     public static final boolean GM_PETS_NEVER_HUNGRY = true;    //If true, pets and mounts owned by GMs will never grow hungry.
     //Event End Timestamp
     public static final long EVENT_END_TIMESTAMP = 1428897600000L;
+    public static final int NX_GAIN_LEVEL_RANGE = 10;
     //Database Configuration
     public static String DB_URL = "";
     public static String DB_USER = "";

@@ -368,10 +368,17 @@ public class MapleMonster extends AbstractLoadedMapleLife
         {
             return;
         }
+
         int exp = getExp();
         int totalHealth = getMaxHp();
+
         Map<Integer, Integer> expDist = new HashMap<>();
         Map<Integer, Integer> partyExp = new HashMap<>();
+
+        //check bounds for each party member
+        //multiply the nxGain by 1.5.
+        //leader gets 75%. Rest of party splits 25%
+
         // 80% of pool is split amongst all the damagers
         for (Entry<Integer, AtomicInteger> damage : takenDamage.entrySet())
         {
@@ -379,16 +386,19 @@ public class MapleMonster extends AbstractLoadedMapleLife
         }
 
         Collection<MapleCharacter> chrs = map.getCharacters();
+
         for (MapleCharacter mc : chrs)
         {
             if (expDist.containsKey(mc.getId()))
             {
                 boolean isKiller = mc.getId() == killerId;
                 int xp = expDist.get(mc.getId());
+
                 if (isKiller)
                 {
                     xp += exp / 5;
                 }
+
                 MapleParty p = mc.getParty();
                 if (p != null)
                 {
