@@ -617,6 +617,7 @@ public class MapleMap
             return;
         }
 
+
         Item idrop;
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : character.getParty() != null ? 1 : 0);
@@ -707,6 +708,33 @@ public class MapleMap
                     spawnDrop(idrop, calcDropPos(pos, mob.getPosition()), mob, character, droptype, de.questid);
                     d++;
                 }
+            }
+        }
+
+        checkPetVac(character);
+    }
+
+    private void checkPetVac(MapleCharacter character)
+    {
+        Item petVacItem = character.getInventory(MapleInventoryType.ETC).findById(4000047);
+
+        if(petVacItem == null) return;
+
+        List<MapleMapObject> itemList = this.getMapObjectsInRange(character.getPosition(), Double.POSITIVE_INFINITY, Collections.singletonList(MapleMapObjectType.ITEM));
+
+        for (MapleMapObject item : itemList)
+        {
+            MapleMapItem mapItem = (MapleMapItem) item;
+
+            int ownerId = mapItem.getOwner();
+
+            if ((ownerId <= 0 ||
+                character.getId() == ownerId ||
+                character.isPartyMember(ownerId) ||
+                System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000) &&
+                character.getPets().length > 0)
+            {
+                character.pickupItem(item, character.getPets()[0].getPetId());
             }
         }
     }
