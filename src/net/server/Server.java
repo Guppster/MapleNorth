@@ -21,23 +21,10 @@
  */
 package net.server;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
+import client.MapleCharacter;
+import client.SkillFactory;
+import constants.ItemConstants;
+import constants.ServerConstants;
 import net.MapleServerHandler;
 import net.mina.MapleCodecFactory;
 import net.server.channel.Channel;
@@ -45,28 +32,27 @@ import net.server.guild.MapleAlliance;
 import net.server.guild.MapleGuild;
 import net.server.guild.MapleGuildCharacter;
 import net.server.world.World;
-
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.buffer.SimpleBufferAllocator;
-import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
-
 import server.CashShop.CashItemFactory;
 import server.TimerManager;
+import server.quest.MapleQuest;
 import tools.DatabaseConnection;
 import tools.FilePrinter;
 import tools.Pair;
-import client.MapleCharacter;
-import client.SkillFactory;
-import constants.ItemConstants;
-import constants.ServerConstants;
 
-import java.util.Calendar;
-
-import server.quest.MapleQuest;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 public class Server implements Runnable
 {
@@ -132,13 +118,12 @@ public class Server implements Runnable
     public List<Channel> getAllChannels()
     {
         List<Channel> channelz = new ArrayList<>();
+
         for (World world : worlds)
         {
-            for (Channel ch : world.getChannels())
-            {
-                channelz.add(ch);
-            }
+            channelz.addAll(world.getChannels());
         }
+
         return channelz;
     }
 
@@ -220,7 +205,7 @@ public class Server implements Runnable
         }
     }
 
-    public void updateActiveCoupons() throws SQLException
+    public void updateActiveCoupons()
     {
         synchronized (activeCoupons)
         {
@@ -288,7 +273,7 @@ public class Server implements Runnable
             System.exit(0);
         }
 
-        System.out.println("MapleSolaxia v" + ServerConstants.VERSION + " starting up.\r\n");
+        System.out.println("MapleNorth v" + ServerConstants.VERSION + " starting up.\r\n");
 
 
         if (ServerConstants.SHUTDOWNHOOK)
@@ -297,6 +282,7 @@ public class Server implements Runnable
         }
 
         Connection c = null;
+
         try
         {
             c = DatabaseConnection.getConnection();
@@ -316,14 +302,16 @@ public class Server implements Runnable
         {
             sqle.printStackTrace();
         }
+
         IoBuffer.setUseDirectBuffer(false);
         IoBuffer.setAllocator(new SimpleBufferAllocator());
+
         acceptor = new NioSocketAcceptor();
-        acceptor.getFilterChain().addLast("codec", (IoFilter) new ProtocolCodecFilter(new MapleCodecFactory()));
+        acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new MapleCodecFactory()));
 
         TimerManager tMan = TimerManager.getInstance();
         tMan.start();
-        tMan.register(tMan.purge(), ServerConstants.PURGING_INTERVAL);//Purging ftw...
+        tMan.register(tMan.purge(), ServerConstants.PURGING_INTERVAL);
 
         long timeLeft = getTimeLeftForNextHour();
         tMan.register(new CouponWorker(), ServerConstants.COUPON_INTERVAL, timeLeft);
@@ -334,7 +322,6 @@ public class Server implements Runnable
         System.out.println("Skills loaded in " + ((System.currentTimeMillis() - timeToTake) / 1000.0) + " seconds");
 
         timeToTake = System.currentTimeMillis();
-        //MapleItemInformationProvider.getInstance().getAllItems(); //unused, rofl
 
         CashItemFactory.getSpecialCashItems();
         System.out.println("Items loaded in " + ((System.currentTimeMillis() - timeToTake) / 1000.0) + " seconds");
@@ -374,13 +361,14 @@ public class Server implements Runnable
         }
         catch (Exception e)
         {
-            e.printStackTrace();//For those who get errors
+            e.printStackTrace();
             System.out.println("Error in moople.ini, start CreateINI.bat to re-make the file.");
             System.exit(0);
         }
 
         acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 30);
         acceptor.setHandler(new MapleServerHandler());
+
         try
         {
             acceptor.bind(new InetSocketAddress(8484));
@@ -392,7 +380,7 @@ public class Server implements Runnable
 
         System.out.println("Listening on port 8484\r\n\r\n");
 
-        System.out.println("Solaxia is now online.\r\n");
+        System.out.println("MapleNorth is now online.\r\n");
         online = true;
     }
 
@@ -408,7 +396,7 @@ public class Server implements Runnable
             FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, e);
         }
         System.out.println("Server offline.");
-        System.exit(0);// BOEIEND :D
+        System.exit(0);
     }
 
     public Properties getSubnetInfo()
@@ -540,10 +528,9 @@ public class Server implements Runnable
     public byte getHighestChannelId()
     {
         byte highest = 0;
-        for (Iterator<Integer> it = channels.get(0).keySet().iterator(); it.hasNext(); )
+        for (Integer channel : channels.get(0).keySet())
         {
-            Integer channel = it.next();
-            if (channel != null && channel.intValue() > highest)
+            if (channel != null && channel > highest)
             {
                 highest = channel.byteValue();
             }
@@ -590,147 +577,159 @@ public class Server implements Runnable
         return getGuild(id, world, null);
     }
 
-    public MapleGuild getGuild(int id, int world, MapleCharacter mc)
+    public MapleGuild getGuild(int guildID, int world, MapleCharacter character)
     {
         synchronized (guilds)
         {
-            if (guilds.get(id) != null)
+            if (guilds.get(guildID) != null)
             {
-                return guilds.get(id);
+                return guilds.get(guildID);
             }
-            MapleGuild g = new MapleGuild(id, world);
-            if (g.getId() == -1)
+
+            MapleGuild guild = new MapleGuild(guildID, world);
+
+            if (guild.getId() == -1)
             {
                 return null;
             }
 
-            if (mc != null)
+            if (character != null)
             {
-                mc.setMGC(g.getMGC(mc.getId()));
-                if (g.getMGC(mc.getId()) == null)
+                character.setMGC(guild.getMGC(character.getId()));
+
+                if (guild.getMGC(character.getId()) == null)
                 {
-                    System.out.println("null for " + mc.getName() + " when loading " + id);
+                    System.out.println("null for " + character.getName() + " when loading " + guildID);
                 }
-                g.getMGC(mc.getId()).setCharacter(mc);
-                g.setOnline(mc.getId(), true, mc.getClient().getChannel());
+
+                guild.getMGC(character.getId()).setCharacter(character);
+                guild.setOnline(character.getId(), true, character.getClient().getChannel());
             }
 
-            guilds.put(id, g);
-            return g;
+            guilds.put(guildID, guild);
+            return guild;
         }
     }
 
     public void clearGuilds()
-    {//remake
+    {
         synchronized (guilds)
         {
             guilds.clear();
         }
-        //for (List<Channel> world : worlds.values()) {
-        //reloadGuildCharacters();
     }
 
-    public void setGuildMemberOnline(MapleCharacter mc, boolean bOnline, int channel)
+    public void setGuildMemberOnline(MapleCharacter character, boolean bOnline, int channel)
     {
-        MapleGuild g = getGuild(mc.getGuildId(), mc.getWorld(), mc);
-        g.setOnline(mc.getId(), bOnline, channel);
+        MapleGuild guild = getGuild(character.getGuildId(), character.getWorld(), character);
+        guild.setOnline(character.getId(), bOnline, channel);
     }
 
-    public int addGuildMember(MapleGuildCharacter mgc, MapleCharacter chr)
+    public int addGuildMember(MapleGuildCharacter guildCharacter, MapleCharacter character)
     {
-        MapleGuild g = guilds.get(mgc.getGuildId());
+        MapleGuild g = guilds.get(guildCharacter.getGuildId());
+
         if (g != null)
         {
-            return g.addGuildMember(mgc, chr);
+            return g.addGuildMember(guildCharacter, character);
         }
         return 0;
     }
 
-    public boolean setGuildAllianceId(int gId, int aId)
+    public boolean setGuildAllianceId(int guildID, int aliID)
     {
-        MapleGuild guild = guilds.get(gId);
+        MapleGuild guild = guilds.get(guildID);
+
         if (guild != null)
         {
-            guild.setAllianceId(aId);
+            guild.setAllianceId(aliID);
             return true;
         }
         return false;
     }
 
-    public void resetAllianceGuildPlayersRank(int gId)
+    public void resetAllianceGuildPlayersRank(int guildID)
     {
-        guilds.get(gId).resetAllianceGuildPlayersRank();
+        guilds.get(guildID).resetAllianceGuildPlayersRank();
     }
 
     public void leaveGuild(MapleGuildCharacter mgc)
     {
-        MapleGuild g = guilds.get(mgc.getGuildId());
-        if (g != null)
+        MapleGuild guild = guilds.get(mgc.getGuildId());
+
+        if (guild != null)
         {
-            g.leaveGuild(mgc);
+            guild.leaveGuild(mgc);
         }
     }
 
     public void guildChat(int gid, String name, int cid, String msg)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+
+        if (guild != null)
         {
-            g.guildChat(name, cid, msg);
+            guild.guildChat(name, cid, msg);
         }
     }
 
     public void changeRank(int gid, int cid, int newRank)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+
+        if (guild != null)
         {
-            g.changeRank(cid, newRank);
+            guild.changeRank(cid, newRank);
         }
     }
 
     public void expelMember(MapleGuildCharacter initiator, String name, int cid)
     {
-        MapleGuild g = guilds.get(initiator.getGuildId());
-        if (g != null)
+        MapleGuild guild = guilds.get(initiator.getGuildId());
+
+        if (guild != null)
         {
-            g.expelMember(initiator, name, cid);
+            guild.expelMember(initiator, name, cid);
         }
     }
 
     public void setGuildNotice(int gid, String notice)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+
+        if (guild != null)
         {
-            g.setGuildNotice(notice);
+            guild.setGuildNotice(notice);
         }
     }
 
     public void memberLevelJobUpdate(MapleGuildCharacter mgc)
     {
-        MapleGuild g = guilds.get(mgc.getGuildId());
-        if (g != null)
+        MapleGuild guild = guilds.get(mgc.getGuildId());
+
+        if (guild != null)
         {
-            g.memberLevelJobUpdate(mgc);
+            guild.memberLevelJobUpdate(mgc);
         }
     }
 
     public void changeRankTitle(int gid, String[] ranks)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+
+        if (guild != null)
         {
-            g.changeRankTitle(ranks);
+            guild.changeRankTitle(ranks);
         }
     }
 
     public void setGuildEmblem(int gid, short bg, byte bgcolor, short logo, byte logocolor)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+
+        if (guild != null)
         {
-            g.setGuildEmblem(bg, bgcolor, logo, logocolor);
+            guild.setGuildEmblem(bg, bgcolor, logo, logocolor);
         }
     }
 
@@ -746,20 +745,18 @@ public class Server implements Runnable
 
     public boolean increaseGuildCapacity(int gid)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
-        {
-            return g.increaseCapacity();
-        }
-        return false;
+        MapleGuild guild = guilds.get(gid);
+
+        return guild != null && guild.increaseCapacity();
     }
 
     public void gainGP(int gid, int amount)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+
+        if (guild != null)
         {
-            g.gainGP(amount);
+            guild.gainGP(amount);
         }
     }
 
@@ -770,10 +767,10 @@ public class Server implements Runnable
 
     public void guildMessage(int gid, byte[] packet, int exception)
     {
-        MapleGuild g = guilds.get(gid);
-        if (g != null)
+        MapleGuild guild = guilds.get(gid);
+        if (guild != null)
         {
-            g.broadcast(packet, exception);
+            guild.broadcast(packet, exception);
         }
     }
 
@@ -864,33 +861,18 @@ public class Server implements Runnable
     }
 
     public final Runnable shutdown(final boolean restart)
-    {//only once :D
+    {
         return () ->
         {
             System.out.println((restart ? "Restarting" : "Shutting down") + " the server!\r\n");
-            if (getWorlds() == null) return;//already shutdown
+
+            //Already shutdown
+            if (getWorlds() == null) return;
+
             for (World w : getWorlds())
             {
                 w.shutdown();
             }
-            /*for (World w : getWorlds()) {
-                while (w.getPlayerStorage().getAllCharacters().size() > 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ie) {
-                        System.err.println("FUCK MY LIFE");
-                    }
-                }
-            }
-            for (Channel ch : getAllChannels()) {
-                while (ch.getConnectedClients() > 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ie) {
-                        System.err.println("FUCK MY LIFE");
-                    }
-                }
-            }*/
 
             TimerManager.getInstance().purge();
             TimerManager.getInstance().stop();
@@ -906,7 +888,6 @@ public class Server implements Runnable
                     catch (InterruptedException ie)
                     {
                         ie.printStackTrace();
-                        System.err.println("FUCK MY LIFE");
                     }
                 }
             }
@@ -930,7 +911,7 @@ public class Server implements Runnable
                 System.out.println("\r\nRestarting the server....\r\n");
                 try
                 {
-                    instance.finalize();//FUU I CAN AND IT'S FREE
+                    instance.finalize();
                 }
                 catch (Throwable ex)
                 {
@@ -938,7 +919,7 @@ public class Server implements Runnable
                 }
                 instance = null;
                 System.gc();
-                getInstance().run();//DID I DO EVERYTHING?! D:
+                getInstance().run();
             }
         };
     }
