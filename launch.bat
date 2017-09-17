@@ -1,5 +1,5 @@
 @echo off
-@title MapleSolaxia
+@title MapleNorth
 set CLASSPATH=.;dist\*
-java -Xmx2048m -Dwzpath=wz\ net.server.Server
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Xmx2048m -Dwzpath=wz\ net.server.Server
 pause

@@ -1258,12 +1258,14 @@ public class MapleMap
         }
 
         MapleCharacter dropOwner = monster.killBy(chr);
+
         if (withDrops && !monster.dropsDisabled())
         {
             if (dropOwner == null)
             {
                 dropOwner = chr;
             }
+
             dropFromMonster(dropOwner, monster);
         }
 

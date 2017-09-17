@@ -552,7 +552,7 @@ public class EventManager
 
     public boolean startInstance(int lobbyId, EventInstanceManager eim, String ldr)
     {
-        return startInstance(-1, eim, ldr, eim.getEm().getChannelServer().getPlayerStorage().getCharacterByName(ldr));  // things they make me do...
+        return startInstance(-1, eim, ldr, eim.getEm().getChannelServer().getPlayerStorage().getCharacterByName(ldr));
     }
 
     public boolean startInstance(int lobbyId, EventInstanceManager eim, String ldr, MapleCharacter leader)

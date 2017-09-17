@@ -308,6 +308,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
     public void distributeNX(int killerId)
     {
+
         //Get how much mesos this monster drops
         final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
         final MonsterDropEntry mesoDropEntry = mi.retrieveDrop(this.getId()).get(0);
@@ -524,7 +525,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
                 if (p != null)
                 {
                     int pID = p.getId();
-                    int pXP = xp + (partyExp.containsKey(pID) ? partyExp.get(pID) : 0);
+                    int pXP = xp + (partyExp.getOrDefault(pID, 0));
                     partyExp.put(pID, pXP);
                 }
                 else
@@ -600,9 +601,11 @@ public class MapleMonster extends AbstractLoadedMapleLife
         }
 
         final List<Integer> toSpawn = this.getRevives(); // this doesn't work (?)
+
         if (toSpawn != null)
         {
             final MapleMap reviveMap = killer.getMap();
+
             if (toSpawn.contains(9300216) && reviveMap.getId() > 925000000 && reviveMap.getId() < 926000000)
             {
                 reviveMap.broadcastMessage(MaplePacketCreator.playSound("Dojang/clear"));
@@ -659,7 +662,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
             }, getAnimationTime("die1"));
         }
         else
-        {  // is this even necessary?
+        {
             System.out.println("[CRITICAL LOSS] toSpawn is null for " + this.getName());
         }
 
