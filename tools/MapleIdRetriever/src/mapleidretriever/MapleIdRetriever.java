@@ -31,7 +31,7 @@ public class MapleIdRetriever
 {
     private final static boolean INSTALL_SQLTABLE = false;
 
-    static String host = "jdbc:mysql://localhost:3306/maplesolaxia";
+    static String host = "jdbc:mysql://localhost:3306/maplenorth";
     static String driver = "com.mysql.jdbc.Driver";
     static String username = "root";
     static String password = "";

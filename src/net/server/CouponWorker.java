@@ -35,14 +35,7 @@ public class CouponWorker implements Runnable
     @Override
     public void run()
     {
-        try
-        {
-            Server.getInstance().updateActiveCoupons();
-            Server.getInstance().commitActiveCoupons();
-        }
-        catch (SQLException sqle)
-        {
-            FilePrinter.printError(FilePrinter.EXCEPTION_CAUGHT, "Unexpected SQL error: " + sqle.getMessage() + "\n\n");
-        }
+        Server.getInstance().updateActiveCoupons();
+        Server.getInstance().commitActiveCoupons();
     }
 }
