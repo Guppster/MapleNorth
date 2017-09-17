@@ -21,37 +21,11 @@
  */
 package server.life;
 
-import client.MapleBuffStat;
-import client.MapleCharacter;
-import client.MapleClient;
-import client.MapleJob;
-import client.Skill;
-import client.SkillFactory;
+import client.*;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.ServerConstants;
-import constants.skills.FPMage;
-import constants.skills.Hermit;
-import constants.skills.ILMage;
-import constants.skills.NightLord;
-import constants.skills.NightWalker;
-import constants.skills.Shadower;
-import constants.skills.SuperGM;
-
-import java.awt.Point;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-
+import constants.skills.*;
 import net.server.world.MapleParty;
 import net.server.world.MaplePartyCharacter;
 import server.TimerManager;
@@ -62,6 +36,14 @@ import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.Randomizer;
+
+import java.awt.*;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MapleMonster extends AbstractLoadedMapleLife
 {
@@ -308,70 +290,59 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
     public void distributeNX(int killerId)
     {
-        //Get how much mesos this monster drops
-        final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
-        final List<MonsterDropEntry> drops = mi.retrieveDrop(this.getId());
-
         int exp = getExp();
 
-        for (MonsterDropEntry drop : drops)
+        Map<Integer, Integer> nxDist = new HashMap<>();
+        Map<Integer, Integer> partyNx = new HashMap<>();
+
+        int nxValue;
+
+        //50% chance to get (exp/4) nx, and if that doesnt succeed, have 50% chance to get half that
+        nxValue = fairRoll(exp / 4) == 0 ? fairRoll((exp / 4) / 2) : 0;
+
+        if (nxValue == 0) return;
+
+        // 80% of pool is split amongst all the damagers
+        for (Entry<Integer, AtomicInteger> damageEntry : takenDamage.entrySet())
         {
-            if (drop.getItemId() == 0)
+            nxDist.put(damageEntry.getKey(), (int) ((0.80 * nxValue) * (damageEntry.getValue().get() / stats.getHp())));
+        }
+
+        Collection<MapleCharacter> characters = map.getCharacters();
+
+        for (MapleCharacter character : characters)
+        {
+            if (nxDist.containsKey(character.getId()))
             {
-                Map<Integer, Integer> nxDist = new HashMap<>();
-                Map<Integer, Integer> partyNx = new HashMap<>();
+                boolean isKiller = character.getId() == killerId;
+                int nx = nxDist.get(character.getId());
 
-                int nxValue;
-
-                //50% chance to get (exp/4) nx, and if that doesnt succeed, have 50% chance to get half that
-                nxValue = fairRoll(exp / 4) == 0 ? fairRoll((exp/4)/2) : 0;
-
-                if(nxValue == 0) return;
-
-                // 80% of pool is split amongst all the damagers
-                for (Entry<Integer, AtomicInteger> damageEntry : takenDamage.entrySet())
+                if (isKiller)
                 {
-                    nxDist.put(damageEntry.getKey(), (int) ((0.80 * nxValue) * (damageEntry.getValue().get() / stats.getHp())));
+                    nx += nxValue / 5;
                 }
 
-                Collection<MapleCharacter> characters = map.getCharacters();
+                MapleParty p = character.getParty();
 
-                for (MapleCharacter character : characters)
+                if (p != null)
                 {
-                    if (nxDist.containsKey(character.getId()))
-                    {
-                        boolean isKiller = character.getId() == killerId;
-                        int nx = nxDist.get(character.getId());
+                    int partyID = p.getId();
+                    int partyNX = nx + (partyNx.getOrDefault(partyID, 0));
 
-                        if (isKiller)
-                        {
-                            nx += nxValue / 5;
-                        }
-
-                        MapleParty p = character.getParty();
-
-                        if (p != null)
-                        {
-                            int partyID = p.getId();
-                            int partyNX = nx + (partyNx.getOrDefault(partyID, 0));
-
-                            partyNx.put(partyID, partyNX);
-                        }
-                        else
-                        {
-                            giveNXToCharacter(character, nx, isKiller, 1);
-                        }
-                    }
+                    partyNx.put(partyID, partyNX);
                 }
-
-                for (Entry<Integer, Integer> partyMember : partyNx.entrySet())
+                else
                 {
-                    distributeNXToParty(partyMember.getKey(), partyMember.getValue(), killerId, nxDist);
+                    giveNXToCharacter(character, nx, isKiller, 1);
                 }
-
-                return;
             }
         }
+
+        for (Entry<Integer, Integer> partyMember : partyNx.entrySet())
+        {
+            distributeNXToParty(partyMember.getKey(), partyMember.getValue(), killerId, nxDist);
+        }
+
     }
 
     /**
@@ -449,8 +420,10 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
     private void giveNXToCharacter(MapleCharacter character, int nx, boolean isKiller, int numNXSharers)
     {
-            character.getCashShop().gainCash(1, nx);
-            character.announce(MaplePacketCreator.earnTitleMessage("Gained " + nx + " NX!"));
+        if(nx == 0) return;
+
+        character.getCashShop().gainCash(1, nx);
+        character.announce(MaplePacketCreator.earnTitleMessage("Gained " + nx + " NX!"));
     }
 
     private void distributeExperienceToParty(int partyID, int exp, int killer, Map<Integer, Integer> expDist)
