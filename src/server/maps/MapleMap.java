@@ -711,7 +711,7 @@ public class MapleMap
             }
         }
 
-        checkPetVac(character);
+    //    checkPetVac(character);
     }
 
     private void checkPetVac(MapleCharacter character)

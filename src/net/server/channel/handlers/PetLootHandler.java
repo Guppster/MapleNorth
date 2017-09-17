@@ -21,15 +21,19 @@
 */
 package net.server.channel.handlers;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
 import net.AbstractMaplePacketHandler;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
+import server.maps.MapleMapObjectType;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import constants.ServerConstants;
@@ -42,15 +46,15 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
 {
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
     {
-        MapleCharacter chr = c.getPlayer();
-        if (System.currentTimeMillis() - chr.getPetLootCd() < ServerConstants.PET_LOOT_UPON_ATTACK)
+        MapleCharacter character = c.getPlayer();
+        if (System.currentTimeMillis() - character.getPetLootCd() < ServerConstants.PET_LOOT_UPON_ATTACK)
         {
             c.announce(MaplePacketCreator.enableActions());
             return;
         }
 
-        int petIndex = chr.getPetIndex(slea.readInt());
-        MaplePet pet = chr.getPet(petIndex);
+        int petIndex = character.getPetIndex(slea.readInt());
+        MaplePet pet = character.getPet(petIndex);
         if (pet == null || !pet.isSummoned())
         {
             c.announce(MaplePacketCreator.enableActions());
@@ -59,21 +63,21 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
 
         slea.skip(13);
         int oid = slea.readInt();
-        MapleMapObject ob = chr.getMap().getMapObject(oid);
+        MapleMapObject ob = character.getMap().getMapObject(oid);
         if (ob == null)
         {
             c.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
 
-        if (chr.getInventory(MapleInventoryType.EQUIPPED).findById(1812007) != null)
+        if (character.getInventory(MapleInventoryType.EQUIPPED).findById(1812007) != null)
         {
-            final Set<Integer> petIgnore = chr.getExcludedItems();
+            final Set<Integer> petIgnore = character.getExcludedItems();
             MapleMapItem mapitem = (MapleMapItem) ob;
 
             if (!petIgnore.isEmpty())
             {
-                if (chr.getInventory(MapleInventoryType.EQUIPPED).findById(1812000) != null)
+                if (character.getInventory(MapleInventoryType.EQUIPPED).findById(1812000) != null)
                 { // Meso magnet
                     if (mapitem.getMeso() > 0 && petIgnore.contains(Integer.MAX_VALUE))
                     {
@@ -81,7 +85,7 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
                         return;
                     }
                 }
-                else if (chr.getInventory(MapleInventoryType.EQUIPPED).findById(1812001) != null)
+                else if (character.getInventory(MapleInventoryType.EQUIPPED).findById(1812001) != null)
                 { // Item Pouch
                     if (petIgnore.contains(mapitem.getItem().getItemId()))
                     {
@@ -92,6 +96,28 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
             }
         }
 
-        chr.pickupItem(ob, petIndex);
+        Item petVacItem = character.getInventory(MapleInventoryType.ETC).findById(4000047);
+
+        if (petVacItem != null)
+        {
+            List<MapleMapObject> itemList = character.getMap().getMapObjectsInRange(character.getPosition(), Double.POSITIVE_INFINITY, Collections.singletonList(MapleMapObjectType.ITEM));
+
+            for (MapleMapObject item : itemList)
+            {
+                MapleMapItem mapItem = (MapleMapItem) item;
+
+                int ownerId = mapItem.getOwner();
+
+                if ((ownerId <= 0 ||
+                     character.getId() == ownerId ||
+                     character.isPartyMember(ownerId) ||
+                     System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000))
+                {
+                    character.pickupItem(item, petIndex);
+                }
+            }
+        }
+
+        character.pickupItem(ob, petIndex);
     }
 }
