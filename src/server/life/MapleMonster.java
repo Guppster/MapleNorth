@@ -241,7 +241,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
         }
         int trueDamage = Math.min(hp, damage); // since magic happens otherwise B^)
 
-        if (ServerConstants.USE_DEBUG == true)
+        if (ServerConstants.USE_DEBUG)
         {
             from.dropMessage(5, "Hitted MOB " + this.getId() + ", OID " + this.getObjectId());
         }
@@ -319,10 +319,15 @@ public class MapleMonster extends AbstractLoadedMapleLife
                 Map<Integer, Integer> nxDist = new HashMap<>();
                 Map<Integer, Integer> partyNx = new HashMap<>();
 
-                int mesoValue =  Randomizer.nextInt(drop.Maximum - drop.Minimum) + drop.Minimum * map.getCharacterById(killerId).getMesoRate();
+                int mesoValue = Randomizer.nextInt(drop.Maximum - drop.Minimum) + drop.Minimum * map.getCharacterById(killerId).getMesoRate();
                 if (mesoValue <= 0) mesoValue = Integer.MAX_VALUE;
 
-                int nxValue = (int)(mesoValue * 1.5);
+                int nxValue;
+
+                //50% chance to get (meso/4) nx, and if that doesnt succeed, have 50% chance to get half that
+                nxValue = fairRoll(mesoValue / 4) == 0 ? fairRoll((mesoValue/4)/2) : 0;
+
+                if(nxValue == 0) return;
 
                 // 80% of pool is split amongst all the damagers
                 for (Entry<Integer, AtomicInteger> damageEntry : takenDamage.entrySet())
@@ -368,6 +373,17 @@ public class MapleMonster extends AbstractLoadedMapleLife
                 return;
             }
         }
+    }
+
+    /**
+     * Provides a fair 50% chance to return the parameter amount
+     *
+     * @param amount the amount to roll for
+     * @return the amount, or 0
+     */
+    private int fairRoll(int amount)
+    {
+        return Randomizer.nextInt(10) > 5 ? amount : 0;
     }
 
     private void distributeNXToParty(Integer partyID, Integer partyNX, int killerId, Map<Integer, Integer> nxDist)
