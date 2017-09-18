@@ -355,21 +355,6 @@ public class Commands
                 player.yellowMessage("Solaxia Server Time: " + dateFormat.format(new Date()));
                 break;
 
-            case "staff":
-                player.yellowMessage("MapleSolaxia Staff");
-                player.yellowMessage("Aria - Administrator");
-                player.yellowMessage("Twdtwd - Administrator");
-                player.yellowMessage("Exorcist - Developer");
-                player.yellowMessage("SharpAceX - Developer");
-                player.yellowMessage("Zygon - Freelance Developer");
-                player.yellowMessage("SourMjolk - Game Master");
-                player.yellowMessage("Kanade - Game Master");
-                player.yellowMessage("Kitsune - Game Master");
-                player.yellowMessage("MapleSolaxiaV2 Staff");
-                player.yellowMessage("Ronan - Freelance Developer");
-                player.yellowMessage("Vcoc - Freelance Developer");
-                break;
-
             case "lastrestart":
             case "uptime":
                 long milliseconds = System.currentTimeMillis() - Server.uptime;
