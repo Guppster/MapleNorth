@@ -2,3 +2,9 @@ out/
 .idea/
 *.iml
 *.class
+build.xml
+build/
+dist/
+manifest.mf
+nbproject/
+src/META-INF/
