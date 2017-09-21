@@ -21,30 +21,10 @@
  */
 package client.command;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-
+import client.*;
+import client.inventory.*;
+import constants.ItemConstants;
+import constants.ServerConstants;
 import net.MaplePacketHandler;
 import net.PacketProcessor;
 import net.server.Server;
@@ -56,59 +36,38 @@ import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import scripting.npc.NPCScriptManager;
 import scripting.portal.PortalScriptManager;
-import server.MapleInventoryManipulator;
-import server.MapleItemInformationProvider;
-import server.MaplePortal;
-import server.MapleShopFactory;
-import server.TimerManager;
+import server.*;
 import server.events.gm.MapleEvent;
 import server.expeditions.MapleExpedition;
 import server.gachapon.MapleGachapon.Gachapon;
-import server.life.MapleLifeFactory;
-import server.life.MapleMonster;
-import server.life.MapleMonsterInformationProvider;
-import server.life.MapleNPC;
-import server.life.MonsterDropEntry;
-import server.maps.MapleMap;
-import server.maps.MapleMapItem;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import server.maps.MapleReactor;
+import server.life.*;
+import server.maps.*;
 import server.quest.MapleQuest;
-import tools.DatabaseConnection;
-import tools.FilePrinter;
-import tools.HexTool;
-import tools.MapleLogger;
-import tools.MaplePacketCreator;
-import tools.Pair;
-import tools.Randomizer;
+import tools.*;
 import tools.data.input.ByteArrayByteStream;
 import tools.data.input.GenericSeekableLittleEndianAccessor;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.data.output.MaplePacketLittleEndianWriter;
-import client.MapleBuffStat;
-import client.MapleCharacter;
-import client.MapleClient;
-import client.MapleJob;
-import client.MapleStat;
-import client.Skill;
-import client.SkillFactory;
-import client.inventory.Item;
-import client.inventory.Equip;
-import client.inventory.MapleInventory;
-import client.inventory.MapleInventoryType;
-import client.inventory.MaplePet;
-import constants.ItemConstants;
-import constants.ServerConstants;
 
-import java.util.ArrayList;
+import java.awt.*;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.List;
 
-import server.life.SpawnPoint;
-import server.maps.FieldLimit;
-
-public class Commands
-{
+public class Commands {
     private static HashMap<String, Integer> gotomaps = new HashMap<String, Integer>();
+    private static NumberFormat nf = new DecimalFormat("#,###,###,###");
 
     private static String[] tips = {
             "Please only use @gm in emergencies or to report somebody.",
@@ -273,8 +232,7 @@ public class Commands
             "BgmUI/Title"
     };
 
-    static
-    {
+    static {
         gotomaps.put("gmmap", 180000000);
         gotomaps.put("southperry", 60000);
         gotomaps.put("amherst", 1010000);
@@ -315,8 +273,7 @@ public class Commands
         gotomaps.put("fm", 910000000);
     }
 
-    private static void hardsetItemStats(Equip equip, short stat)
-    {
+    private static void hardsetItemStats(Equip equip, short stat) {
         equip.setStr(stat);
         equip.setDex(stat);
         equip.setInt(stat);
@@ -337,12 +294,10 @@ public class Commands
         equip.setFlag(flag);
     }
 
-    public static boolean executeSolaxiaCommandLv0(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //Player
+    public static boolean executeSolaxiaCommandLv0(Channel cserv, Server srv, MapleClient c, String[] sub) { //Player
         MapleCharacter player = c.getPlayer();
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "help":
             case "commands":
             case "playercommands":
@@ -353,21 +308,6 @@ public class Commands
                 DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                 dateFormat.setTimeZone(TimeZone.getTimeZone("-GMT3"));
                 player.yellowMessage("Solaxia Server Time: " + dateFormat.format(new Date()));
-                break;
-
-            case "staff":
-                player.yellowMessage("MapleSolaxia Staff");
-                player.yellowMessage("Aria - Administrator");
-                player.yellowMessage("Twdtwd - Administrator");
-                player.yellowMessage("Exorcist - Developer");
-                player.yellowMessage("SharpAceX - Developer");
-                player.yellowMessage("Zygon - Freelance Developer");
-                player.yellowMessage("SourMjolk - Game Master");
-                player.yellowMessage("Kanade - Game Master");
-                player.yellowMessage("Kitsune - Game Master");
-                player.yellowMessage("MapleSolaxiaV2 Staff");
-                player.yellowMessage("Ronan - Freelance Developer");
-                player.yellowMessage("Vcoc - Freelance Developer");
                 break;
 
             case "lastrestart":
@@ -386,28 +326,22 @@ public class Commands
                 String gachaName = "";
                 String[] names = {"Henesys", "Ellinia", "Perion", "Kerning City", "Sleepywood", "Mushroom Shrine", "Showa Spa Male", "Showa Spa Female", "New Leaf City", "Nautilus Harbor"};
                 int[] ids = {9100100, 9100101, 9100102, 9100103, 9100104, 9100105, 9100106, 9100107, 9100109, 9100117};
-                for (int i = 0; i < names.length; i++)
-                {
-                    if (search.equalsIgnoreCase(names[i]))
-                    {
+                for (int i = 0; i < names.length; i++) {
+                    if (search.equalsIgnoreCase(names[i])) {
                         gachaName = names[i];
                         gacha = Gachapon.getByNpcId(ids[i]);
                     }
                 }
-                if (gacha == null)
-                {
+                if (gacha == null) {
                     player.yellowMessage("Please use @gacha <name> where name corresponds to one of the below:");
-                    for (String name : names)
-                    {
+                    for (String name : names) {
                         player.yellowMessage(name);
                     }
                     break;
                 }
                 String output = "The #b" + gachaName + "#k Gachapon contains the following items.\r\n\r\n";
-                for (int i = 0; i < 2; i++)
-                {
-                    for (int id : gacha.getItems(i))
-                    {
+                for (int i = 0; i < 2; i++) {
+                    for (int id : gacha.getItems(i)) {
                         output += "-" + MapleItemInformationProvider.getInstance().getName(id) + "\r\n";
                     }
                 }
@@ -416,8 +350,7 @@ public class Commands
                 break;
 
             case "whatdropsfrom":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.dropMessage(5, "Please do @whatdropsfrom <monster name>");
                     break;
                 }
@@ -425,28 +358,21 @@ public class Commands
                 output = "";
                 int limit = 3;
                 Iterator<Pair<Integer, String>> listIterator = MapleMonsterInformationProvider.getMobsIDsFromName(monsterName).iterator();
-                for (int i = 0; i < limit; i++)
-                {
-                    if (listIterator.hasNext())
-                    {
+                for (int i = 0; i < limit; i++) {
+                    if (listIterator.hasNext()) {
                         Pair<Integer, String> data = listIterator.next();
                         int mobId = data.getLeft();
                         String mobName = data.getRight();
                         output += mobName + " drops the following items:\r\n\r\n";
-                        for (MonsterDropEntry drop : MapleMonsterInformationProvider.getInstance().retrieveDrop(mobId))
-                        {
-                            try
-                            {
+                        for (MonsterDropEntry drop : MapleMonsterInformationProvider.getInstance().retrieveDrop(mobId)) {
+                            try {
                                 String name = MapleItemInformationProvider.getInstance().getName(drop.itemId);
-                                if (name.equals("null") || drop.chance == 0)
-                                {
+                                if (name.equals("null") || drop.chance == 0) {
                                     continue;
                                 }
                                 float chance = 1000000 / drop.chance / player.getDropRate();
                                 output += "- " + name + " (1/" + (int) chance + ")\r\n";
-                            }
-                            catch (Exception ex)
-                            {
+                            } catch (Exception ex) {
                                 ex.printStackTrace();
                                 continue;
                             }
@@ -458,41 +384,33 @@ public class Commands
                 break;
 
             case "whodrops":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.dropMessage(5, "Please do @whodrops <item name>");
                     break;
                 }
                 String searchString = joinStringFrom(sub, 1);
                 output = "";
                 listIterator = MapleItemInformationProvider.getInstance().getItemDataByName(searchString).iterator();
-                if (listIterator.hasNext())
-                {
+                if (listIterator.hasNext()) {
                     int count = 1;
-                    while (listIterator.hasNext() && count <= 3)
-                    {
+                    while (listIterator.hasNext() && count <= 3) {
                         Pair<Integer, String> data = listIterator.next();
                         output += "#b" + data.getRight() + "#k is dropped by:\r\n";
-                        try
-                        {
+                        try {
                             Connection con = DatabaseConnection.getConnection();
                             PreparedStatement ps = con.prepareStatement("SELECT * FROM drop_data WHERE itemid = ? LIMIT 50");
                             ps.setInt(1, data.getLeft());
                             ResultSet rs = ps.executeQuery();
-                            while (rs.next())
-                            {
+                            while (rs.next()) {
                                 String resultName = MapleMonsterInformationProvider.getMobNameFromID(rs.getInt("dropperid"));
-                                if (resultName != null)
-                                {
+                                if (resultName != null) {
                                     output += resultName + ", ";
                                 }
                             }
                             rs.close();
                             ps.close();
                             con.close();
-                        }
-                        catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             player.dropMessage("There was a problem retreiving the required data. Please try again.");
                             e.printStackTrace();
                             break;
@@ -500,9 +418,7 @@ public class Commands
                         output += "\r\n\r\n";
                         count++;
                     }
-                }
-                else
-                {
+                } else {
                     player.dropMessage(5, "The item you searched for doesn't exist.");
                     break;
                 }
@@ -516,71 +432,52 @@ public class Commands
                 player.message("You've been disposed.");
                 break;
 
-            case "equiplv":
+            case "me":
+            case "check":
+                // dispose
+                NPCScriptManager.getInstance().dispose(c);
+                c.announce(MaplePacketCreator.enableActions());
+                c.removeClickedNPC();
+
+                String playerMsg = "";
+                // dispose message
+                playerMsg += "You've been disposed.";
+                player.message(playerMsg);
+
+                // show points
+                playerMsg = "";
+                playerMsg += nf.format(0) + " DP, "; // todo: show dp
+                playerMsg += nf.format(c.getVotePoints()) + " VP, "; // show vp
+                playerMsg += nf.format(player.getCashShop().getCash(1)) + " NX, ";
+                playerMsg += nf.format(player.getDojoPoints()) + " Dojo points"; // show dojo points
+                player.message(playerMsg);
+
+                // show rates in percents
+                playerMsg = "";
+                playerMsg += nf.format(player.getExpRate() * 100) + "% EXP, ";
+                playerMsg += nf.format(player.getMesoRate() * 100) + "% MESOS, ";
+                playerMsg += nf.format(player.getDropRate() * 100) + "% DROP";
+                player.message(playerMsg);
+                break;
+
+            case "equiplvl":
                 player.showAllEquipFeatures();
                 break;
 
-            case "showrates":
-                String showMsg = "#eEXP RATE#n" + "\r\n";
-                showMsg += "Server EXP Rate: #k" + c.getWorldServer().getExpRate() + "x#k" + "\r\n";
-                showMsg += "Player EXP Rate: #k" + player.getRawExpRate() + "x#k" + "\r\n";
-                if (player.getCouponExpRate() != 1)
-                {
-                    showMsg += "Coupon EXP Rate: #k" + player.getCouponExpRate() + "x#k" + "\r\n";
-                }
-                showMsg += "EXP Rate: #e#b" + player.getExpRate() + "x#k#n" + "\r\n";
-
-                showMsg += "\r\n" + "#eMESO RATE#n" + "\r\n";
-                showMsg += "Server MESO Rate: #k" + c.getWorldServer().getMesoRate() + "x#k" + "\r\n";
-                showMsg += "Player MESO Rate: #k" + player.getRawMesoRate() + "x#k" + "\r\n";
-                if (player.getCouponMesoRate() != 1)
-                {
-                    showMsg += "Coupon MESO Rate: #k" + player.getCouponMesoRate() + "x#k" + "\r\n";
-                }
-                showMsg += "MESO Rate: #e#b" + player.getMesoRate() + "x#k#n" + "\r\n";
-
-                showMsg += "\r\n" + "#eDROP RATE#n" + "\r\n";
-                showMsg += "Server DROP Rate: #k" + c.getWorldServer().getDropRate() + "x#k" + "\r\n";
-                showMsg += "Player DROP Rate: #k" + player.getRawDropRate() + "x#k" + "\r\n";
-                if (player.getCouponDropRate() != 1)
-                {
-                    showMsg += "Coupon DROP Rate: #k" + player.getCouponDropRate() + "x#k" + "\r\n";
-                }
-                showMsg += "DROP Rate: #e#b" + player.getDropRate() + "x#k#n" + "\r\n";
-
-                showMsg += "\r\n" + "#eBOSSDROP RATE#n" + "\r\n";
-                showMsg += "Server BOSSDROP Rate: #e#b" + c.getWorldServer().getBossDropRate() + "x#k#n" + "\r\n";
-
-                player.showHint(showMsg);
-                break;
-
-            case "rates":
-                String showMsg_ = "#eCHARACTER RATES#n" + "\r\n\r\n";
-                showMsg_ += "EXP Rate: #e#b" + player.getExpRate() + "x#k#n" + "\r\n";
-                showMsg_ += "MESO Rate: #e#b" + player.getMesoRate() + "x#k#n" + "\r\n";
-                showMsg_ += "DROP Rate: #e#b" + player.getDropRate() + "x#k#n" + "\r\n";
-                showMsg_ += "BOSSDROP Rate: #e#b" + c.getWorldServer().getBossDropRate() + "x#k#n" + "\r\n";
-
-                player.showHint(showMsg_);
-                break;
-
             case "online":
-                for (Channel ch : Server.getInstance().getChannelsFromWorld(player.getWorld()))
-                {
-                    player.yellowMessage("Players in Channel " + ch.getId() + ":");
-                    for (MapleCharacter chr : ch.getPlayerStorage().getAllCharacters())
-                    {
-                        if (!chr.isGM())
-                        {
-                            player.message(" >> " + MapleCharacter.makeMapleReadable(chr.getName()) + " is at " + chr.getMap().getMapName() + ".");
+                int playersOnline = 0;
+                for (Channel ch : Server.getInstance().getChannelsFromWorld(player.getWorld())) {
+                    for (MapleCharacter chr : ch.getPlayerStorage().getAllCharacters()) {
+                        if (!chr.isGM()) {
+                            playersOnline++;
                         }
                     }
                 }
+                player.message("There are " + playersOnline + " players online.");
                 break;
 
             case "gm":
-                if (sub.length < 3)
-                { // #goodbye 'hi'
+                if (sub.length < 3) { // #goodbye 'hi'
                     player.dropMessage(5, "Your message was too short. Please provide as much detail as possible.");
                     break;
                 }
@@ -593,9 +490,7 @@ public class Commands
                 break;
 
             case "bug":
-
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.dropMessage(5, "Message too short and not sent. Please do @bug <bug>");
                     break;
                 }
@@ -605,104 +500,85 @@ public class Commands
                 FilePrinter.printError("bug.txt", MapleCharacter.makeMapleReadable(player.getName()) + ": " + message + "\r\n");
                 player.dropMessage(5, "Your bug '" + message + "' was submitted successfully to our developers. Thank you!");
                 break;
-		/*
-                case "points":
-			player.dropMessage(5, "You have " + c.getVotePoints() + " vote point(s).");
-			if (c.hasVotedAlready()) {
-				Date currentDate = new Date();
-				int time = (int) ((int) 86400 - ((currentDate.getTime() / 1000) - c.getVoteTime())); //ugly as fuck
-				hours = time / 3600;
-				minutes = time % 3600 / 60;
-				seconds = time % 3600 % 60;
-				player.yellowMessage("You have already voted. You can vote again in " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds.");
-			} else {
-				player.yellowMessage("You are free to vote! Make sure to vote to gain a vote point!");
-			}
-			break;
-                */
+
+            case "vote":
+                player.dropMessage(5, "You have " + c.getVotePoints() + " vote point(s).");
+                if (c.hasVotedAlready()) {
+                    Date currentDate = new Date();
+                    int time = (int) ((int) 86400 - ((currentDate.getTime() / 1000) - c.getVoteTime())); //ugly as fuck
+                    hours = time / 3600;
+                    minutes = time % 3600 / 60;
+                    seconds = time % 3600 % 60;
+                    player.yellowMessage("You have already voted. You can vote again in " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds.");
+                } else {
+                    player.yellowMessage("You are free to vote! Make sure to vote to gain a vote point!");
+                }
+                break;
+
+
             case "joinevent":
-                if (!FieldLimit.CANNOTMIGRATE.check(player.getMap().getFieldLimit()))
-                {
+                if (!FieldLimit.CANNOTMIGRATE.check(player.getMap().getFieldLimit())) {
                     MapleEvent event = c.getChannelServer().getEvent();
-                    if (event != null)
-                    {
-                        if (event.getMapId() != player.getMapId())
-                        {
-                            if (event.getLimit() > 0)
-                            {
+                    if (event != null) {
+                        if (event.getMapId() != player.getMapId()) {
+                            if (event.getLimit() > 0) {
                                 player.saveLocation("EVENT");
 
-                                if (event.getMapId() == 109080000 || event.getMapId() == 109060001)
-                                {
+                                if (event.getMapId() == 109080000 || event.getMapId() == 109060001) {
                                     player.setTeam(event.getLimit() % 2);
                                 }
 
                                 event.minusLimit();
 
                                 player.changeMap(event.getMapId());
-                            }
-                            else
-                            {
+                            } else {
                                 player.dropMessage("The limit of players for the event has already been reached.");
                             }
-                        }
-                        else
-                        {
+                        } else {
                             player.dropMessage(5, "You are already in the event.");
                         }
-                    }
-                    else
-                    {
+                    } else {
                         player.dropMessage(5, "There is currently no event in progress.");
                     }
-                }
-                else
-                {
+                } else {
                     player.dropMessage(5, "You are currently in a map where you can't join an event.");
                 }
                 break;
 
             case "leaveevent":
                 int returnMap = player.getSavedLocation("EVENT");
-                if (returnMap != -1)
-                {
-                    if (player.getOla() != null)
-                    {
+                if (returnMap != -1) {
+                    if (player.getOla() != null) {
                         player.getOla().resetTimes();
                         player.setOla(null);
                     }
-                    if (player.getFitness() != null)
-                    {
+                    if (player.getFitness() != null) {
                         player.getFitness().resetTimes();
                         player.setFitness(null);
                     }
 
                     player.changeMap(returnMap);
-                    if (c.getChannelServer().getEvent() != null)
-                    {
+                    if (c.getChannelServer().getEvent() != null) {
                         c.getChannelServer().getEvent().addLimit();
                     }
-                }
-                else
-                {
+                } else {
                     player.dropMessage(5, "You are not currently in an event.");
                 }
                 break;
 
             case "bosshp":
-                for (MapleMonster monster : player.getMap().getMonsters())
-                {
-                    if (monster != null && monster.isBoss() && monster.getHp() > 0)
-                    {
+                for (MapleMonster monster : player.getMap().getMonsters()) {
+                    if (monster != null && monster.isBoss() && monster.getHp() > 0) {
                         long percent = monster.getHp() * 100L / monster.getMaxHp();
                         String bar = "[";
-                        for (int i = 0; i < 100; i++)
-                        {
+                        for (int i = 0; i < 100; i++) {
                             bar += i < percent ? "|" : ".";
                         }
                         bar += "]";
                         player.yellowMessage(monster.getName() + " (" + monster.getId() + ") has " + percent + "% HP left.");
                         player.yellowMessage("HP: " + bar);
+                    } else {
+                        player.yellowMessage("This command requires a boss on your map.");
                     }
                 }
                 break;
@@ -711,8 +587,7 @@ public class Commands
                 PreparedStatement ps = null;
                 ResultSet rs = null;
                 Connection con = null;
-                try
-                {
+                try {
                     con = DatabaseConnection.getConnection();
                     ps = con.prepareStatement("SELECT `characters`.`name`, `characters`.`level` FROM `characters` LEFT JOIN accounts ON accounts.id = characters.accountid WHERE `characters`.`gm` = '0' AND `accounts`.`banned` = '0' ORDER BY level DESC, exp DESC LIMIT 50");
                     rs = ps.executeQuery();
@@ -721,30 +596,20 @@ public class Commands
                     ps.close();
                     rs.close();
                     con.close();
-                }
-                catch (SQLException ex)
-                {
+                } catch (SQLException ex) {
                     ex.printStackTrace();
-                }
-                finally
-                {
-                    try
-                    {
-                        if (ps != null && !ps.isClosed())
-                        {
+                } finally {
+                    try {
+                        if (ps != null && !ps.isClosed()) {
                             ps.close();
                         }
-                        if (rs != null && !rs.isClosed())
-                        {
+                        if (rs != null && !rs.isClosed()) {
                             rs.close();
                         }
-                        if (con != null && !con.isClosed())
-                        {
+                        if (con != null && !con.isClosed()) {
                             con.close();
                         }
-                    }
-                    catch (SQLException e)
-                    {
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 }
@@ -757,12 +622,10 @@ public class Commands
         return true;
     }
 
-    public static boolean executeSolaxiaCommandLv1(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //Donator
+    public static boolean executeSolaxiaCommandLv1(Channel cserv, Server srv, MapleClient c, String[] sub) { //Donator
         MapleCharacter player = c.getPlayer();
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "buffme":
                 //GM Skills : Haste(Super) - Holy Symbol - Bless - Hyper Body - Echo of Hero
                 SkillFactory.getSkill(4101004).getEffect(SkillFactory.getSkill(4101004).getMaxLevel()).applyTo(player);
@@ -777,49 +640,36 @@ public class Commands
                 break;
 
             case "goto":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !goto <map name>");
                     break;
                 }
 
-                if (gotomaps.containsKey(sub[1]))
-                {
+                if (gotomaps.containsKey(sub[1])) {
                     MapleMap target = c.getChannelServer().getMapFactory().getMap(gotomaps.get(sub[1]));
                     MaplePortal targetPortal = target.getPortal(0);
-                    if (player.getEventInstance() != null)
-                    {
+                    if (player.getEventInstance() != null) {
                         player.getEventInstance().removePlayer(player);
                     }
                     player.changeMap(target, targetPortal);
-                }
-                else
-                {
+                } else {
                     player.dropMessage(5, "That map does not exist.");
                 }
                 break;
 
             case "recharge":
                 MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-                for (Item torecharge : c.getPlayer().getInventory(MapleInventoryType.USE).list())
-                {
-                    if (ItemConstants.isThrowingStar(torecharge.getItemId()))
-                    {
+                for (Item torecharge : c.getPlayer().getInventory(MapleInventoryType.USE).list()) {
+                    if (ItemConstants.isThrowingStar(torecharge.getItemId())) {
                         torecharge.setQuantity(ii.getSlotMax(c, torecharge.getItemId()));
                         c.getPlayer().forceUpdateItem(torecharge);
-                    }
-                    else if (ItemConstants.isArrow(torecharge.getItemId()))
-                    {
+                    } else if (ItemConstants.isArrow(torecharge.getItemId())) {
                         torecharge.setQuantity(ii.getSlotMax(c, torecharge.getItemId()));
                         c.getPlayer().forceUpdateItem(torecharge);
-                    }
-                    else if (ItemConstants.isBullet(torecharge.getItemId()))
-                    {
+                    } else if (ItemConstants.isBullet(torecharge.getItemId())) {
                         torecharge.setQuantity(ii.getSlotMax(c, torecharge.getItemId()));
                         c.getPlayer().forceUpdateItem(torecharge);
-                    }
-                    else if (ItemConstants.isConsumable(torecharge.getItemId()))
-                    {
+                    } else if (ItemConstants.isConsumable(torecharge.getItemId())) {
                         torecharge.setQuantity(ii.getSlotMax(c, torecharge.getItemId()));
                         c.getPlayer().forceUpdateItem(torecharge);
                     }
@@ -830,28 +680,22 @@ public class Commands
             case "whereami":
                 player.yellowMessage("Map ID: " + player.getMap().getId());
                 player.yellowMessage("Players on this map:");
-                for (MapleMapObject mmo : player.getMap().getPlayers())
-                {
+                for (MapleMapObject mmo : player.getMap().getPlayers()) {
                     MapleCharacter chr = (MapleCharacter) mmo;
                     player.dropMessage(5, ">> " + chr.getName());
                 }
                 player.yellowMessage("NPCs on this map:");
-                for (MapleMapObject npcs : player.getMap().getMapObjects())
-                {
-                    if (npcs instanceof MapleNPC)
-                    {
+                for (MapleMapObject npcs : player.getMap().getMapObjects()) {
+                    if (npcs instanceof MapleNPC) {
                         MapleNPC npc = (MapleNPC) npcs;
                         player.dropMessage(5, ">> " + npc.getName() + " - " + npc.getId() + " - Oid: " + npc.getObjectId());
                     }
                 }
                 player.yellowMessage("Monsters on this map:");
-                for (MapleMapObject mobs : player.getMap().getMapObjects())
-                {
-                    if (mobs instanceof MapleMonster)
-                    {
+                for (MapleMapObject mobs : player.getMap().getMapObjects()) {
+                    if (mobs instanceof MapleMonster) {
                         MapleMonster mob = (MapleMonster) mobs;
-                        if (mob.isAlive())
-                        {
+                        if (mob.isAlive()) {
                             player.dropMessage(5, ">> " + mob.getName() + " - " + mob.getId());
                         }
                     }
@@ -865,14 +709,12 @@ public class Commands
         return true;
     }
 
-    public static boolean executeSolaxiaCommandLv2(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //JrGM
+    public static boolean executeSolaxiaCommandLv2(Channel cserv, Server srv, MapleClient c, String[] sub) { //JrGM
         MapleCharacter player = c.getPlayer();
         MapleCharacter victim;
         Skill skill;
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "hide":
                 SkillFactory.getSkill(9101004).getEffect(SkillFactory.getSkill(9101004).getMaxLevel()).applyTo(player);
                 break;
@@ -882,86 +724,64 @@ public class Commands
                 break;
 
             case "sp":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !sp [<playername>] <newsp>");
                     break;
                 }
 
-                if (sub.length == 2)
-                {
+                if (sub.length == 2) {
                     int newSp = Integer.parseInt(sub[1]);
-                    if (newSp < 0)
-                    {
+                    if (newSp < 0) {
                         newSp = 0;
-                    }
-                    else if (newSp > ServerConstants.MAX_AP) newSp = ServerConstants.MAX_AP;
+                    } else if (newSp > ServerConstants.MAX_AP) newSp = ServerConstants.MAX_AP;
 
                     player.setRemainingSp(newSp);
                     player.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
-                }
-                else
-                {
+                } else {
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
 
-                    if (victim != null)
-                    {
+                    if (victim != null) {
                         int newSp = Integer.parseInt(sub[2]);
-                        if (newSp < 0)
-                        {
+                        if (newSp < 0) {
                             newSp = 0;
-                        }
-                        else if (newSp > ServerConstants.MAX_AP) newSp = ServerConstants.MAX_AP;
+                        } else if (newSp > ServerConstants.MAX_AP) newSp = ServerConstants.MAX_AP;
 
                         victim.setRemainingSp(newSp);
                         victim.updateSingleStat(MapleStat.AVAILABLESP, player.getRemainingSp());
 
                         player.dropMessage(5, "SP given.");
-                    }
-                    else
-                    {
+                    } else {
                         player.message("Player '" + sub[1] + "' could not be found on this channel.");
                     }
                 }
                 break;
 
             case "ap":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !ap [<playername>] <newap>");
                     break;
                 }
 
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     int newAp = Integer.parseInt(sub[1]);
-                    if (newAp < 0)
-                    {
+                    if (newAp < 0) {
                         newAp = 0;
-                    }
-                    else if (newAp > ServerConstants.MAX_AP) newAp = ServerConstants.MAX_AP;
+                    } else if (newAp > ServerConstants.MAX_AP) newAp = ServerConstants.MAX_AP;
 
                     player.setRemainingAp(newAp);
                     player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
-                }
-                else
-                {
+                } else {
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
 
-                    if (victim != null)
-                    {
+                    if (victim != null) {
                         int newAp = Integer.parseInt(sub[2]);
-                        if (newAp < 0)
-                        {
+                        if (newAp < 0) {
                             newAp = 0;
-                        }
-                        else if (newAp > ServerConstants.MAX_AP) newAp = ServerConstants.MAX_AP;
+                        } else if (newAp > ServerConstants.MAX_AP) newAp = ServerConstants.MAX_AP;
 
                         victim.setRemainingAp(newAp);
                         victim.updateSingleStat(MapleStat.AVAILABLEAP, victim.getRemainingAp());
-                    }
-                    else
-                    {
+                    } else {
                         player.message("Player '" + sub[1] + "' could not be found on this channel.");
                     }
                 }
@@ -969,8 +789,7 @@ public class Commands
 
             case "empowerme":
                 final int[] array = {2311003, 2301004, 1301007, 4101004, 2001002, 1101007, 1005, 2301003, 5121009, 1111002, 4111001, 4111002, 4211003, 4211005, 1321000, 2321004, 3121002};
-                for (int i : array)
-                {
+                for (int i : array) {
                     SkillFactory.getSkill(i).getEffect(SkillFactory.getSkill(i).getMaxLevel()).applyTo(player);
                 }
                 break;
@@ -984,8 +803,7 @@ public class Commands
                 break;
 
             case "buff":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !buff <buffid>");
                     break;
                 }
@@ -996,60 +814,44 @@ public class Commands
                 break;
 
             case "bomb":
-                if (sub.length > 1)
-                {
+                if (sub.length > 1) {
                     victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
 
-                    if (victim != null)
-                    {
+                    if (victim != null) {
                         victim.getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(9300166), victim.getPosition());
                         Server.getInstance().broadcastGMMessage(MaplePacketCreator.serverNotice(5, player.getName() + " used !bomb on " + victim.getName()));
-                    }
-                    else
-                    {
+                    } else {
                         player.message("Player '" + sub[1] + "' could not be found on this world.");
                     }
-                }
-                else
-                {
+                } else {
                     player.getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(9300166), player.getPosition());
                 }
                 break;
 
             case "dc":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !dc <playername>");
                     break;
                 }
 
                 victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim == null)
-                {
+                if (victim == null) {
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
-                    if (victim == null)
-                    {
+                    if (victim == null) {
                         victim = player.getMap().getCharacterByName(sub[1]);
-                        if (victim != null)
-                        {
-                            try
-                            {//sometimes bugged because the map = null
+                        if (victim != null) {
+                            try {//sometimes bugged because the map = null
                                 victim.getClient().disconnect(true, false);
                                 player.getMap().removePlayer(victim);
-                            }
-                            catch (Exception e)
-                            {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        }
-                        else
-                        {
+                        } else {
                             break;
                         }
                     }
                 }
-                if (player.gmLevel() < victim.gmLevel())
-                {
+                if (player.gmLevel() < victim.gmLevel()) {
                     victim = player;
                 }
                 victim.getClient().disconnect(false, false);
@@ -1060,275 +862,202 @@ public class Commands
                 break;
 
             case "clearslot":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !clearslot <all, equip, use, setup, etc or cash.>");
                     break;
                 }
                 String type = sub[1];
-                if (type.equals("all"))
-                {
-                    for (int i = 0; i < 101; i++)
-                    {
+                if (type.equals("all")) {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIP, (byte) i, tempItem.getQuantity(), false, true);
                     }
-                    for (int i = 0; i < 101; i++)
-                    {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.USE).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, (byte) i, tempItem.getQuantity(), false, true);
                     }
-                    for (int i = 0; i < 101; i++)
-                    {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.ETC).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.ETC, (byte) i, tempItem.getQuantity(), false, true);
                     }
-                    for (int i = 0; i < 101; i++)
-                    {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.SETUP).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.SETUP, (byte) i, tempItem.getQuantity(), false, true);
                     }
-                    for (int i = 0; i < 101; i++)
-                    {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.CASH, (byte) i, tempItem.getQuantity(), false, true);
                     }
                     player.yellowMessage("All Slots Cleared.");
-                }
-                else if (type.equals("equip"))
-                {
-                    for (int i = 0; i < 101; i++)
-                    {
+                } else if (type.equals("equip")) {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.EQUIP).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIP, (byte) i, tempItem.getQuantity(), false, true);
                     }
                     player.yellowMessage("Equipment Slot Cleared.");
-                }
-                else if (type.equals("use"))
-                {
-                    for (int i = 0; i < 101; i++)
-                    {
+                } else if (type.equals("use")) {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.USE).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, (byte) i, tempItem.getQuantity(), false, true);
                     }
                     player.yellowMessage("Use Slot Cleared.");
-                }
-                else if (type.equals("setup"))
-                {
-                    for (int i = 0; i < 101; i++)
-                    {
+                } else if (type.equals("setup")) {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.SETUP).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.SETUP, (byte) i, tempItem.getQuantity(), false, true);
                     }
                     player.yellowMessage("Set-Up Slot Cleared.");
-                }
-                else if (type.equals("etc"))
-                {
-                    for (int i = 0; i < 101; i++)
-                    {
+                } else if (type.equals("etc")) {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.ETC).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.ETC, (byte) i, tempItem.getQuantity(), false, true);
                     }
                     player.yellowMessage("ETC Slot Cleared.");
-                }
-                else if (type.equals("cash"))
-                {
-                    for (int i = 0; i < 101; i++)
-                    {
+                } else if (type.equals("cash")) {
+                    for (int i = 0; i < 101; i++) {
                         Item tempItem = c.getPlayer().getInventory(MapleInventoryType.CASH).getItem((byte) i);
-                        if (tempItem == null)
-                        {
+                        if (tempItem == null) {
                             continue;
                         }
                         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.CASH, (byte) i, tempItem.getQuantity(), false, true);
                     }
                     player.yellowMessage("Cash Slot Cleared.");
-                }
-                else
-                {
+                } else {
                     player.yellowMessage("Slot" + type + " does not exist!");
                 }
                 break;
 
             case "warp":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !warp <mapid>");
                     break;
                 }
 
-                try
-                {
+                try {
                     MapleMap target = c.getChannelServer().getMapFactory().getMap(Integer.parseInt(sub[1]));
-                    if (target == null)
-                    {
+                    if (target == null) {
                         player.yellowMessage("Map ID " + sub[1] + " is invalid.");
                         break;
                     }
-                    if (player.getEventInstance() != null)
-                    {
+                    if (player.getEventInstance() != null) {
                         player.getEventInstance().leftParty(player);
                     }
                     player.changeMap(target, target.getRandomPlayerSpawnpoint());
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     player.yellowMessage("Map ID " + sub[1] + " is invalid.");
                     break;
                 }
                 break;
 
             case "warpto":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !warpto <playername> <mapid>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim == null)
-                {//If victim isn't on current channel or isnt a character try and find him by loop all channels on current world.
-                    for (Channel ch : srv.getChannelsFromWorld(c.getWorld()))
-                    {
+                if (victim == null) {//If victim isn't on current channel or isnt a character try and find him by loop all channels on current world.
+                    for (Channel ch : srv.getChannelsFromWorld(c.getWorld())) {
                         victim = ch.getPlayerStorage().getCharacterByName(sub[1]);
-                        if (victim != null)
-                        {
+                        if (victim != null) {
                             break;//We found the person, no need to continue the loop.
                         }
                     }
                 }
-                if (victim != null)
-                {//If target isn't null attempt to warp.
+                if (victim != null) {//If target isn't null attempt to warp.
                     //Remove warper from current event instance.
-                    if (player.getEventInstance() != null)
-                    {
+                    if (player.getEventInstance() != null) {
                         player.getEventInstance().unregisterPlayer(player);
                     }
                     //Attempt to join the victims warp instance.
-                    if (victim.getEventInstance() != null)
-                    {
-                        if (victim.getClient().getChannel() == player.getClient().getChannel())
-                        {//just in case.. you never know...
+                    if (victim.getEventInstance() != null) {
+                        if (victim.getClient().getChannel() == player.getClient().getChannel()) {//just in case.. you never know...
                             //victim.getEventInstance().registerPlayer(player);
                             player.changeMap(victim.getEventInstance().getMapInstance(victim.getMapId()), victim.getMap().findClosestPortal(victim.getPosition()));
-                        }
-                        else
-                        {
+                        } else {
                             player.dropMessage("Please change to channel " + victim.getClient().getChannel());
                         }
-                    }
-                    else
-                    {//If victim isn't in an event instance, just warp them.
+                    } else {//If victim isn't in an event instance, just warp them.
                         player.changeMap(victim.getMapId(), victim.getMap().findClosestPortal(victim.getPosition()));
                     }
-                    if (player.getClient().getChannel() != victim.getClient().getChannel())
-                    {//And then change channel if needed.
+                    if (player.getClient().getChannel() != victim.getClient().getChannel()) {//And then change channel if needed.
                         player.dropMessage("Changing channel, please wait a moment.");
                         player.getClient().changeChannel(victim.getClient().getChannel());
                     }
-                }
-                else
-                {
+                } else {
                     player.dropMessage("Unknown player.");
                 }
                 break;
 
             case "warphere":
             case "summon":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !warphere <playername>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim == null)
-                {//If victim isn't on current channel, loop all channels on current world.
-                    for (Channel ch : srv.getChannelsFromWorld(c.getWorld()))
-                    {
+                if (victim == null) {//If victim isn't on current channel, loop all channels on current world.
+                    for (Channel ch : srv.getChannelsFromWorld(c.getWorld())) {
                         victim = ch.getPlayerStorage().getCharacterByName(sub[1]);
-                        if (victim != null)
-                        {
+                        if (victim != null) {
                             break;//We found the person, no need to continue the loop.
                         }
                     }
                 }
-                if (victim != null)
-                {
+                if (victim != null) {
                     boolean changingEvent = true;
 
-                    if (victim.getEventInstance() != null)
-                    {
-                        if (player.getEventInstance() != null && victim.getEventInstance().getLeaderId() == player.getEventInstance().getLeaderId())
-                        {
+                    if (victim.getEventInstance() != null) {
+                        if (player.getEventInstance() != null && victim.getEventInstance().getLeaderId() == player.getEventInstance().getLeaderId()) {
                             changingEvent = false;
-                        }
-                        else
-                        {
+                        } else {
                             victim.getEventInstance().unregisterPlayer(victim);
                         }
                     }
                     //Attempt to join the warpers instance.
-                    if (player.getEventInstance() != null && changingEvent)
-                    {
-                        if (player.getClient().getChannel() == victim.getClient().getChannel())
-                        {//just in case.. you never know...
+                    if (player.getEventInstance() != null && changingEvent) {
+                        if (player.getClient().getChannel() == victim.getClient().getChannel()) {//just in case.. you never know...
                             player.getEventInstance().registerPlayer(victim);
                             victim.changeMap(player.getEventInstance().getMapInstance(player.getMapId()), player.getMap().findClosestPortal(player.getPosition()));
-                        }
-                        else
-                        {
+                        } else {
                             player.dropMessage("Target isn't on your channel, not able to warp into event instance.");
                         }
-                    }
-                    else
-                    {//If victim isn't in an event instance or is in the same event instance as the one the caller is, just warp them.
+                    } else {//If victim isn't in an event instance or is in the same event instance as the one the caller is, just warp them.
                         victim.changeMap(player.getMapId(), player.getMap().findClosestPortal(player.getPosition()));
                     }
-                    if (player.getClient().getChannel() != victim.getClient().getChannel())
-                    {//And then change channel if needed.
+                    if (player.getClient().getChannel() != victim.getClient().getChannel()) {//And then change channel if needed.
                         victim.dropMessage("Changing channel, please wait a moment.");
                         victim.getClient().changeChannel(player.getClient().getChannel());
                     }
-                }
-                else
-                {
+                } else {
                     player.dropMessage("Unknown player.");
                 }
                 break;
@@ -1343,15 +1072,13 @@ public class Commands
 
             case "item":
             case "drop":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !item <itemid> <quantity>");
                     break;
                 }
 
                 int itemId = Integer.parseInt(sub[1]);
-                if (MapleItemInformationProvider.getInstance().getName(itemId) == null)
-                {
+                if (MapleItemInformationProvider.getInstance().getName(itemId) == null) {
                     player.yellowMessage("Item id '" + sub[1] + "' does not exist.");
                     break;
                 }
@@ -1359,38 +1086,29 @@ public class Commands
                 short quantity = 1;
                 if (sub.length >= 3) quantity = Short.parseShort(sub[2]);
 
-                if (sub[0].equals("item"))
-                {
+                if (sub[0].equals("item")) {
                     int petid = -1;
-                    if (ItemConstants.isPet(itemId))
-                    {
+                    if (ItemConstants.isPet(itemId)) {
                         petid = MaplePet.createPet(itemId);
                     }
 
                     byte flag = 0;
-                    if (player.gmLevel() < 3)
-                    {
+                    if (player.gmLevel() < 3) {
                         flag |= ItemConstants.ACCOUNT_SHARING;
                         flag |= ItemConstants.UNTRADEABLE;
                     }
 
                     MapleInventoryManipulator.addById(c, itemId, quantity, player.getName(), petid, flag, -1);
-                }
-                else
-                {
+                } else {
                     Item toDrop;
-                    if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP)
-                    {
+                    if (MapleItemInformationProvider.getInstance().getInventoryType(itemId) == MapleInventoryType.EQUIP) {
                         toDrop = MapleItemInformationProvider.getInstance().getEquipById(itemId);
-                    }
-                    else
-                    {
+                    } else {
                         toDrop = new Item(itemId, (short) 0, quantity);
                     }
 
                     toDrop.setOwner(player.getName());
-                    if (player.gmLevel() < 3)
-                    {
+                    if (player.gmLevel() < 3) {
                         byte b = toDrop.getFlag();
                         b |= ItemConstants.ACCOUNT_SHARING;
                         b |= ItemConstants.UNTRADEABLE;
@@ -1403,8 +1121,7 @@ public class Commands
                 break;
 
             case "level":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !level <newlevel>");
                     break;
                 }
@@ -1420,35 +1137,29 @@ public class Commands
                 break;
 
             case "levelpro":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !levelpro <newlevel>");
                     break;
                 }
 
-                while (player.getLevel() < Math.min(255, Integer.parseInt(sub[1])))
-                {
+                while (player.getLevel() < Math.min(255, Integer.parseInt(sub[1]))) {
                     player.levelUp(false);
                 }
                 break;
 
             case "setstat":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !setstat <newstat>");
                     break;
                 }
 
                 int x;
-                try
-                {
+                try {
                     x = Integer.parseInt(sub[1]);
 
-                    if (x > Short.MAX_VALUE)
-                    {
+                    if (x > Short.MAX_VALUE) {
                         x = Short.MAX_VALUE;
-                    }
-                    else if (x < 0) x = 0;
+                    } else if (x < 0) x = 0;
 
                     player.setStr(x);
                     player.setDex(x);
@@ -1459,9 +1170,7 @@ public class Commands
                     player.updateSingleStat(MapleStat.INT, x);
                     player.updateSingleStat(MapleStat.LUK, x);
 
-                }
-                catch (NumberFormatException nfe)
-                {
+                } catch (NumberFormatException nfe) {
                 }
                 break;
 
@@ -1486,26 +1195,19 @@ public class Commands
                 break;
 
             case "maxskill":
-                for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren())
-                {
-                    try
-                    {
+                for (MapleData skill_ : MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/" + "String.wz")).getData("Skill.img").getChildren()) {
+                    try {
                         skill = SkillFactory.getSkill(Integer.parseInt(skill_.getName()));
                         player.changeSkillLevel(skill, (byte) skill.getMaxLevel(), skill.getMaxLevel(), -1);
-                    }
-                    catch (NumberFormatException nfe)
-                    {
+                    } catch (NumberFormatException nfe) {
                         nfe.printStackTrace();
                         break;
-                    }
-                    catch (NullPointerException npe)
-                    {
+                    } catch (NullPointerException npe) {
                         continue;
                     }
                 }
 
-                if (player.getJob().isA(MapleJob.ARAN1))
-                {
+                if (player.getJob().isA(MapleJob.ARAN1)) {
                     skill = SkillFactory.getSkill(5001005);
                     player.changeSkillLevel(skill, (byte) -1, -1, -1);
                 }
@@ -1514,15 +1216,13 @@ public class Commands
                 break;
 
             case "mesos":
-                if (sub.length >= 2)
-                {
+                if (sub.length >= 2) {
                     player.gainMeso(Integer.parseInt(sub[1]), true);
                 }
                 break;
 
             case "search":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !search <type> <name>");
                     break;
                 }
@@ -1533,61 +1233,42 @@ public class Commands
                 long start = System.currentTimeMillis();//for the lulz
                 MapleData data = null;
                 MapleDataProvider dataProvider = MapleDataProviderFactory.getDataProvider(new File("wz/String.wz"));
-                if (!sub[1].equalsIgnoreCase("ITEM"))
-                {
-                    if (sub[1].equalsIgnoreCase("NPC"))
-                    {
+                if (!sub[1].equalsIgnoreCase("ITEM")) {
+                    if (sub[1].equalsIgnoreCase("NPC")) {
                         data = dataProvider.getData("Npc.img");
-                    }
-                    else if (sub[1].equalsIgnoreCase("MOB") || sub[1].equalsIgnoreCase("MONSTER"))
-                    {
+                    } else if (sub[1].equalsIgnoreCase("MOB") || sub[1].equalsIgnoreCase("MONSTER")) {
                         data = dataProvider.getData("Mob.img");
-                    }
-                    else if (sub[1].equalsIgnoreCase("SKILL"))
-                    {
+                    } else if (sub[1].equalsIgnoreCase("SKILL")) {
                         data = dataProvider.getData("Skill.img");
                                 /*} else if (sub[1].equalsIgnoreCase("MAP")) {
                                         TODO
                                 */
-                    }
-                    else
-                    {
+                    } else {
                         sb.append("#bInvalid search.\r\nSyntax: '!search [type] [name]', where [type] is NPC, ITEM, MOB, or SKILL.");
                     }
-                    if (data != null)
-                    {
+                    if (data != null) {
                         String name;
-                        for (MapleData searchData : data.getChildren())
-                        {
+                        for (MapleData searchData : data.getChildren()) {
                             name = MapleDataTool.getString(searchData.getChildByPath("name"), "NO-NAME");
-                            if (name.toLowerCase().contains(search.toLowerCase()))
-                            {
+                            if (name.toLowerCase().contains(search.toLowerCase())) {
                                 sb.append("#b").append(Integer.parseInt(searchData.getName())).append("#k - #r").append(name).append("\r\n");
                             }
                         }
                     }
-                }
-                else
-                {
-                    for (Pair<Integer, String> itemPair : MapleItemInformationProvider.getInstance().getAllItems())
-                    {
-                        if (sb.length() < 32654)
-                        {//ohlol
-                            if (itemPair.getRight().toLowerCase().contains(search.toLowerCase()))
-                            {
+                } else {
+                    for (Pair<Integer, String> itemPair : MapleItemInformationProvider.getInstance().getAllItems()) {
+                        if (sb.length() < 32654) {//ohlol
+                            if (itemPair.getRight().toLowerCase().contains(search.toLowerCase())) {
                                 //#v").append(id).append("# #k-
                                 sb.append("#b").append(itemPair.getLeft()).append("#k - #r").append(itemPair.getRight()).append("\r\n");
                             }
-                        }
-                        else
-                        {
+                        } else {
                             sb.append("#bCouldn't load all items, there are too many results.\r\n");
                             break;
                         }
                     }
                 }
-                if (sb.length() == 0)
-                {
+                if (sb.length() == 0) {
                     sb.append("#bNo ").append(sub[1].toLowerCase()).append("s found.\r\n");
                 }
                 sb.append("\r\n#kLoaded within ").append((double) (System.currentTimeMillis() - start) / 1000).append(" seconds.");//because I can, and it's free
@@ -1596,96 +1277,74 @@ public class Commands
                 break;
 
             case "jail":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !jail <playername> [<minutes>]");
                     break;
                 }
 
                 int minutesJailed = 5;
-                if (sub.length >= 3)
-                {
+                if (sub.length >= 3) {
                     minutesJailed = Integer.valueOf(sub[2]);
-                    if (minutesJailed <= 0)
-                    {
+                    if (minutesJailed <= 0) {
                         player.yellowMessage("Syntax: !jail <playername> [<minutes>]");
                         break;
                     }
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.addJailExpirationTime(minutesJailed * 60 * 1000);
 
                     int mapid = 300000012;
 
-                    if (victim.getMapId() != mapid)
-                    {    // those gone to jail won't be changing map anyway
+                    if (victim.getMapId() != mapid) {    // those gone to jail won't be changing map anyway
                         MapleMap target = cserv.getMapFactory().getMap(mapid);
                         MaplePortal targetPortal = target.getPortal(0);
                         victim.changeMap(target, targetPortal);
                         player.message(victim.getName() + " was jailed for " + minutesJailed + " minutes.");
-                    }
-                    else
-                    {
+                    } else {
                         player.message(victim.getName() + "'s time in jail has been extended for " + minutesJailed + " minutes.");
                     }
 
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "unjail":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !unjail <playername>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
-                    if (victim.getJailExpirationTimeLeft() <= 0)
-                    {
+                if (victim != null) {
+                    if (victim.getJailExpirationTimeLeft() <= 0) {
                         player.message("This player is already free.");
                         break;
                     }
                     victim.removeJailExpirationTime();
                     victim.message("By lack of concrete proof you are now unjailed. Enjoy freedom!");
                     player.message(victim.getName() + " was unjailed.");
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "job":
-                if (sub.length == 2)
-                {
+                if (sub.length == 2) {
                     player.changeJob(MapleJob.getById(Integer.parseInt(sub[1])));
                     player.equipChanged();
-                }
-                else if (sub.length == 3)
-                {
+                } else if (sub.length == 3) {
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
 
-                    if (victim != null)
-                    {
+                    if (victim != null) {
                         victim.changeJob(MapleJob.getById(Integer.parseInt(sub[2])));
                         player.equipChanged();
-                    }
-                    else
-                    {
+                    } else {
                         player.message("Player '" + sub[1] + "' could not be found on this channel.");
                     }
-                }
-                else
-                {
+                } else {
                     player.message("Syntax: !job <job id> <opt: IGN of another person>");
                 }
                 break;
@@ -1701,46 +1360,35 @@ public class Commands
         return true;
     }
 
-    public static boolean executeSolaxiaCommandLv3(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //GM
+    public static boolean executeSolaxiaCommandLv3(Channel cserv, Server srv, MapleClient c, String[] sub) { //GM
         MapleCharacter player = c.getPlayer();
         MapleCharacter victim;
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "spawn":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !spawn <mobid>");
                     break;
                 }
 
                 MapleMonster monster = MapleLifeFactory.getMonster(Integer.parseInt(sub[1]));
-                if (monster == null)
-                {
+                if (monster == null) {
                     break;
                 }
-                if (sub.length > 2)
-                {
-                    for (int i = 0; i < Integer.parseInt(sub[2]); i++)
-                    {
+                if (sub.length > 2) {
+                    for (int i = 0; i < Integer.parseInt(sub[2]); i++) {
                         player.getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
                     }
-                }
-                else
-                {
+                } else {
                     player.getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(Integer.parseInt(sub[1])), player.getPosition());
                 }
                 break;
 
             case "mutemap":
-                if (player.getMap().isMuted())
-                {
+                if (player.getMap().isMuted()) {
                     player.getMap().setMuted(false);
                     player.dropMessage(5, "The map you are in has been un-muted.");
-                }
-                else
-                {
+                } else {
                     player.getMap().setMuted(true);
                     player.dropMessage(5, "The map you are in has been muted.");
                 }
@@ -1748,8 +1396,7 @@ public class Commands
 
             case "checkdmg":
                 victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     int maxBase = victim.calculateMaxBaseDamage(victim.getTotalWatk());
                     Integer watkBuff = victim.getBuffedValue(MapleBuffStat.WATK);
                     Integer matkBuff = victim.getBuffedValue(MapleBuffStat.MATK);
@@ -1761,25 +1408,21 @@ public class Commands
                     player.dropMessage(5, "Cur WATK: " + victim.getTotalWatk() + " Cur MATK: " + victim.getTotalMagic());
                     player.dropMessage(5, "Cur WATK Buff: " + watkBuff + " Cur MATK Buff: " + matkBuff + " Cur Blessing Level: " + blessing);
                     player.dropMessage(5, victim.getName() + "'s maximum base damage (before skills) is " + maxBase);
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this world.");
                 }
                 break;
 
             case "inmap":
                 String st = "";
-                for (MapleCharacter chr : player.getMap().getCharacters())
-                {
+                for (MapleCharacter chr : player.getMap().getCharacters()) {
                     st += chr.getName() + " ";
                 }
                 player.message(st);
                 break;
 
             case "reloadevents":
-                for (Channel ch : Server.getInstance().getAllChannels())
-                {
+                for (Channel ch : Server.getInstance().getAllChannels()) {
                     ch.reloadEventScriptManager();
                 }
                 player.dropMessage(5, "Reloaded Events");
@@ -1798,8 +1441,7 @@ public class Commands
             case "reloadmap":
                 MapleMap oldMap = c.getPlayer().getMap();
                 MapleMap newMap = c.getChannelServer().getMapFactory().getMap(player.getMapId());
-                for (MapleCharacter ch : oldMap.getCharacters())
-                {
+                for (MapleCharacter ch : oldMap.getCharacters()) {
                     ch.changeMap(newMap);
                 }
                 oldMap = null;
@@ -1810,81 +1452,63 @@ public class Commands
                 victim = player;
                 int statUpdate = 1;
 
-                if (sub.length >= 3)
-                {
+                if (sub.length >= 3) {
                     victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
                     statUpdate = Integer.valueOf(sub[2]);
-                }
-                else if (sub.length == 2)
-                {
+                } else if (sub.length == 2) {
                     statUpdate = Integer.valueOf(sub[1]);
-                }
-                else
-                {
+                } else {
                     player.yellowMessage("Syntax: !sethpmp [<playername>] <value>");
                 }
 
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.setHp(statUpdate);
                     victim.setMp(statUpdate);
                     victim.updateSingleStat(MapleStat.HP, statUpdate);
                     victim.updateSingleStat(MapleStat.MP, statUpdate);
 
                     victim.checkBerserk(victim.isHidden());
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this world.");
                 }
                 break;
 
             case "music":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !music <song>");
-                    for (String s : songs)
-                    {
+                    for (String s : songs) {
                         player.yellowMessage(s);
                     }
                     break;
                 }
                 String song = joinStringFrom(sub, 1);
-                for (String s : songs)
-                {
-                    if (s.equals(song))
-                    {
+                for (String s : songs) {
+                    if (s.equals(song)) {
                         player.getMap().broadcastMessage(MaplePacketCreator.musicChange(s));
                         player.yellowMessage("Now playing song " + song + ".");
                         break;
                     }
                 }
                 player.yellowMessage("Song not found, please enter a song below.");
-                for (String s : songs)
-                {
+                for (String s : songs) {
                     player.yellowMessage(s);
                 }
                 break;
 
             case "monitor":
-                if (sub.length < 1)
-                {
+                if (sub.length < 1) {
                     player.yellowMessage("Syntax: !monitor <ign>");
                     break;
                 }
                 victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim == null)
-                {
+                if (victim == null) {
                     player.message("Player '" + sub[1] + "' could not be found on this world.");
                     break;
                 }
                 boolean monitored = MapleLogger.monitored.contains(victim.getName());
-                if (monitored)
-                {
+                if (monitored) {
                     MapleLogger.monitored.remove(victim.getName());
-                }
-                else
-                {
+                } else {
                     MapleLogger.monitored.add(victim.getName());
                 }
                 player.yellowMessage(victim.getName() + " is " + (!monitored ? "now being monitored." : "no longer being monitored."));
@@ -1893,31 +1517,25 @@ public class Commands
                 break;
 
             case "monitors":
-                for (String ign : MapleLogger.monitored)
-                {
+                for (String ign : MapleLogger.monitored) {
                     player.yellowMessage(ign + " is being monitored.");
                 }
                 break;
 
             case "ignore":
-                if (sub.length < 1)
-                {
+                if (sub.length < 1) {
                     player.yellowMessage("Syntax: !ignore <ign>");
                     break;
                 }
                 victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim == null)
-                {
+                if (victim == null) {
                     player.message("Player '" + sub[1] + "' could not be found on this world.");
                     break;
                 }
                 boolean monitored_ = MapleLogger.ignored.contains(victim.getName());
-                if (monitored_)
-                {
+                if (monitored_) {
                     MapleLogger.ignored.remove(victim.getName());
-                }
-                else
-                {
+                } else {
                     MapleLogger.ignored.add(victim.getName());
                 }
                 player.yellowMessage(victim.getName() + " is " + (!monitored_ ? "now being ignored." : "no longer being ignored."));
@@ -1926,8 +1544,7 @@ public class Commands
                 break;
 
             case "ignored":
-                for (String ign : MapleLogger.ignored)
-                {
+                for (String ign : MapleLogger.ignored) {
                     player.yellowMessage(ign + " is being ignored.");
                 }
                 break;
@@ -1941,8 +1558,7 @@ public class Commands
                 break;
 
             case "togglecoupon":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !togglecoupon <itemid>");
                     break;
                 }
@@ -1955,117 +1571,92 @@ public class Commands
                 break;
 
             case "fame":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !fame <playername> <gainfame>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.setFame(Integer.parseInt(sub[2]));
                     victim.updateSingleStat(MapleStat.FAME, victim.getFame());
                     player.message("FAME given.");
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "givenx":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !givenx <playername> <gainnx>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.getCashShop().gainCash(1, Integer.parseInt(sub[2]));
                     player.message("NX given.");
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "givevp":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !givevp <playername> <gainvotepoint>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.getClient().addVotePoints(Integer.parseInt(sub[2]));
                     player.message("VP given.");
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "givems":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !givems <playername> <gainmx>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.gainMeso(Integer.parseInt(sub[2]), true);
                     player.message("MESO given.");
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "id":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !id <id>");
                     break;
                 }
-                try
-                {
-                    try (BufferedReader dis = new BufferedReader(new InputStreamReader(new URL("http://www.mapletip.com/search_java.php?search_value=" + sub[1] + "&check=true").openConnection().getInputStream())))
-                    {
+                try {
+                    try (BufferedReader dis = new BufferedReader(new InputStreamReader(new URL("http://www.mapletip.com/search_java.php?search_value=" + sub[1] + "&check=true").openConnection().getInputStream()))) {
                         String s;
-                        while ((s = dis.readLine()) != null)
-                        {
+                        while ((s = dis.readLine()) != null) {
                             player.dropMessage(s);
                         }
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
 
             case "expeds":
-                for (Channel ch : Server.getInstance().getChannelsFromWorld(0))
-                {
-                    if (ch.getExpeditions().size() == 0)
-                    {
+                for (Channel ch : Server.getInstance().getChannelsFromWorld(0)) {
+                    if (ch.getExpeditions().size() == 0) {
                         player.yellowMessage("No Expeditions in Channel " + ch.getId());
                         continue;
                     }
                     player.yellowMessage("Expeditions in Channel " + ch.getId());
                     int id = 0;
-                    for (MapleExpedition exped : ch.getExpeditions())
-                    {
+                    for (MapleExpedition exped : ch.getExpeditions()) {
                         id++;
                         player.yellowMessage("> Expedition " + id);
                         player.yellowMessage(">> Type: " + exped.getType().toString());
@@ -2073,10 +1664,8 @@ public class Commands
                         player.yellowMessage(">> Size: " + exped.getMembers().size());
                         player.yellowMessage(">> Leader: " + exped.getLeader().getName());
                         int memId = 2;
-                        for (MapleCharacter member : exped.getMembers())
-                        {
-                            if (exped.isLeader(member))
-                            {
+                        for (MapleCharacter member : exped.getMembers()) {
+                            if (exped.isLeader(member)) {
                                 continue;
                             }
                             player.yellowMessage(">>> Member " + memId + ": " + member.getName());
@@ -2087,42 +1676,33 @@ public class Commands
                 break;
 
             case "kill":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !kill <playername>");
                     break;
                 }
 
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.setHpMp(0);
                     Server.getInstance().broadcastGMMessage(MaplePacketCreator.serverNotice(5, player.getName() + " used !kill on " + victim.getName()));
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "seed":
-                if (player.getMapId() != 910010000)
-                {
+                if (player.getMapId() != 910010000) {
                     player.yellowMessage("This command can only be used in HPQ.");
                     break;
                 }
                 Point pos[] = {new Point(7, -207), new Point(179, -447), new Point(-3, -687), new Point(-357, -687), new Point(-538, -447), new Point(-359, -207)};
                 int seed[] = {4001097, 4001096, 4001095, 4001100, 4001099, 4001098};
-                for (int i = 0; i < pos.length; i++)
-                {
+                for (int i = 0; i < pos.length; i++) {
                     Item item = new Item(seed[i], (byte) 0, (short) 1);
                     player.getMap().spawnItemDrop(player, player, item, pos[i], false, true);
-                    try
-                    {
+                    try {
                         Thread.sleep(100);
-                    }
-                    catch (InterruptedException e)
-                    {
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -2136,11 +1716,9 @@ public class Commands
             case "killall":
                 List<MapleMapObject> monsters = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
                 MapleMap map = player.getMap();
-                for (MapleMapObject monstermo : monsters)
-                {
+                for (MapleMapObject monstermo : monsters) {
                     monster = (MapleMonster) monstermo;
-                    if (!monster.getStats().isFriendly())
-                    {
+                    if (!monster.getStats().isFriendly()) {
                         map.killMonster(monster, player, true);
                         //monster.giveExpToCharacter(player, monster.getExp() * c.getPlayer().getExpRate(), true, 1);
                     }
@@ -2157,8 +1735,7 @@ public class Commands
                 break;
 
             case "openportal":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !openportal <portalid>");
                     break;
                 }
@@ -2166,8 +1743,7 @@ public class Commands
                 break;
 
             case "closeportal":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !closeportal <portalid>");
                     break;
                 }
@@ -2176,16 +1752,13 @@ public class Commands
 
             case "pe":
                 String packet = "";
-                try
-                {
+                try {
                     InputStreamReader is = new FileReader("pe.txt");
                     Properties packetProps = new Properties();
                     packetProps.load(is);
                     is.close();
                     packet = packetProps.getProperty("pe");
-                }
-                catch (IOException ex)
-                {
+                } catch (IOException ex) {
                     ex.printStackTrace();
                     player.yellowMessage("Failed to load pe.txt");
                     break;
@@ -2195,15 +1768,11 @@ public class Commands
                 SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(mplew.getPacket()));
                 short packetId = slea.readShort();
                 final MaplePacketHandler packetHandler = PacketProcessor.getProcessor(0, c.getChannel()).getHandler(packetId);
-                if (packetHandler != null && packetHandler.validateState(c))
-                {
-                    try
-                    {
+                if (packetHandler != null && packetHandler.validateState(c)) {
+                    try {
                         player.yellowMessage("Receiving: " + packet);
                         packetHandler.handlePacket(slea, c);
-                    }
-                    catch (final Throwable t)
-                    {
+                    } catch (final Throwable t) {
                         FilePrinter.printError(FilePrinter.PACKET_HANDLER + packetHandler.getClass().getName() + ".txt", t, "Error for " + (c.getPlayer() == null ? "" : "player ; " + c.getPlayer() + " on map ; " + c.getPlayer().getMapId() + " - ") + "account ; " + c.getAccountName() + "\r\n" + slea.toString());
                         break;
                     }
@@ -2212,8 +1781,7 @@ public class Commands
 
             case "startevent":
                 int players = 50;
-                if (sub.length > 1)
-                {
+                if (sub.length > 1) {
                     players = Integer.parseInt(sub[1]);
                 }
 
@@ -2228,15 +1796,12 @@ public class Commands
 
             case "online2":
                 int total = 0;
-                for (Channel ch : srv.getChannelsFromWorld(player.getWorld()))
-                {
+                for (Channel ch : srv.getChannelsFromWorld(player.getWorld())) {
                     int size = ch.getPlayerStorage().getAllCharacters().size();
                     total += size;
                     String s = "(Channel " + ch.getId() + " Online: " + size + ") : ";
-                    if (ch.getPlayerStorage().getAllCharacters().size() < 50)
-                    {
-                        for (MapleCharacter chr : ch.getPlayerStorage().getAllCharacters())
-                        {
+                    if (ch.getPlayerStorage().getAllCharacters().size() < 50) {
+                        for (MapleCharacter chr : ch.getPlayerStorage().getAllCharacters()) {
                             s += MapleCharacter.makeMapleReadable(chr.getName()) + ", ";
                         }
                         player.dropMessage(6, s.substring(0, s.length() - 2));
@@ -2248,32 +1813,27 @@ public class Commands
 
             case "warpsnowball":
                 List<MapleCharacter> chars = new ArrayList<>(player.getMap().getCharacters());
-                for (MapleCharacter chr : chars)
-                {
+                for (MapleCharacter chr : chars) {
                     chr.changeMap(109060000, chr.getTeam());
                 }
                 break;
 
             case "ban":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !ban <IGN> <Reason> (Please be descriptive)");
                     break;
                 }
                 String ign = sub[1];
                 String reason = joinStringFrom(sub, 2);
                 MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(ign);
-                if (target != null)
-                {
+                if (target != null) {
                     String readableTargetName = MapleCharacter.makeMapleReadable(target.getName());
                     String ip = target.getClient().getSession().getRemoteAddress().toString().split(":")[0];
                     //Ban ip
                     PreparedStatement ps = null;
-                    try
-                    {
+                    try {
                         Connection con = DatabaseConnection.getConnection();
-                        if (ip.matches("/[0-9]{1,3}\\..*"))
-                        {
+                        if (ip.matches("/[0-9]{1,3}\\..*")) {
                             ps = con.prepareStatement("INSERT INTO ipbans VALUES (DEFAULT, ?, ?)");
                             ps.setString(1, ip);
                             ps.setString(2, String.valueOf(target.getClient().getAccID()));
@@ -2283,9 +1843,7 @@ public class Commands
                         }
 
                         con.close();
-                    }
-                    catch (SQLException ex)
-                    {
+                    } catch (SQLException ex) {
                         ex.printStackTrace();
                         c.getPlayer().message("Error occured while banning IP address");
                         c.getPlayer().message(target.getName() + "'s IP was not banned: " + ip);
@@ -2297,36 +1855,28 @@ public class Commands
                     target.yellowMessage("Reason: " + reason);
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));
                     final MapleCharacter rip = target;
-                    TimerManager.getInstance().schedule(new Runnable()
-                    {
+                    TimerManager.getInstance().schedule(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             rip.getClient().disconnect(false, false);
                         }
                     }, 5000); //5 Seconds
                     Server.getInstance().broadcastMessage(MaplePacketCreator.serverNotice(6, "[RIP]: " + ign + " has been banned."));
-                }
-                else if (MapleCharacter.ban(ign, reason, false))
-                {
+                } else if (MapleCharacter.ban(ign, reason, false)) {
                     c.announce(MaplePacketCreator.getGMEffect(4, (byte) 0));
                     Server.getInstance().broadcastMessage(MaplePacketCreator.serverNotice(6, "[RIP]: " + ign + " has been banned."));
-                }
-                else
-                {
+                } else {
                     c.announce(MaplePacketCreator.getGMEffect(6, (byte) 1));
                 }
                 break;
 
             case "unban":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !unban <playername>");
                     break;
                 }
 
-                try
-                {
+                try {
                     Connection con = DatabaseConnection.getConnection();
                     int aid = MapleCharacter.getAccountIdByName(sub[1]);
 
@@ -2340,9 +1890,7 @@ public class Commands
                     p.executeUpdate();
 
                     con.close();
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                     player.message("Failed to unban " + sub[1]);
                     return true;
@@ -2351,10 +1899,8 @@ public class Commands
                 break;
 
             case "healmap":
-                for (MapleCharacter mch : player.getMap().getCharacters())
-                {
-                    if (mch != null)
-                    {
+                for (MapleCharacter mch : player.getMap().getCharacters()) {
+                    if (mch != null) {
                         mch.setHp(mch.getMaxHp());
                         mch.updateSingleStat(MapleStat.HP, mch.getMaxHp());
                         mch.setMp(mch.getMaxMp());
@@ -2365,35 +1911,28 @@ public class Commands
 
             case "healperson":
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.setHp(victim.getMaxHp());
                     victim.updateSingleStat(MapleStat.HP, victim.getMaxHp());
                     victim.setMp(victim.getMaxMp());
                     victim.updateSingleStat(MapleStat.MP, victim.getMaxMp());
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "hurt":
                 victim = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     victim.setHp(1);
                     victim.updateSingleStat(MapleStat.HP, 1);
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this channel.");
                 }
                 break;
 
             case "killmap":
-                for (MapleCharacter mch : player.getMap().getCharacters())
-                {
+                for (MapleCharacter mch : player.getMap().getCharacters()) {
                     mch.setHp(0);
                     mch.updateSingleStat(MapleStat.HP, 0);
                 }
@@ -2405,14 +1944,12 @@ public class Commands
                 break;
 
             case "npc":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !npc <npcid>");
                     break;
                 }
                 MapleNPC npc = MapleLifeFactory.getNPC(Integer.parseInt(sub[1]));
-                if (npc != null)
-                {
+                if (npc != null) {
                     npc.setPosition(player.getPosition());
                     npc.setCy(player.getPosition().y);
                     npc.setRx0(player.getPosition().x + 50);
@@ -2424,19 +1961,15 @@ public class Commands
                 break;
 
             case "face":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !face [<playername>] <faceid>");
                     break;
                 }
 
-                try
-                {
-                    if (sub.length == 2)
-                    {
+                try {
+                    if (sub.length == 2) {
                         int itemId = Integer.parseInt(sub[1]);
-                        if (!(itemId >= 20000 && itemId < 22000) || MapleItemInformationProvider.getInstance().getName(itemId) == null)
-                        {
+                        if (!(itemId >= 20000 && itemId < 22000) || MapleItemInformationProvider.getInstance().getName(itemId) == null) {
                             player.yellowMessage("Face id '" + sub[1] + "' does not exist.");
                             break;
                         }
@@ -2444,49 +1977,37 @@ public class Commands
                         player.setFace(itemId);
                         player.updateSingleStat(MapleStat.FACE, itemId);
                         player.equipChanged();
-                    }
-                    else
-                    {
+                    } else {
                         int itemId = Integer.parseInt(sub[2]);
-                        if (!(itemId >= 20000 && itemId < 22000) || MapleItemInformationProvider.getInstance().getName(itemId) == null)
-                        {
+                        if (!(itemId >= 20000 && itemId < 22000) || MapleItemInformationProvider.getInstance().getName(itemId) == null) {
                             player.yellowMessage("Face id '" + sub[2] + "' does not exist.");
                             break;
                         }
 
                         victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
-                        if (victim == null)
-                        {
+                        if (victim == null) {
                             victim.setFace(itemId);
                             victim.updateSingleStat(MapleStat.FACE, itemId);
                             victim.equipChanged();
-                        }
-                        else
-                        {
+                        } else {
                             player.yellowMessage("Player '" + sub[1] + "' has not been found on this channel.");
                         }
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                 }
 
                 break;
 
             case "hair":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !hair [<playername>] <hairid>");
                     break;
                 }
 
-                try
-                {
-                    if (sub.length == 2)
-                    {
+                try {
+                    if (sub.length == 2) {
                         int itemId = Integer.parseInt(sub[1]);
-                        if (!(itemId >= 30000 && itemId < 32000) || MapleItemInformationProvider.getInstance().getName(itemId) == null)
-                        {
+                        if (!(itemId >= 30000 && itemId < 32000) || MapleItemInformationProvider.getInstance().getName(itemId) == null) {
                             player.yellowMessage("Hair id '" + sub[1] + "' does not exist.");
                             break;
                         }
@@ -2494,31 +2015,23 @@ public class Commands
                         player.setHair(itemId);
                         player.updateSingleStat(MapleStat.HAIR, itemId);
                         player.equipChanged();
-                    }
-                    else
-                    {
+                    } else {
                         int itemId = Integer.parseInt(sub[2]);
-                        if (!(itemId >= 30000 && itemId < 32000) || MapleItemInformationProvider.getInstance().getName(itemId) == null)
-                        {
+                        if (!(itemId >= 30000 && itemId < 32000) || MapleItemInformationProvider.getInstance().getName(itemId) == null) {
                             player.yellowMessage("Hair id '" + sub[2] + "' does not exist.");
                             break;
                         }
 
                         victim = c.getChannelServer().getPlayerStorage().getCharacterByName(sub[1]);
-                        if (victim != null)
-                        {
+                        if (victim != null) {
                             victim.setHair(itemId);
                             victim.updateSingleStat(MapleStat.HAIR, itemId);
                             victim.equipChanged();
-                        }
-                        else
-                        {
+                        } else {
                             player.yellowMessage("Player '" + sub[1] + "' has not been found on this channel.");
                         }
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                 }
                 break;
 
@@ -2530,19 +2043,16 @@ public class Commands
     }
 
 
-    public static boolean executeSolaxiaCommandLv4(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //SuperGM
+    public static boolean executeSolaxiaCommandLv4(Channel cserv, Server srv, MapleClient c, String[] sub) { //SuperGM
         MapleCharacter player = c.getPlayer();
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "servermessage":
                 c.getWorldServer().setServerMessage(joinStringFrom(sub, 1));
                 break;
 
             case "proitem":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !proitem <itemid> <statvalue>");
                     break;
                 }
@@ -2557,21 +2067,17 @@ public class Commands
                 Item it = ii.getEquipById(itemid);
                 it.setOwner(player.getName());
                 MapleInventoryType type = ii.getInventoryType(itemid);
-                if (type.equals(MapleInventoryType.EQUIP))
-                {
+                if (type.equals(MapleInventoryType.EQUIP)) {
                     hardsetItemStats((Equip) it, multiply);
                     MapleInventoryManipulator.addFromDrop(c, it);
 
-                }
-                else
-                {
+                } else {
                     player.dropMessage("Make sure it's an equippable item.");
                 }
                 break;
 
             case "seteqstat":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !seteqstat <statvalue>");
                     break;
                 }
@@ -2579,10 +2085,8 @@ public class Commands
                 int newStat = Integer.parseInt(sub[1]);
                 MapleInventory equip = player.getInventory(MapleInventoryType.EQUIP);
 
-                for (byte i = 1; i <= equip.getSlotLimit(); i++)
-                {
-                    try
-                    {
+                for (byte i = 1; i <= equip.getSlotLimit(); i++) {
+                    try {
                         Equip eu = (Equip) equip.getItem(i);
                         if (eu == null) continue;
 
@@ -2607,17 +2111,14 @@ public class Commands
                         eu.setFlag(flag);
 
                         player.forceUpdateItem(eu);
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 break;
 
             case "exprate":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !exprate <newrate>");
                     break;
                 }
@@ -2628,8 +2129,7 @@ public class Commands
                 break;
 
             case "mesorate":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !mesorate <newrate>");
                     break;
                 }
@@ -2640,8 +2140,7 @@ public class Commands
                 break;
 
             case "droprate":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !droprate <newrate>");
                     break;
                 }
@@ -2652,8 +2151,7 @@ public class Commands
                 break;
 
             case "bossdroprate":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !bossdroprate <newrate>");
                     break;
                 }
@@ -2665,13 +2163,11 @@ public class Commands
 
             case "itemvac":
                 List<MapleMapObject> list = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM));
-                for (MapleMapObject item : list)
-                {
+                for (MapleMapObject item : list) {
                     MapleMapItem mapItem = (MapleMapItem) item;
                     int ownerId = mapItem.getOwner();
 
-                    if (ownerId <= 0 || player.getId() == ownerId || player.isPartyMember(ownerId) || System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000)
-                    {
+                    if (ownerId <= 0 || player.getId() == ownerId || player.isPartyMember(ownerId) || System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000) {
                         player.pickupItem(item);
                     }
                 }
@@ -2679,29 +2175,20 @@ public class Commands
 
             case "forcevac":
                 List<MapleMapObject> items = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.ITEM));
-                for (MapleMapObject item : items)
-                {
+                for (MapleMapObject item : items) {
                     MapleMapItem mapItem = (MapleMapItem) item;
-                    if (mapItem.getMeso() > 0)
-                    {
+                    if (mapItem.getMeso() > 0) {
                         player.gainMeso(mapItem.getMeso(), true);
-                    }
-                    else if (mapItem.getItemId() == 4031865 || mapItem.getItemId() == 4031866)
-                    {
+                    } else if (mapItem.getItemId() == 4031865 || mapItem.getItemId() == 4031866) {
                         // Add NX to account, show effect and make item disappear
                         player.getCashShop().gainCash(1, mapItem.getItemId() == 4031865 ? 100 : 250);
-                    }
-                    else if (mapItem.getItem().getItemId() >= 5000000 && mapItem.getItem().getItemId() <= 5000100)
-                    {
+                    } else if (mapItem.getItem().getItemId() >= 5000000 && mapItem.getItem().getItemId() <= 5000100) {
                         int petId = MaplePet.createPet(mapItem.getItem().getItemId());
-                        if (petId == -1)
-                        {
+                        if (petId == -1) {
                             continue;
                         }
                         MapleInventoryManipulator.addById(c, mapItem.getItem().getItemId(), mapItem.getItem().getQuantity(), null, petId);
-                    }
-                    else
-                    {
+                    } else {
                         MapleInventoryManipulator.addFromDrop(c, mapItem.getItem(), true);
                     }
 
@@ -2711,8 +2198,7 @@ public class Commands
 
             case "zakum":
                 player.getMap().spawnFakeMonsterOnGroundBelow(MapleLifeFactory.getMonster(8800000), player.getPosition());
-                for (int x = 8800003; x < 8800011; x++)
-                {
+                for (int x = 8800003; x < 8800011; x++) {
                     player.getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(x), player.getPosition());
                 }
                 break;
@@ -2738,8 +2224,7 @@ public class Commands
 
             case "cake":
                 MapleMonster monster = MapleLifeFactory.getMonster(9400606);
-                if (sub.length > 1)
-                {
+                if (sub.length > 1) {
                     int newHp = Integer.parseInt(sub[1]);
                     if (newHp < 0) newHp = Integer.MAX_VALUE;
 
@@ -2751,8 +2236,7 @@ public class Commands
                 break;
 
             case "playernpc":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !playernpc <playername> <npcid>");
                     break;
                 }
@@ -2766,17 +2250,14 @@ public class Commands
         return true;
     }
 
-    public static boolean executeSolaxiaCommandLv5(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //Developer
+    public static boolean executeSolaxiaCommandLv5(Channel cserv, Server srv, MapleClient c, String[] sub) { //Developer
         MapleCharacter player = c.getPlayer();
         MapleMonster monster;
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "debugmonster":
                 List<MapleMapObject> monsters = player.getMap().getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
-                for (MapleMapObject monstermo : monsters)
-                {
+                for (MapleMapObject monstermo : monsters) {
                     monster = (MapleMonster) monstermo;
                     player.message("Monster ID: " + monster.getId() + " Aggro target: " + ((monster.getController() != null) ? monster.getController().getName() : "<none>"));
                 }
@@ -2789,12 +2270,9 @@ public class Commands
 
             case "debugportal":
                 MaplePortal portal = player.getMap().findClosestPortal(player.getPosition());
-                if (portal != null)
-                {
+                if (portal != null) {
                     player.dropMessage(6, "Closest portal: " + portal.getId() + " '" + portal.getName() + "' Type: " + portal.getType() + " --> toMap: " + portal.getTargetMapId() + " scriptname: '" + portal.getScriptName() + "' state: " + portal.getPortalState() + ".");
-                }
-                else
-                {
+                } else {
                     player.dropMessage(6, "There is no portal on this map.");
                 }
 
@@ -2802,12 +2280,9 @@ public class Commands
 
             case "debugspawnpoint":
                 SpawnPoint sp = player.getMap().findClosestSpawnpoint(player.getPosition());
-                if (sp != null)
-                {
+                if (sp != null) {
                     player.dropMessage(6, "Closest mob spawn point: " + " Position: x " + sp.getPosition().getX() + " y " + sp.getPosition().getY() + " Spawns mobid: '" + sp.getMonsterId() + "' --> canSpawn: " + !sp.getDenySpawn() + " canSpawnRightNow: " + sp.shouldSpawn() + ".");
-                }
-                else
-                {
+                } else {
                     player.dropMessage(6, "There is no mob spawn point on this map.");
                 }
 
@@ -2826,12 +2301,9 @@ public class Commands
                 break;
 
             case "debugevent":
-                if (player.getEventInstance() == null)
-                {
+                if (player.getEventInstance() == null) {
                     player.dropMessage(6, "Player currently not in an event.");
-                }
-                else
-                {
+                } else {
                     player.dropMessage(6, "Current event name: " + player.getEventInstance().getName() + ".");
                 }
 
@@ -2841,8 +2313,7 @@ public class Commands
                 player.dropMessage(6, "Configured areas on map " + player.getMapId() + ":");
 
                 byte index = 0;
-                for (Rectangle rect : player.getMap().getAreas())
-                {
+                for (Rectangle rect : player.getMap().getAreas()) {
                     player.dropMessage(6, "Id: " + index + " -> posX: " + rect.getX() + " posY: '" + rect.getY() + "' dX: " + rect.getWidth() + " dY: " + rect.getHeight() + ".");
                     index++;
                 }
@@ -2852,8 +2323,7 @@ public class Commands
             case "debugreactors":
                 player.dropMessage(6, "Current reactor states on map " + player.getMapId() + ":");
 
-                for (MapleMapObject mmo : player.getMap().getReactors())
-                {
+                for (MapleMapObject mmo : player.getMap().getReactors()) {
                     MapleReactor mr = (MapleReactor) mmo;
                     player.dropMessage(6, "Id: " + mr.getId() + " Oid: " + mr.getObjectId() + " name: '" + mr.getName() + "' -> Type: " + mr.getReactorType() + " State: " + mr.getState() + " Event State: " + mr.getEventState() + " Position: x " + mr.getPosition().getX() + " y " + mr.getPosition().getY() + ".");
                 }
@@ -2863,8 +2333,7 @@ public class Commands
             case "debugservercoupons":
             case "debugcoupons":
                 String s = "Currently active SERVER coupons: ";
-                for (Integer i : Server.getInstance().getActiveCoupons())
-                {
+                for (Integer i : Server.getInstance().getActiveCoupons()) {
                     s += (i + " ");
                 }
 
@@ -2874,8 +2343,7 @@ public class Commands
 
             case "debugplayercoupons":
                 String st = "Currently active PLAYER coupons: ";
-                for (Integer i : player.getActiveCoupons())
-                {
+                for (Integer i : player.getActiveCoupons()) {
                     st += (i + " ");
                 }
 
@@ -2895,49 +2363,40 @@ public class Commands
         return true;
     }
 
-    public static boolean executeSolaxiaCommandLv6(Channel cserv, Server srv, MapleClient c, String[] sub)
-    { //Admin
+    public static boolean executeSolaxiaCommandLv6(Channel cserv, Server srv, MapleClient c, String[] sub) { //Admin
         MapleCharacter player = c.getPlayer();
         MapleCharacter victim;
 
-        switch (sub[0])
-        {
+        switch (sub[0]) {
             case "setgmlevel":
-                if (sub.length < 3)
-                {
+                if (sub.length < 3) {
                     player.yellowMessage("Syntax: !setgmlevel <playername> <newlevel>");
                     break;
                 }
 
                 int newLevel = Integer.parseInt(sub[2]);
                 MapleCharacter target = cserv.getPlayerStorage().getCharacterByName(sub[1]);
-                if (target != null)
-                {
+                if (target != null) {
                     target.setGMLevel(newLevel);
                     target.getClient().setGMLevel(newLevel);
 
                     target.dropMessage("You are now a level " + newLevel + " GM. See @commands for a list of available commands.");
                     player.dropMessage(target + " is now a level " + newLevel + " GM.");
-                }
-                else
-                {
+                } else {
                     player.dropMessage("Player '" + sub[1] + "' was not found on this channel.");
                 }
                 break;
 
             case "warpworld":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !warpworld <worldid>");
                     break;
                 }
 
                 Server server = Server.getInstance();
                 byte worldb = Byte.parseByte(sub[1]);
-                if (worldb <= (server.getWorlds().size() - 1))
-                {
-                    try
-                    {
+                if (worldb <= (server.getWorlds().size() - 1)) {
+                    try {
                         String[] socket = server.getIP(worldb, c.getChannel()).split(":");
                         c.getWorldServer().removePlayer(player);
                         player.getMap().removePlayer(player);//LOL FORGOT THIS ><
@@ -2945,25 +2404,19 @@ public class Commands
                         player.setWorld(worldb);
                         player.saveToDB();//To set the new world :O (true because else 2 player instances are created, one in both worlds)
                         c.announce(MaplePacketCreator.getChannelChange(InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
-                    }
-                    catch (UnknownHostException | NumberFormatException ex)
-                    {
+                    } catch (UnknownHostException | NumberFormatException ex) {
                         ex.printStackTrace();
                         player.message("Error when trying to change worlds, are you sure the world you are trying to warp to has the same amount of channels?");
                     }
 
-                }
-                else
-                {
+                } else {
                     player.message("Invalid world; highest number available: " + (server.getWorlds().size() - 1));
                 }
                 break;
 
             case "saveall":
-                for (World world : Server.getInstance().getWorlds())
-                {
-                    for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters())
-                    {
+                for (World world : Server.getInstance().getWorlds()) {
+                    for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters()) {
                         chr.saveToDB();
                     }
                 }
@@ -2973,12 +2426,9 @@ public class Commands
                 break;
 
             case "dcall":
-                for (World world : Server.getInstance().getWorlds())
-                {
-                    for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters())
-                    {
-                        if (!chr.isGM())
-                        {
+                for (World world : Server.getInstance().getWorlds()) {
+                    for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters()) {
+                        if (!chr.isGM()) {
                             chr.getClient().disconnect(false, false);
                         }
                     }
@@ -2989,16 +2439,13 @@ public class Commands
             case "mapplayers":
                 String names = "";
                 int map = player.getMapId();
-                for (World world : Server.getInstance().getWorlds())
-                {
-                    for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters())
-                    {
+                for (World world : Server.getInstance().getWorlds()) {
+                    for (MapleCharacter chr : world.getPlayerStorage().getAllCharacters()) {
                         int curMap = chr.getMapId();
                         String hp = Integer.toString(chr.getHp());
                         String maxhp = Integer.toString(chr.getMaxHp());
                         String name = chr.getName() + ": " + hp + "/" + maxhp;
-                        if (map == curMap)
-                        {
+                        if (map == curMap) {
                             names = names.equals("") ? name : (names + ", " + name);
                         }
                     }
@@ -3007,18 +2454,14 @@ public class Commands
                 break;
 
             case "getacc":
-                if (sub.length < 2)
-                {
+                if (sub.length < 2) {
                     player.yellowMessage("Syntax: !getacc <playername>");
                     break;
                 }
                 victim = c.getWorldServer().getPlayerStorage().getCharacterByName(sub[1]);
-                if (victim != null)
-                {
+                if (victim != null) {
                     player.message(victim.getName() + "'s account name is " + victim.getClient().getAccountName() + ".");
-                }
-                else
-                {
+                } else {
                     player.message("Player '" + sub[1] + "' could not be found on this world.");
                 }
                 break;
@@ -3026,17 +2469,13 @@ public class Commands
             case "shutdown":
             case "shutdownnow":
                 int time = 60000;
-                if (sub[0].equals("shutdownnow"))
-                {
+                if (sub[0].equals("shutdownnow")) {
                     time = 1;
-                }
-                else if (sub.length > 1)
-                {
+                } else if (sub.length > 1) {
                     time *= Integer.parseInt(sub[1]);
                 }
 
-                if (time > 1)
-                {
+                if (time > 1) {
                     int seconds = (int) (time / 1000) % 60;
                     int minutes = (int) ((time / (1000 * 60)) % 60);
                     int hours = (int) ((time / (1000 * 60 * 60)) % 24);
@@ -3048,10 +2487,8 @@ public class Commands
                     strTime += minutes + " minutes, ";
                     strTime += seconds + " seconds";
 
-                    for (World w : Server.getInstance().getWorlds())
-                    {
-                        for (MapleCharacter chr : w.getPlayerStorage().getAllCharacters())
-                        {
+                    for (World w : Server.getInstance().getWorlds()) {
+                        for (MapleCharacter chr : w.getPlayerStorage().getAllCharacters()) {
                             chr.dropMessage("Server is undergoing maintenance process, and will be shutdown in " + strTime + ". Prepare yourself to quit safely in the mean time.");
                         }
                     }
@@ -3067,8 +2504,7 @@ public class Commands
                 break;
 
             case "clearquest":
-                if (sub.length < 1)
-                {
+                if (sub.length < 1) {
                     player.dropMessage(5, "Please include a quest ID.");
                     break;
                 }
@@ -3083,17 +2519,14 @@ public class Commands
         return true;
     }
 
-    public static boolean executeSolaxiaCommand(Channel cserv, Server srv, MapleClient c, String[] sub, int gmLevel)
-    {
-        if (gmLevel == -1)
-        {
+    public static boolean executeSolaxiaCommand(Channel cserv, Server srv, MapleClient c, String[] sub, int gmLevel) {
+        if (gmLevel == -1) {
             c.getPlayer().yellowMessage("Command '" + sub[0] + "' is not available. See @commands for a list of available commands.");
             return false;
         }
 
         boolean executedCommand;
-        switch (gmLevel)
-        {
+        switch (gmLevel) {
             case 0: //Player
                 executedCommand = executeSolaxiaCommandLv0(cserv, srv, c, sub);
                 break;
@@ -3122,32 +2555,25 @@ public class Commands
                 executedCommand = executeSolaxiaCommandLv6(cserv, srv, c, sub);
         }
 
-        if (!executedCommand)
-        {
+        if (!executedCommand) {
             return executeSolaxiaCommand(cserv, srv, c, sub, gmLevel - 1);
-        }
-        else
-        {
+        } else {
             return true;
         }
     }
 
-    public static boolean executeSolaxiaPlayerCommand(MapleClient c, String[] sub, char heading)
-    {
+    public static boolean executeSolaxiaPlayerCommand(MapleClient c, String[] sub, char heading) {
         Channel cserv = c.getChannelServer();
         Server srv = Server.getInstance();
 
         return executeSolaxiaCommand(cserv, srv, c, sub, c.getPlayer().gmLevel());
     }
 
-    private static String joinStringFrom(String arr[], int start)
-    {
+    private static String joinStringFrom(String arr[], int start) {
         StringBuilder builder = new StringBuilder();
-        for (int i = start; i < arr.length; i++)
-        {
+        for (int i = start; i < arr.length; i++) {
             builder.append(arr[i]);
-            if (i != arr.length - 1)
-            {
+            if (i != arr.length - 1) {
                 builder.append(" ");
             }
         }
