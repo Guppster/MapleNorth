@@ -31,6 +31,8 @@ public class ServerConstants {
     public static final boolean USE_REFRESH_RANK_MOVE = true;
     public static final boolean USE_ENFORCE_MDOOR_POSITION = true;  //Forces mystic door to be spawned near spawnpoints. (since things bugs out other way, and this helps players to locate the door faster)
     public static final boolean USE_ERASE_UNTRADEABLE_DROP = true;  //Forces flagged untradeable items to disappear when dropped.
+    public static final boolean USE_BUFF_MOST_SIGNIFICANT = true;
+
     //Server Rates And Experience
     public static final int EXP_RATE = 4;
     public static final int MESO_RATE = 2;

@@ -64,9 +64,14 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler
         }
 
         Server.getInstance().getPlayerBuffStorage().addBuffsToStorage(chr.getId(), chr.getAllBuffs());
+
+        chr.cancelAllBuffs(true);
+        chr.cancelBuffExpireTask();
+        chr.cancelSkillCooldownTask();
         chr.cancelExpirationTask();
         chr.saveToDB();
         chr.getMap().removePlayer(c.getPlayer());
+
         try
         {
             c.announce(MaplePacketCreator.openCashShop(c, true));
@@ -75,7 +80,9 @@ public final class EnterMTSHandler extends AbstractMaplePacketHandler
         {
             ex.printStackTrace();
         }
+
         chr.getCashShop().open(true);// xD
+
         c.announce(MaplePacketCreator.enableCSUse());
         c.announce(MaplePacketCreator.MTSWantedListingOver(0, 0));
         c.announce(MaplePacketCreator.showMTSCash(c.getPlayer()));

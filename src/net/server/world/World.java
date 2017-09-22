@@ -46,8 +46,8 @@ import java.util.HashSet;
 import java.util.concurrent.ScheduledFuture;
 
 import server.TimerManager;
-import net.server.CharacterAutosaverWorker;
-import net.server.MountTirednessWorker;
+import net.server.worker.CharacterAutosaverWorker;
+import net.server.worker.MountTirednessWorker;
 import net.server.PetFullnessWorker;
 import net.server.PlayerStorage;
 import net.server.Server;
@@ -56,6 +56,7 @@ import net.server.channel.CharacterIdChannelPair;
 import net.server.guild.MapleGuild;
 import net.server.guild.MapleGuildCharacter;
 import net.server.guild.MapleGuildSummary;
+import server.maps.HiredMerchant;
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 
@@ -80,6 +81,10 @@ public class World
     private Map<Integer, Byte> activePets = new LinkedHashMap<>();
     private ScheduledFuture<?> petsSchedule;
     private long petUpdate;
+
+    private Map<HiredMerchant, Byte> activeMerchants = new LinkedHashMap<>();
+    private ScheduledFuture<?> MerchantsSchedule;
+    private long merchantUpdate;
 
     private Map<Integer, Byte> activeMounts = new LinkedHashMap<>();
     private ScheduledFuture<?> mountsSchedule;
@@ -166,6 +171,66 @@ public class World
         {
             if (!chr.isLoggedin()) continue;
             chr.setWorldRates();
+        }
+    }
+
+    public void registerHiredMerchant(HiredMerchant hm)
+    {
+        synchronized (activeMerchants)
+        {
+            byte initProc;
+            if (System.currentTimeMillis() - merchantUpdate > 5 * 60 * 1000)
+            {
+                initProc = 1;
+            }
+            else
+            {
+                initProc = 0;
+            }
+
+            activeMerchants.put(hm, initProc);
+        }
+    }
+
+    public void unregisterHiredMerchant(HiredMerchant hm)
+    {
+        synchronized (activeMerchants)
+        {
+            activeMerchants.remove(hm);
+        }
+    }
+
+    public void runHiredMerchantSchedule()
+    {
+        Map<HiredMerchant, Byte> deployedMerchants;
+        synchronized (activeMerchants)
+        {
+            merchantUpdate = System.currentTimeMillis();
+            deployedMerchants = Collections.unmodifiableMap(activeMerchants);
+        }
+
+        for (Map.Entry<HiredMerchant, Byte> dm : deployedMerchants.entrySet())
+        {
+            byte timeOn = dm.getValue();
+
+            if (timeOn <= 144)
+            {   // 1440 minutes == 24hrs
+                synchronized (activeMerchants)
+                {
+                    activeMerchants.put(dm.getKey(), (byte) (timeOn + 1));
+                }
+            }
+            else
+            {
+                HiredMerchant hm = dm.getKey();
+                hm.forceClose();
+                this.getChannel(hm.getChannel()).removeHiredMerchant(hm.getOwnerId());
+
+                synchronized (activeMerchants)
+                {
+                    activeMerchants.remove(dm.getKey());
+                }
+            }
         }
     }
 

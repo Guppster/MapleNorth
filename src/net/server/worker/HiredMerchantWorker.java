@@ -20,25 +20,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package net.server;
+package net.server.worker;
 
 import net.server.world.World;
 
 /**
  * @author Ronan
  */
-public class MountTirednessWorker implements Runnable
-{
-    private World wserv;
-
-    public MountTirednessWorker(World world)
-    {
-        wserv = world;
-    }
+public class HiredMerchantWorker extends BaseWorker implements Runnable {
 
     @Override
-    public void run()
-    {
-        wserv.runMountSchedule();
+    public void run() {
+        world.runHiredMerchantSchedule();
+    }
+
+    public HiredMerchantWorker(World world) {
+        super(world);
     }
 }

@@ -29,28 +29,34 @@ import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
 /**
- *
  * @author Flav
  */
-public class EnterCashShopHandler extends AbstractMaplePacketHandler {
+public class EnterCashShopHandler extends AbstractMaplePacketHandler
+{
     @Override
-    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-        try {
+    public void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
+        try
+        {
             MapleCharacter mc = c.getPlayer();
 
-            if (mc.cannotEnterCashShop()) {
+            if (mc.cannotEnterCashShop())
+            {
                 c.announce(MaplePacketCreator.enableActions());
                 return;
             }
-            
-            if (mc.getCashShop().isOpened()) {
+
+            if (mc.getCashShop().isOpened())
+            {
                 return;
             }
 
             mc.closePlayerInteractions();
 
             Server.getInstance().getPlayerBuffStorage().addBuffsToStorage(mc.getId(), mc.getAllBuffs());
-            mc.cancelBuffEffects();
+            mc.cancelAllBuffs(true);
+            mc.cancelBuffExpireTask();
+            mc.cancelSkillCooldownTask();
             mc.cancelExpirationTask();
 
             c.announce(MaplePacketCreator.openCashShop(c, false));
@@ -63,7 +69,9 @@ public class EnterCashShopHandler extends AbstractMaplePacketHandler {
             mc.getMap().removePlayer(mc);
             mc.getCashShop().open(true);
             mc.saveToDB();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }

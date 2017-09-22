@@ -665,7 +665,8 @@ public class MapleInventoryManipulator
             return;
         }
         int itemId = source.getItemId();
-        if (itemId >= 5000000 && itemId <= 5000102)
+
+        if (ItemConstants.isPet(itemId))
         {
             return;
         }

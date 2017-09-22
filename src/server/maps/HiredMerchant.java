@@ -36,25 +36,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 
 import net.server.Server;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MaplePlayerShopItem;
-import server.TimerManager;
 import tools.DatabaseConnection;
 import tools.MaplePacketCreator;
 import tools.Pair;
 
 /**
- * @author XoticStory
  */
 public class HiredMerchant extends AbstractMapleMapObject
 {
-
     private final List<MaplePlayerShopItem> items = new LinkedList<>();
-    public ScheduledFuture<?> schedule = null;
     private int ownerId, itemId, mesos = 0;
     private int channel, world;
     private long start;
@@ -77,16 +72,6 @@ public class HiredMerchant extends AbstractMapleMapObject
         this.ownerName = owner.getName();
         this.description = desc;
         this.map = owner.getMap();
-        this.schedule = TimerManager.getInstance().schedule(new Runnable()
-        {
-
-            @Override
-            public void run()
-            {
-                HiredMerchant.this.forceClose();
-                Server.getInstance().getChannel(world, channel).removeHiredMerchant(ownerId);
-            }
-        }, 1000 * 60 * 60 * 24);
     }
 
     private static boolean check(MapleCharacter chr, List<MaplePlayerShopItem> items)
@@ -314,10 +299,8 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public void forceClose()
     {
-        if (schedule != null)
-        {
-            schedule.cancel(false);
-        }
+        Server.getInstance().getWorld(world).unregisterHiredMerchant(this);
+
         try
         {
             saveItems(true);
@@ -327,12 +310,13 @@ public class HiredMerchant extends AbstractMapleMapObject
         {
             ex.printStackTrace();
         }
-        //Server.getInstance().getChannel(world, channel).removeHiredMerchant(ownerId);
+
         map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(getOwnerId()));
 
         map.removeMapObject(this);
 
         MapleCharacter player = Server.getInstance().getWorld(world).getPlayerStorage().getCharacterById(ownerId);
+
         if (player != null)
         {
             player.setHasMerchant(false);
@@ -356,18 +340,17 @@ public class HiredMerchant extends AbstractMapleMapObject
         }
 
         map = null;
-        schedule = null;
     }
 
-    public void closeShop(MapleClient c, boolean timeout)
+    public void closeShop(MapleClient client, boolean timeout)
     {
         map.removeMapObject(this);
         map.broadcastMessage(MaplePacketCreator.destroyHiredMerchant(ownerId));
-        c.getChannelServer().removeHiredMerchant(ownerId);
+        client.getChannelServer().removeHiredMerchant(ownerId);
 
         try
         {
-            MapleCharacter player = c.getWorldServer().getPlayerStorage().getCharacterById(ownerId);
+            MapleCharacter player = client.getWorldServer().getPlayerStorage().getCharacterById(ownerId);
             if (player != null)
             {
                 player.setHasMerchant(false);
@@ -383,17 +366,17 @@ public class HiredMerchant extends AbstractMapleMapObject
                 con.close();
             }
 
-            if (check(c.getPlayer(), getItems()) && !timeout)
+            if (check(client.getPlayer(), getItems()) && !timeout)
             {
                 for (MaplePlayerShopItem mpsi : getItems())
                 {
                     if (mpsi.isExist() && (mpsi.getItem().getType() == MapleInventoryType.EQUIP.getType()))
                     {
-                        MapleInventoryManipulator.addFromDrop(c, mpsi.getItem(), false);
+                        MapleInventoryManipulator.addFromDrop(client, mpsi.getItem(), false);
                     }
                     else if (mpsi.isExist())
                     {
-                        MapleInventoryManipulator.addById(c, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getFlag(), mpsi.getItem().getExpiration());
+                        MapleInventoryManipulator.addById(client, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getFlag(), mpsi.getItem().getExpiration());
                     }
                 }
                 items.clear();
@@ -414,7 +397,8 @@ public class HiredMerchant extends AbstractMapleMapObject
         {
             e.printStackTrace();
         }
-        schedule.cancel(false);
+
+        Server.getInstance().getWorld(world).unregisterHiredMerchant(this);
     }
 
     public String getOwner()

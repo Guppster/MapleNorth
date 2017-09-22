@@ -1126,9 +1126,10 @@ public class MapleStatEffect
     {
         int localDuration = duration;
         localDuration = alchemistModifyVal(chr, localDuration, false);
-        CancelEffectAction cancelAction = new CancelEffectAction(chr, this, starttime);
-        ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + localDuration) - System.currentTimeMillis()));
-        chr.registerEffect(this, starttime, schedule);
+
+        if (starttime + localDuration <= System.currentTimeMillis()) return;
+        chr.registerEffect(this, starttime, (starttime + localDuration), true);
+
         SummonMovementType summonMovementType = getSummonMovementType();
         if (summonMovementType != null)
         {
@@ -1145,15 +1146,28 @@ public class MapleStatEffect
         }
     }
 
+    public void updateBuffEffect(MapleCharacter target, List<Pair<MapleBuffStat, Integer>> activeStats, long starttime)
+    {
+        int localDuration = duration;
+        localDuration = alchemistModifyVal(target, localDuration, false);
+
+        long leftDuration = (starttime + localDuration) - System.currentTimeMillis();
+        if (leftDuration > 0)
+        {
+            byte[] buff = MaplePacketCreator.giveBuff((skill ? sourceid : -sourceid), (int) leftDuration, activeStats);
+            target.getClient().announce(buff);
+        }
+    }
+
+
     public final void applyComboBuff(final MapleCharacter applyto, int combo)
     {
         final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.ARAN_COMBO, combo));
         applyto.getClient().announce(MaplePacketCreator.giveBuff(sourceid, 99999, stat));
 
         final long starttime = System.currentTimeMillis();
-//	final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-//	final ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, ((starttime + 99999) - System.currentTimeMillis()));
-        applyto.registerEffect(this, starttime, null);
+
+        applyto.registerEffect(this, starttime, Long.MAX_VALUE, false);
     }
 
     private void applyBuffEffect(MapleCharacter applyfrom, MapleCharacter applyto, boolean primary)
@@ -1309,10 +1323,6 @@ public class MapleStatEffect
                 List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<>(MapleBuffStat.MORPH, Integer.valueOf(getMorph(applyto))));
                 mbuff = MaplePacketCreator.giveForeignBuff(applyto.getId(), stat);
             }
-            long starttime = System.currentTimeMillis();
-            CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
-            ScheduledFuture<?> schedule = TimerManager.getInstance().schedule(cancelAction, localDuration);
-            applyto.registerEffect(this, starttime, schedule);
 
             if (buff != null)
             {
@@ -1325,6 +1335,10 @@ public class MapleStatEffect
                     System.out.println("<Error> NO buff icon for id " + sourceid);
                 }
             }
+
+            long starttime = System.currentTimeMillis();
+            applyto.registerEffect(this, starttime, starttime + localDuration, false);
+
             if (mbuff != null)
             {
                 applyto.getMap().broadcastMessage(applyto, mbuff, false);
@@ -1335,6 +1349,12 @@ public class MapleStatEffect
             }
         }
     }
+
+    public int getBuffSourceId()
+    {
+        return skill ? sourceid : -sourceid;
+    }
+
 
     private int calcHPChange(MapleCharacter applyfrom, boolean primary)
     {
@@ -1922,30 +1942,5 @@ public class MapleStatEffect
     public Map<MonsterStatus, Integer> getMonsterStati()
     {
         return monsterStatus;
-    }
-
-    private static class CancelEffectAction implements Runnable
-    {
-
-        private MapleStatEffect effect;
-        private WeakReference<MapleCharacter> target;
-        private long startTime;
-
-        public CancelEffectAction(MapleCharacter target, MapleStatEffect effect, long startTime)
-        {
-            this.effect = effect;
-            this.target = new WeakReference<>(target);
-            this.startTime = startTime;
-        }
-
-        @Override
-        public void run()
-        {
-            MapleCharacter realTarget = target.get();
-            if (realTarget != null)
-            {
-                realTarget.cancelEffect(effect, false, startTime);
-            }
-        }
     }
 }

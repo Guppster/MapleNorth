@@ -28,17 +28,13 @@ import net.AbstractMaplePacketHandler;
 import server.MapleStatEffect;
 import server.TimerManager;
 import server.life.MapleMonster;
-import tools.FilePrinter;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 import client.MapleCharacter;
-import client.MapleCharacter.CancelCooldownAction;
-import client.autoban.AutobanFactory;
 import client.MapleClient;
 import client.MapleStat;
 import client.Skill;
 import client.SkillFactory;
-import constants.GameConstants;
 import constants.skills.Brawler;
 import constants.skills.Corsair;
 import constants.skills.DarkKnight;
@@ -48,11 +44,13 @@ import constants.skills.Priest;
 import constants.skills.SuperGM;
 
 
-public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
-    
+public final class SpecialMoveHandler extends AbstractMaplePacketHandler
+{
+
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-    	MapleCharacter chr = c.getPlayer();
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
+        MapleCharacter chr = c.getPlayer();
         chr.getAutobanManager().setTimestamp(4, slea.readInt(), 3);
         int skillid = slea.readInt();
         /*
@@ -67,8 +65,10 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
         int __skillLevel = slea.readByte();
         Skill skill = SkillFactory.getSkill(skillid);
         int skillLevel = chr.getSkillLevel(skill);
-        if (skillid % 10000000 == 1010 || skillid % 10000000 == 1011) {
-            if (c.getPlayer().getDojoEnergy() < 10000) { // PE hacking or maybe just lagging
+        if (skillid % 10000000 == 1010 || skillid % 10000000 == 1011)
+        {
+            if (c.getPlayer().getDojoEnergy() < 10000)
+            { // PE hacking or maybe just lagging
                 return;
             }
             skillLevel = 1;
@@ -77,37 +77,46 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
             c.announce(MaplePacketCreator.serverNotice(5, "As you used the secret skill, your energy bar has been reset."));
         }
         if (skillLevel == 0 || skillLevel != __skillLevel) return;
-        
+
         MapleStatEffect effect = skill.getEffect(skillLevel);
-        if (effect.getCooldown() > 0) {
-            if (chr.skillIsCooling(skillid)) {
+        if (effect.getCooldown() > 0)
+        {
+            if (chr.skillIsCooling(skillid))
+            {
                 return;
-            } else if (skillid != Corsair.BATTLE_SHIP) {
+            }
+            else if (skillid != Corsair.BATTLE_SHIP)
+            {
                 c.announce(MaplePacketCreator.skillCooldown(skillid, effect.getCooldown()));
-                ScheduledFuture<?> timer = TimerManager.getInstance().schedule(new CancelCooldownAction(c.getPlayer(), skillid), effect.getCooldown() * 1000);
-                chr.addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown() * 1000, timer);
+                chr.addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown() * 1000);
             }
         }
-        if (skillid == Hero.MONSTER_MAGNET || skillid == Paladin.MONSTER_MAGNET || skillid == DarkKnight.MONSTER_MAGNET) { // Monster Magnet
+        if (skillid == Hero.MONSTER_MAGNET || skillid == Paladin.MONSTER_MAGNET || skillid == DarkKnight.MONSTER_MAGNET)
+        { // Monster Magnet
             int num = slea.readInt();
             int mobId;
             byte success;
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < num; i++)
+            {
                 mobId = slea.readInt();
                 success = slea.readByte();
                 chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showMagnet(mobId, success), false);
                 MapleMonster monster = chr.getMap().getMonsterByOid(mobId);
-                if (monster != null) {
-                	if (!monster.isBoss()) {
-                		monster.switchController(c.getPlayer(), monster.isControllerHasAggro());
-                	}
+                if (monster != null)
+                {
+                    if (!monster.isBoss())
+                    {
+                        monster.switchController(c.getPlayer(), monster.isControllerHasAggro());
+                    }
                 }
             }
             byte direction = slea.readByte();
             chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(chr.getId(), skillid, chr.getSkillLevel(skillid), direction), false);
             c.announce(MaplePacketCreator.enableActions());
             return;
-        } else if (skillid == Brawler.MP_RECOVERY) {// MP Recovery
+        }
+        else if (skillid == Brawler.MP_RECOVERY)
+        {// MP Recovery
             Skill s = SkillFactory.getSkill(skillid);
             MapleStatEffect ef = s.getEffect(chr.getSkillLevel(s));
             int lose = chr.getMaxHp() / ef.getX();
@@ -116,28 +125,41 @@ public final class SpecialMoveHandler extends AbstractMaplePacketHandler {
             int gain = lose * (ef.getY() / 100);
             chr.setMp(chr.getMp() + gain);
             chr.updateSingleStat(MapleStat.MP, chr.getMp());
-        } else if (skillid == Priest.DISPEL || skillid == SuperGM.HEAL_PLUS_DISPEL) {
+        }
+        else if (skillid == Priest.DISPEL || skillid == SuperGM.HEAL_PLUS_DISPEL)
+        {
             slea.skip((skillid == Priest.DISPEL) ? 10 : 11);
             chr.getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.showBuffeffect(chr.getId(), skillid, chr.getSkillLevel(skillid)), false);
-        } else if (skillid % 10000000 == 1004) {
+        }
+        else if (skillid % 10000000 == 1004)
+        {
             slea.readShort();
         }
-        
-        if (slea.available() == 5) {
+
+        if (slea.available() == 5)
+        {
             pos = new Point(slea.readShort(), slea.readShort());
         }
-        if (chr.isAlive()) {
-            if (skill.getId() != Priest.MYSTIC_DOOR) {
+        if (chr.isAlive())
+        {
+            if (skill.getId() != Priest.MYSTIC_DOOR)
+            {
                 skill.getEffect(skillLevel).applyTo(c.getPlayer(), pos);
-            } else if(chr.canDoor()) {
+            }
+            else if (chr.canDoor())
+            {
                 //update door lists
                 chr.cancelMagicDoor();
                 skill.getEffect(skillLevel).applyTo(c.getPlayer(), pos);
-            } else {
+            }
+            else
+            {
                 chr.message("Please wait 5 seconds before casting Mystic Door again.");
                 c.announce(MaplePacketCreator.enableActions());
             }
-        } else {
+        }
+        else
+        {
             c.announce(MaplePacketCreator.enableActions());
         }
     }

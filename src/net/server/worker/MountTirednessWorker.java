@@ -20,17 +20,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package net.server;
+package net.server.worker;
 
-import net.server.worker.BaseWorker;
 import net.server.world.World;
 
 /**
  * @author Ronan
  */
-public class PetFullnessWorker extends BaseWorker implements Runnable
+public class MountTirednessWorker extends BaseWorker implements Runnable
 {
-    public PetFullnessWorker(World world)
+    public MountTirednessWorker(World world)
     {
         super(world);
     }
@@ -38,6 +37,6 @@ public class PetFullnessWorker extends BaseWorker implements Runnable
     @Override
     public void run()
     {
-        world.runPetSchedule();
+        world.runMountSchedule();
     }
 }

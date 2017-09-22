@@ -1,3 +1,4 @@
+
 /*
 	This file is part of the OdinMS Maple Story Server
     Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
@@ -20,36 +21,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package net.server;
+package net.server.worker;
 
 import net.server.world.World;
-import client.MapleCharacter;
-import constants.ServerConstants;
 
-/**
- * @author Ronan
- */
-public class CharacterAutosaverWorker implements Runnable
+public class BaseWorker implements Runnable
 {
-    private World wserv;
-
-    public CharacterAutosaverWorker(World world)
-    {
-        wserv = world;
-    }
+    protected World world;
 
     @Override
     public void run()
     {
-        if (!ServerConstants.USE_AUTOSAVE) return;
+    }
 
-        PlayerStorage ps = wserv.getPlayerStorage();
-        for (MapleCharacter chr : ps.getAllCharacters())
-        {
-            if (chr != null && chr.isLoggedin())
-            {
-                chr.saveToDB(false);
-            }
-        }
+    public BaseWorker(World world)
+    {
+        this.world = world;
     }
 }

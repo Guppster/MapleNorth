@@ -20,11 +20,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package net.server;
+package net.server.worker;
 
-import java.sql.SQLException;
 
-import tools.FilePrinter;
+import net.server.Server;
 
 /**
  * @author Ronan

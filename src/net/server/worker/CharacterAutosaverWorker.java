@@ -20,17 +20,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-package net.server;
+package net.server.worker;
 
+import net.server.PlayerStorage;
 import net.server.worker.BaseWorker;
 import net.server.world.World;
+import client.MapleCharacter;
+import constants.ServerConstants;
 
-/**
- * @author Ronan
- */
-public class PetFullnessWorker extends BaseWorker implements Runnable
+public class CharacterAutosaverWorker extends BaseWorker implements Runnable
 {
-    public PetFullnessWorker(World world)
+    private World wserv;
+
+    public CharacterAutosaverWorker(World world)
     {
         super(world);
     }
@@ -38,6 +40,15 @@ public class PetFullnessWorker extends BaseWorker implements Runnable
     @Override
     public void run()
     {
-        world.runPetSchedule();
+        if (!ServerConstants.USE_AUTOSAVE) return;
+
+        PlayerStorage ps = wserv.getPlayerStorage();
+        for (MapleCharacter chr : ps.getAllCharacters())
+        {
+            if (chr != null && chr.isLoggedin())
+            {
+                chr.saveToDB(false);
+            }
+        }
     }
 }

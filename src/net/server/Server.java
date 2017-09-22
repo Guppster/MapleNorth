@@ -31,6 +31,8 @@ import net.server.channel.Channel;
 import net.server.guild.MapleAlliance;
 import net.server.guild.MapleGuild;
 import net.server.guild.MapleGuildCharacter;
+import net.server.worker.CouponWorker;
+import net.server.worker.RankingWorker;
 import net.server.world.World;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.buffer.SimpleBufferAllocator;

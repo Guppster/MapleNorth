@@ -30,20 +30,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.ScheduledFuture;
@@ -3835,14 +3823,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
             }
         }
 
-        Collections.sort(ret, new Comparator<Pair<MapleBuffStat, Integer>>()
-        {
-            @Override
-            public int compare(Pair<MapleBuffStat, Integer> p1, Pair<MapleBuffStat, Integer> p2)
-            {
-                return p1.getLeft().compareTo(p2.getLeft());
-            }
-        });
+        ret.sort(Comparator.comparing(Pair::getLeft));
 
         return ret;
     }

@@ -171,6 +171,7 @@ public final class PlayerInteractionHandler extends AbstractMaplePacketHandler {
                         c.announce(MaplePacketCreator.getPlayerShopRemoveVisitor(1));
                     } else {
                         HiredMerchant merchant = new HiredMerchant(chr, itemId, desc);
+                        c.getWorldServer().registerHiredMerchant(merchant);
                         chr.setHiredMerchant(merchant);
                         chr.getClient().getChannelServer().addHiredMerchant(chr.getId(), merchant);
                         chr.announce(MaplePacketCreator.getHiredMerchant(chr, merchant, true));
