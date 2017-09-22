@@ -41,15 +41,18 @@ var bonusTime = 0.5;    // 30 seconds
 
 var lobbyRange = [0, 0];
 
-function init() {
+function init()
+{
     setEventRequirements();
 }
 
-function setLobbyRange() {
+function setLobbyRange()
+{
     return lobbyRange;
 }
 
-function setEventRequirements() {
+function setEventRequirements()
+{
     var reqStr = "";
 
     reqStr += "\r\n    Number of players: ";
@@ -66,12 +69,14 @@ function setEventRequirements() {
     em.setProperty("party", reqStr);
 }
 
-function setEventExclusives(eim) {
+function setEventExclusives(eim)
+{
     var itemSet = [1032033, 4001024, 4001025, 4001026, 4001027, 4001028, 4001029, 4001030, 4001031, 4001032, 4001033, 4001034, 4001035, 4001037];
     eim.setExclusiveItems(itemSet);
 }
 
-function setEventRewards(eim) {
+function setEventRewards(eim)
+{
     var itemSet, itemQty, evLevel, expStages;
 
     evLevel = 1;    //Rewards at clear PQ
@@ -83,27 +88,33 @@ function setEventRewards(eim) {
     eim.setEventClearStageExp(expStages);
 }
 
-function getEligibleParty(party) {      //selects, from the given party, the team that is allowed to attempt this event
+function getEligibleParty(party)
+{      //selects, from the given party, the team that is allowed to attempt this event
     var eligible = [];
     var hasLeader = false;
 
     var guildId = 0;
 
-    if (party.size() > 0) {
+    if (party.size() > 0)
+    {
         var partyList = party.toArray();
 
-        for (var i = 0; i < party.size(); i++) {
+        for (var i = 0; i < party.size(); i++)
+        {
             var ch = partyList[i];
-            if (ch.isLeader()) {
+            if (ch.isLeader())
+            {
                 guildId = ch.getGuildId();
                 break;
             }
         }
 
-        for (var i = 0; i < party.size(); i++) {
+        for (var i = 0; i < party.size(); i++)
+        {
             var ch = partyList[i];
 
-            if (ch.getMapId() == recruitMap && ch.getLevel() >= minLevel && ch.getLevel() <= maxLevel && ch.getGuildId() == guildId) {
+            if (ch.getMapId() == recruitMap && ch.getLevel() >= minLevel && ch.getLevel() <= maxLevel && ch.getGuildId() == guildId)
+            {
                 if (ch.isLeader()) hasLeader = true;
                 eligible.push(ch);
             }
@@ -114,7 +125,8 @@ function getEligibleParty(party) {      //selects, from the given party, the tea
     return eligible;
 }
 
-function setup(level, lobbyid) {
+function setup(level, lobbyid)
+{
     var eim = em.newInstance("Guild" + lobbyid);
     eim.setProperty("level", level);
 
@@ -166,25 +178,37 @@ function setup(level, lobbyid) {
     return eim;
 }
 
-/*
-function isTeamAllJobs(eim) {
-        var eventJobs = eim.getEventPlayersJobs();
-        var rangeJobs = parseInt('111110', 2);
-        
-        return ((eventJobs & rangeJobs) == rangeJobs);
-}
-*/
+function isTeamAllJobs(eim)
+{
+    var eventJobs = eim.getEventPlayersJobs();
+    var rangeJobs = parseInt('111110', 2);
 
-function afterSetup(eim) {
+    return ((eventJobs & rangeJobs) === rangeJobs);
+}
+
+function afterSetup(eim)
+{
     var leader = em.getChannelServer().getPlayerStorage().getCharacterById(eim.getLeaderId());
+
     if (leader != null)
+    {
         eim.setProperty("guild", "" + leader.getGuildId());
+    }
+
+    if (isTeamAllJobs(eim))
+    {
+        var rnd = Math.floor(Math.random() * 4);
+        eim.applyEventPlayersItemBuff(2023000 + rnd);
+    }
 }
 
-function respawnStages(eim) {
+function respawnStages(eim)
+{
+
 }
 
-function playerEntry(eim, player) {
+function playerEntry(eim, player)
+{
     var map = eim.getMapInstance(entryMap);
     player.changeMap(map, map.getPortal(0));
 
@@ -192,35 +216,52 @@ function playerEntry(eim, player) {
     player.getClient().getSession().write(Packages.tools.MaplePacketCreator.getNPCTalk(9040000, /*(byte)*/ 0, texttt, "00 00", /*(byte)*/ 0));
 }
 
-function scheduledTimeout(eim) {
-    if (eim.isEventCleared()) {
+function scheduledTimeout(eim)
+{
+    if (eim.isEventCleared())
+    {
         eim.warpEventTeam(990001100);
-    } else {
-        if (eim.getIntProperty("canJoin") == 1) {
+    }
+    else
+    {
+        if (eim.getIntProperty("canJoin") === 1)
+        {
             eim.setProperty("canJoin", 0);
 
-            if (eim.checkEventTeamLacking(true, minPlayers)) {
+            if (eim.checkEventTeamLacking(true, minPlayers))
+            {
                 end(eim);
-            } else {
+            } else
+            {
                 eim.startEventTimer(eventTime * 60000);
             }
-        } else {
+        } else
+        {
             end(eim);
         }
     }
 }
 
-function playerUnregistered(eim, player) {
+function playerUnregistered(eim, player)
+{
+    player.cancelEffect(2023000);
+    player.cancelEffect(2023001);
+    player.cancelEffect(2023002);
+    player.cancelEffect(2023003);
 }
 
-function playerExit(eim, player) {
+function playerExit(eim, player)
+{
     eim.unregisterPlayer(player);
     player.changeMap(exitMap, 0);
 }
 
-function changedMap(eim, player, mapid) {
-    if (mapid < minMapId || mapid > maxMapId) {
-        if (eim.isEventTeamLackingNow(true, minPlayers, player) && eim.getIntProperty("canJoin") == 0) {
+function changedMap(eim, player, mapid)
+{
+    if (mapid < minMapId || mapid > maxMapId)
+    {
+        if (eim.isEventTeamLackingNow(true, minPlayers, player) && eim.getIntProperty("canJoin") == 0)
+        {
             eim.unregisterPlayer(player);
             end(eim);
         }
@@ -229,27 +270,35 @@ function changedMap(eim, player, mapid) {
     }
 }
 
-function changedLeader(eim, leader) {
+function changedLeader(eim, leader)
+{
 }
 
-function playerDead(eim, player) {
-    if (player.getMapId() == 990000900) {
-        if (player.getMap().countAlivePlayers() == 0 && player.getMap().countMonsters() > 0) {
+function playerDead(eim, player)
+{
+    if (player.getMapId() == 990000900)
+    {
+        if (player.getMap().countAlivePlayers() == 0 && player.getMap().countMonsters() > 0)
+        {
             end(eim);
         }
     }
 }
 
-function playerRevive(eim, player) { // player presses ok on the death pop up.
-    if (eim.getIntProperty("canRevive") == 0) {
-        if (eim.isEventTeamLackingNow(true, minPlayers, player) && eim.getIntProperty("canJoin") == 0) {
+function playerRevive(eim, player)
+{ // player presses ok on the death pop up.
+    if (eim.getIntProperty("canRevive") == 0)
+    {
+        if (eim.isEventTeamLackingNow(true, minPlayers, player) && eim.getIntProperty("canJoin") == 0)
+        {
             eim.unregisterPlayer(player);
             player.setHp(50);
             player.changeMap(exitMap);
 
             end(eim);
         }
-        else {
+        else
+        {
             eim.unregisterPlayer(player);
             player.setHp(50);
             player.changeMap(exitMap);
@@ -261,8 +310,10 @@ function playerRevive(eim, player) { // player presses ok on the death pop up.
     return true;
 }
 
-function playerDisconnected(eim, player) {
-    if (eim.isEventTeamLackingNow(true, minPlayers, player) && eim.getIntProperty("canJoin") == 0) {
+function playerDisconnected(eim, player)
+{
+    if (eim.isEventTeamLackingNow(true, minPlayers, player) && eim.getIntProperty("canJoin") == 0)
+    {
         eim.unregisterPlayer(player);
         end(eim);
     }
@@ -270,29 +321,36 @@ function playerDisconnected(eim, player) {
         eim.unregisterPlayer(player);
 }
 
-function leftParty(eim, player) {
+function leftParty(eim, player)
+{
 }
 
-function disbandParty(eim) {
+function disbandParty(eim)
+{
 }
 
-function monsterValue(eim, mobId) {
+function monsterValue(eim, mobId)
+{
     return 1;
 }
 
-function end(eim) {
+function end(eim)
+{
     var party = eim.getPlayers();
-    for (var i = 0; i < party.size(); i++) {
+    for (var i = 0; i < party.size(); i++)
+    {
         playerExit(eim, party.get(i));
     }
     eim.dispose();
 }
 
-function giveRandomEventReward(eim, player) {
+function giveRandomEventReward(eim, player)
+{
     eim.giveEventReward(player);
 }
 
-function clearPQ(eim) {
+function clearPQ(eim)
+{
     eim.stopEventTimer();
     eim.setEventCleared();
 
@@ -300,19 +358,24 @@ function clearPQ(eim) {
     eim.startEventTimer(bonusTime * 60000);
 }
 
-function monsterKilled(mob, eim) {
+function monsterKilled(mob, eim)
+{
 }
 
-function allMonstersDead(eim) {
+function allMonstersDead(eim)
+{
 }
 
-function cancelSchedule() {
+function cancelSchedule()
+{
 }
 
-function dispose(eim) {
+function dispose(eim)
+{
     em.schedule("reopenGuildQuest", em.getLobbyDelay() * 1.5 * 1000);
 }
 
-function reopenGuildQuest() {
+function reopenGuildQuest()
+{
     em.attemptStartGuildInstance();
 }

@@ -28,7 +28,6 @@ import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
 import constants.ServerConstants;
 import net.AbstractMaplePacketHandler;
-import server.MapleInventoryManipulator;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
@@ -110,7 +109,7 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
             {
                 MapleMapItem mapItem = (MapleMapItem) item;
 
-                if(excludedItems.contains(mapItem)) continue;
+                if (excludedItems.contains(mapItem)) continue;
 
                 int ownerId = mapItem.getOwner();
 

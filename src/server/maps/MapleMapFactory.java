@@ -21,32 +21,27 @@
  */
 package server.maps;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Collection;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataTool;
+import scripting.event.EventInstanceManager;
 import server.PortalFactory;
 import server.life.AbstractLoadedMapleLife;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
-import scripting.event.EventInstanceManager;
 import tools.DatabaseConnection;
 import tools.StringUtil;
+
+import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 public class MapleMapFactory
 {
@@ -74,7 +69,7 @@ public class MapleMapFactory
 
     public MapleMap getMap(int mapid)
     {
-        Integer omapid = Integer.valueOf(mapid);
+        Integer omapid = mapid;
         MapleMap map;
 
         mapsRLock.lock();
@@ -101,26 +96,28 @@ public class MapleMapFactory
                     mapsRLock.unlock();
                 }
 
-                if (map != null)
-                {
-                    return map;
-                }
+                if (map != null) return map;
+
                 String mapName = getMapName(mapid);
                 MapleData mapData = source.getData(mapName);
                 MapleData infoData = mapData.getChildByPath("info");
 
                 String link = MapleDataTool.getString(infoData.getChildByPath("link"), "");
+
                 if (!link.equals(""))
                 { //nexon made hundreds of dojo maps so to reduce the size they added links.
                     mapName = getMapName(Integer.parseInt(link));
                     mapData = source.getData(mapName);
                 }
+
                 float monsterRate = 0;
                 MapleData mobRate = infoData.getChildByPath("mobRate");
+
                 if (mobRate != null)
                 {
-                    monsterRate = ((Float) mobRate.getData()).floatValue();
+                    monsterRate = (Float) mobRate.getData();
                 }
+
                 map = new MapleMap(mapid, world, channel, MapleDataTool.getInt("returnMap", infoData), monsterRate);
                 map.setEventInstance(event);
 
@@ -182,9 +179,12 @@ public class MapleMapFactory
                             int y1 = MapleDataTool.getInt(footHold.getChildByPath("y1"));
                             int x2 = MapleDataTool.getInt(footHold.getChildByPath("x2"));
                             int y2 = MapleDataTool.getInt(footHold.getChildByPath("y2"));
+
                             MapleFoothold fh = new MapleFoothold(new Point(x1, y1), new Point(x2, y2), Integer.parseInt(footHold.getName()));
+
                             fh.setPrev(MapleDataTool.getInt(footHold.getChildByPath("prev")));
                             fh.setNext(MapleDataTool.getInt(footHold.getChildByPath("next")));
+
                             if (fh.getX1() < lBound.x)
                             {
                                 lBound.x = fh.getX1();
@@ -258,6 +258,7 @@ public class MapleMapFactory
                         MapleMonster monster = (MapleMonster) myLife;
                         int mobTime = MapleDataTool.getInt("mobTime", life, 0);
                         int team = MapleDataTool.getInt("team", life, -1);
+
                         if (mobTime == -1)
                         { //does not respawn, force spawn once
                             map.spawnMonster(monster);
@@ -412,6 +413,7 @@ public class MapleMapFactory
     private String getMapStringName(int mapid)
     {
         StringBuilder builder = new StringBuilder();
+
         if (mapid < 100000000)
         {
             builder.append("maple");

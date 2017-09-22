@@ -43,10 +43,12 @@ public class Equip extends Item
     private int ringid = -1;
     private boolean wear = false;
     private boolean isUpgradeable, isElemental = false;    // timeless or reverse
+
     public Equip(int id, short position)
     {
         this(id, position, 0);
     }
+
     public Equip(int id, short position, int slots)
     {
         super(id, position, (short) 1);
@@ -112,6 +114,11 @@ public class Equip extends Item
     public byte getUpgradeSlots()
     {
         return upgradeSlots;
+    }
+
+    public void setUpgradeSlots(byte upgradeSlots)
+    {
+        this.upgradeSlots = upgradeSlots;
     }
 
     public void setUpgradeSlots(int i)
@@ -274,19 +281,14 @@ public class Equip extends Item
         return vicious;
     }
 
-    public void setVicious(int i)
-    {
-        this.vicious = (short) i;
-    }
-
     public void setVicious(short vicious)
     {
         this.vicious = vicious;
     }
 
-    public void setUpgradeSlots(byte upgradeSlots)
+    public void setVicious(int i)
     {
-        this.upgradeSlots = upgradeSlots;
+        this.vicious = (short) i;
     }
 
     public byte getLevel()
@@ -556,15 +558,15 @@ public class Equip extends Item
 
         if (reqLevel >= 78)
         {
-            return Math.max(ServerConstants.EQUIP_EXPERIENCE_MOD * (10413.648 * Math.exp(reqLevel * 0.03275)), 15);
+            return Math.max(ServerConstants.EQUIP_EXP_RATE * (10413.648 * Math.exp(reqLevel * 0.03275)), 15);
         }
         else if (reqLevel >= 38)
         {
-            return Math.max(ServerConstants.EQUIP_EXPERIENCE_MOD * (4985.818 * Math.exp(reqLevel * 0.02007)), 15);
+            return Math.max(ServerConstants.EQUIP_EXP_RATE * (4985.818 * Math.exp(reqLevel * 0.02007)), 15);
         }
         else
         {
-            return Math.max(ServerConstants.EQUIP_EXPERIENCE_MOD * (248.219 * Math.exp(reqLevel * 0.11093)), 15);
+            return Math.max(ServerConstants.EQUIP_EXP_RATE * (248.219 * Math.exp(reqLevel * 0.11093)), 15);
         }
     }
 

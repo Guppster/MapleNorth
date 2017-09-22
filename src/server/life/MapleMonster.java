@@ -55,7 +55,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
     private boolean controllerHasAggro, controllerKnowsAboutAggro;
     private Collection<MonsterListener> listeners = new LinkedList<>();
     private EnumMap<MonsterStatus, MonsterStatusEffect> stati = new EnumMap<>(MonsterStatus.class);
-    private ArrayList<MonsterStatus> alreadyBuffed = new ArrayList<MonsterStatus>();
+    private ArrayList<MonsterStatus> alreadyBuffed = new ArrayList<>();
     private MapleMap map;
     private int VenomMultiplier = 0;
     private boolean fake = false;
@@ -211,12 +211,12 @@ public class MapleMonster extends AbstractLoadedMapleLife
     }
 
     /**
-     * @param from   the player that dealt the damage
-     * @param damage
+     * @param character   The player that dealt the damage
+     * @param damage      The amount of damage dealt
      */
-    public synchronized void damage(MapleCharacter from, int damage)
+    public synchronized void damage(MapleCharacter character, int damage)
     {
-        // may be pointless synchronization
+        // may be pointles synchronization
         if (!isAlive())
         {
             return;
@@ -225,34 +225,34 @@ public class MapleMonster extends AbstractLoadedMapleLife
 
         if (ServerConstants.USE_DEBUG)
         {
-            from.dropMessage(5, "Hitted MOB " + this.getId() + ", OID " + this.getObjectId());
+            character.dropMessage(5, "Hitted MOB " + this.getId() + ", OID " + this.getObjectId());
         }
-        dispatchMonsterDamaged(from, trueDamage);
+        dispatchMonsterDamaged(character, trueDamage);
 
         hp -= trueDamage;
-        if (!takenDamage.containsKey(from.getId()))
+        if (!takenDamage.containsKey(character.getId()))
         {
-            takenDamage.put(from.getId(), new AtomicInteger(trueDamage));
+            takenDamage.put(character.getId(), new AtomicInteger(trueDamage));
         }
         else
         {
-            takenDamage.get(from.getId()).addAndGet(trueDamage);
+            takenDamage.get(character.getId()).addAndGet(trueDamage);
         }
 
         if (hasBossHPBar())
         {
-            from.setPlayerAggro(this.hashCode());
-            from.getMap().broadcastBossHpMessage(this, this.hashCode(), makeBossHPBarPacket(), getPosition());
+            character.setPlayerAggro(this.hashCode());
+            character.getMap().broadcastBossHpMessage(this, this.hashCode(), makeBossHPBarPacket(), getPosition());
         }
         else if (!isBoss())
         {
             int remainingHP = (int) Math.max(1, hp * 100f / getMaxHp());
             byte[] packet = MaplePacketCreator.showMonsterHP(getObjectId(), remainingHP);
-            if (from.getParty() != null)
+            if (character.getParty() != null)
             {
-                for (MaplePartyCharacter mpc : from.getParty().getMembers())
+                for (MaplePartyCharacter mpc : character.getParty().getMembers())
                 {
-                    MapleCharacter member = from.getMap().getCharacterById(mpc.getId()); // god bless
+                    MapleCharacter member = character.getMap().getCharacterById(mpc.getId()); // god bless
                     if (member != null)
                     {
                         member.announce(packet.clone()); // clone it just in case of crypto
@@ -261,7 +261,7 @@ public class MapleMonster extends AbstractLoadedMapleLife
             }
             else
             {
-                from.announce(packet);
+                character.announce(packet);
             }
         }
     }
@@ -1239,15 +1239,10 @@ public class MapleMonster extends AbstractLoadedMapleLife
         if (!stats.getEffectiveness(e).equals(ElementalEffectiveness.WEAK))
         {
             stats.setEffectiveness(e, ee);
-            TimerManager.getInstance().schedule(new Runnable()
+            TimerManager.getInstance().schedule(() ->
             {
-
-                @Override
-                public void run()
-                {
-                    stats.removeEffectiveness(fE);
-                    stats.setEffectiveness(fE, fEE);
-                }
+                stats.removeEffectiveness(fE);
+                stats.setEffectiveness(fE, fEE);
             }, milli);
         }
     }

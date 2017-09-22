@@ -36,12 +36,18 @@ import net.MaplePacketHandler;
 import tools.MaplePacketCreator;
 import tools.data.input.SeekableLittleEndianAccessor;
 
-public final class CancelBuffHandler extends AbstractMaplePacketHandler implements MaplePacketHandler {
-    
+public final class CancelBuffHandler extends AbstractMaplePacketHandler implements MaplePacketHandler
+{
+
     @Override
-    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
+    public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c)
+    {
         int sourceid = slea.readInt();
-        switch (sourceid) {
+
+        if (sourceid < 0) sourceid = -sourceid;
+
+        switch (sourceid)
+        {
             case FPArchMage.BIG_BANG:
             case ILArchMage.BIG_BANG:
             case Bishop.BIG_BANG:

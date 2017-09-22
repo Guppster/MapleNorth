@@ -15,7 +15,7 @@ public class ServerConstants {
     //Server Flags
     public static final boolean USE_CUSTOM_KEYSET = false;           //Enables auto-setup of the MapleSolaxiaV2's custom keybindings when creating characters.
     public static final boolean USE_MAXRANGE_ECHO_OF_HERO = true;
-    public static final boolean USE_MAXRANGE = true;                //Will send and receive packets from all events of a map, rather than those of only view range.
+    public static final boolean USE_MAXRANGE = true;                //Will send and receive packets from all events on a map, rather than those of only view range.
     public static final boolean USE_DEBUG = false;                  //Will enable some text prints on the client, oriented for debugging purposes.
     public static final boolean USE_DEBUG_SHOW_RCVD_PACKET = false; //Prints on the cmd all received packet ids.
     public static final boolean USE_DEBUG_SHOW_INFO_EQPEXP = false; //Prints on the cmd all equip exp gain info.
@@ -36,9 +36,12 @@ public class ServerConstants {
     public static final int MESO_RATE = 2;
     public static final int DROP_RATE = 2;
     public static final int BOSS_DROP_RATE = 2;
-    public static final int PARTY_EXPERIENCE_MOD = 1;           //Change for event stuff.
-    public static final double EQUIP_EXPERIENCE_MOD = 1;     //Rate for equipment exp needed, grows linearly. Set 1.0 for default (about 100~200 same-level range mobs killed to pass equip from level 1 to 2).
+    public static final int PARTY_EXPERIENCE_MOD = 1;
+
+    public static final double EQUIP_EXP_RATE = 10.0;
     public static final double PQ_BONUS_EXP_MOD = 0.5;
+    public static final byte MAX_MONITORED_BUFFSTATS = 5;
+
     public static final int MAX_AP = 32767;                     //Max AP allotted on the auto-assigner.
     public static final int MAX_EVENT_LEVELS = 8;               //Event has different levels of rewarding system.
     public static final long BLOCK_NPC_RACE_CONDT = (long) (1000); //Time the player client must wait before reopening a conversation with an NPC.
