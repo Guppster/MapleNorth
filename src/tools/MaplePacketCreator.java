@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import client.*;
 import net.SendOpcode;
 import net.server.PlayerCoolDownValueHolder;
 import net.server.Server;
@@ -76,21 +77,6 @@ import server.movement.LifeMovementFragment;
 import server.partyquest.MonsterCarnivalParty;
 import tools.data.output.LittleEndianWriter;
 import tools.data.output.MaplePacketLittleEndianWriter;
-import client.BuddylistEntry;
-import client.MapleBuffStat;
-import client.MapleCharacter;
-import client.MapleCharacter.SkillEntry;
-import client.MapleClient;
-import client.MapleDisease;
-import client.MapleFamilyEntry;
-import client.MapleJob;
-import client.MapleKeyBinding;
-import client.MapleMount;
-import client.MapleQuestStatus;
-import client.MapleRing;
-import client.MapleStat;
-import client.Skill;
-import client.SkillMacro;
 import client.inventory.Equip;
 import client.inventory.Equip.ScrollResult;
 import client.inventory.Item;
@@ -573,12 +559,12 @@ public class MaplePacketCreator
     private static void addSkillInfo(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr)
     {
         mplew.write(0); // start of skills
-        Map<Skill, MapleCharacter.SkillEntry> skills = chr.getSkills();
+        Map<Skill, SkillEntry> skills = chr.getSkills();
         int skillsSize = skills.size();
         // We don't want to include any hidden skill in this, so subtract them from the size list and ignore them.
         for (Iterator<Entry<Skill, SkillEntry>> it = skills.entrySet().iterator(); it.hasNext(); )
         {
-            Entry<Skill, MapleCharacter.SkillEntry> skill = it.next();
+            Entry<Skill, SkillEntry> skill = it.next();
             if (GameConstants.isHiddenSkills(skill.getKey().getId()))
             {
                 skillsSize--;
@@ -587,24 +573,24 @@ public class MaplePacketCreator
         mplew.writeShort(skillsSize);
         for (Iterator<Entry<Skill, SkillEntry>> it = skills.entrySet().iterator(); it.hasNext(); )
         {
-            Entry<Skill, MapleCharacter.SkillEntry> skill = it.next();
+            Entry<Skill, SkillEntry> skill = it.next();
             if (GameConstants.isHiddenSkills(skill.getKey().getId()))
             {
                 continue;
             }
             mplew.writeInt(skill.getKey().getId());
-            mplew.writeInt(skill.getValue().skillevel);
-            addExpirationTime(mplew, skill.getValue().expiration);
+            mplew.writeInt(skill.getValue().getSkillevel());
+            addExpirationTime(mplew, skill.getValue().getExpiration());
             if (skill.getKey().isFourthJob())
             {
-                mplew.writeInt(skill.getValue().masterlevel);
+                mplew.writeInt(skill.getValue().getMasterlevel());
             }
         }
         mplew.writeShort(chr.getAllCooldowns().size());
         for (PlayerCoolDownValueHolder cooling : chr.getAllCooldowns())
         {
-            mplew.writeInt(cooling.skillId);
-            int timeLeft = (int) (cooling.length + cooling.startTime - System.currentTimeMillis());
+            mplew.writeInt(cooling.getSkillId());
+            int timeLeft = (int) (cooling.getLength() + cooling.getStartTime() - System.currentTimeMillis());
             mplew.writeShort(timeLeft / 1000);
         }
     }
@@ -771,7 +757,6 @@ public class MaplePacketCreator
      * Gets a successful authentication packet.
      *
      * @param c
-     * @param account The account name.
      * @return the successful authentication packet
      */
     public static byte[] getAuthSuccess(MapleClient c)
@@ -1260,7 +1245,6 @@ public class MaplePacketCreator
      * Gets a packet to spawn a special map object.
      *
      * @param summon
-     * @param skillLevel The level of the skill used.
      * @param animated   Animated spawn?
      * @return The spawn packet for the map object.
      */
@@ -1346,7 +1330,6 @@ public class MaplePacketCreator
      * 5: Pink Text<br> 6: Lightblue Text
      *
      * @param type    The type of the notice.
-     * @param channel The channel this notice was sent on.
      * @param message The message to convey.
      * @return The server notice packet.
      */
@@ -1760,7 +1743,6 @@ public class MaplePacketCreator
      *
      * @param cidfrom The character ID who sent the chat.
      * @param text    The text of the chat.
-     * @param whiteBG
      * @param show
      * @return The general chat packet.
      */
@@ -2684,7 +2666,6 @@ public class MaplePacketCreator
 
     /**
      * @param chr
-     * @param isSelf
      * @return
      */
     public static byte[] charInfo(MapleCharacter chr)
@@ -2822,7 +2803,6 @@ public class MaplePacketCreator
 
     /**
      * @param cid
-     * @param statups
      * @param mount
      * @return
      */
@@ -2854,7 +2834,6 @@ public class MaplePacketCreator
              mplew.write(0);*/
 
     /**
-     * @param c
      * @param quest
      * @return
      */
@@ -2869,7 +2848,6 @@ public class MaplePacketCreator
     }
 
     /**
-     * @param c
      * @param quest
      * @return
      */
@@ -2885,10 +2863,8 @@ public class MaplePacketCreator
     }
 
     /**
-     * @param c
      * @param quest
      * @param npc
-     * @param progress
      * @return
      */
 
@@ -8049,7 +8025,6 @@ public class MaplePacketCreator
     /**
      * Sends a request to remove Mir<br>
      *
-     * @param charid - Needs the specific Character ID
      * @return The packet
      */
     public static byte[] removeDragon(int chrid)

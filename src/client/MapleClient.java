@@ -1269,15 +1269,7 @@ public class MapleClient
 
     public boolean deleteCharacter(int cid)
     {
-        try
-        {
-            return MapleCharacter.deleteCharFromDB(MapleCharacter.loadCharFromDB(cid, this, false));
-        }
-        catch (SQLException ex)
-        {
-            ex.printStackTrace();
-            return false;
-        }
+        return MapleCharacter.deleteCharFromDB(MapleCharacter.loadCharFromDB(cid, this, false));
     }
 
     public String getAccountName()
@@ -1309,26 +1301,21 @@ public class MapleClient
     {
         final long then = System.currentTimeMillis();
         announce(MaplePacketCreator.getPing());
-        TimerManager.getInstance().schedule(new Runnable()
+        TimerManager.getInstance().schedule(() ->
         {
-
-            @Override
-            public void run()
+            try
             {
-                try
+                if (lastPong < then)
                 {
-                    if (lastPong < then)
+                    if (getSession() != null && getSession().isConnected())
                     {
-                        if (getSession() != null && getSession().isConnected())
-                        {
-                            getSession().close(true);
-                        }
+                        getSession().close(true);
                     }
                 }
-                catch (NullPointerException e)
-                {
-                    e.printStackTrace();
-                }
+            }
+            catch (NullPointerException e)
+            {
+                e.printStackTrace();
             }
         }, 15000);
     }

@@ -21,8 +21,8 @@
 */
 package net.server.channel.handlers;
 
+import client.FameStatus;
 import client.MapleCharacter;
-import client.MapleCharacter.FameStatus;
 import client.autoban.AutobanFactory;
 import client.MapleClient;
 import client.MapleStat;

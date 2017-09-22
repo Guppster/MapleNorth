@@ -26,14 +26,44 @@ package net.server;
  */
 public class PlayerCoolDownValueHolder
 {
-    public int skillId;
-    public long startTime;
-    public long length;
+    private int skillId;
+    private long startTime;
+    private long length;
 
     public PlayerCoolDownValueHolder(int skillId, long startTime, long length)
     {
+        this.setSkillId(skillId);
+        this.setStartTime(startTime);
+        this.setLength(length);
+    }
+
+    public int getSkillId()
+    {
+        return skillId;
+    }
+
+    public void setSkillId(int skillId)
+    {
         this.skillId = skillId;
+    }
+
+    public long getStartTime()
+    {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime)
+    {
         this.startTime = startTime;
+    }
+
+    public long getLength()
+    {
+        return length;
+    }
+
+    public void setLength(long length)
+    {
         this.length = length;
     }
 }

@@ -65,12 +65,8 @@ public final class PlayerLoggedinHandler extends AbstractMaplePacketHandler {
         MapleCharacter player = c.getWorldServer().getPlayerStorage().getCharacterById(cid);
         boolean newcomer = false;
         if (player == null) {
-            try {
-                player = MapleCharacter.loadCharFromDB(cid, c, true);
-                newcomer = true;
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            player = MapleCharacter.loadCharFromDB(cid, c, true);
+            newcomer = true;
         } else {
             player.newClient(c);
         }
