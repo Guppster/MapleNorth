@@ -1245,7 +1245,7 @@ public class MaplePacketCreator
      * Gets a packet to spawn a special map object.
      *
      * @param summon
-     * @param animated   Animated spawn?
+     * @param animated Animated spawn?
      * @return The spawn packet for the map object.
      */
     public static byte[] spawnSummon(MapleSummon summon, boolean animated)
@@ -5636,7 +5636,7 @@ public class MaplePacketCreator
                 mplew.writeInt(item.getBundles());
                 mplew.writeInt(item.getPrice());
                 mplew.writeInt(hm.getOwnerId());
-                mplew.write(hm.getFreeSlot() == -1 ? 1 : 0);
+                mplew.write(hm.getFreeSlotThreadSafe() == -1 ? 1 : 0);
                 MapleCharacter chr = c.getChannelServer().getPlayerStorage().getCharacterById(hm.getOwnerId());
                 if ((chr != null) && (c.getChannel() == hm.getChannel()))
                 {
@@ -5688,7 +5688,7 @@ public class MaplePacketCreator
         mplew.write(PlayerInteractionHandler.Action.ROOM.getCode());
         mplew.write(0x05);
         mplew.write(0x04);
-        mplew.writeShort(hm.getVisitorSlot(chr) + 1);
+        mplew.writeShort(hm.getVisitorSlotThreadsafe(chr) + 1);
         mplew.writeInt(hm.getItemId());
         mplew.writeMapleAsciiString("Hired Merchant");
         for (int i = 0; i < 3; i++)
@@ -5701,13 +5701,16 @@ public class MaplePacketCreator
             }
         }
         mplew.write(-1);
+
         if (hm.isOwner(chr))
         {
-            mplew.writeShort(hm.getMessages().size());
-            for (int i = 0; i < hm.getMessages().size(); i++)
+            List<Pair<String, Byte>> msgList = hm.getMessages();
+
+            mplew.writeShort(msgList.size());
+            for (int i = 0; i < msgList.size(); i++)
             {
-                mplew.writeMapleAsciiString(hm.getMessages().get(i).getLeft());
-                mplew.write(hm.getMessages().get(i).getRight());
+                mplew.writeMapleAsciiString(msgList.get(i).getLeft());
+                mplew.write(msgList.get(i).getRight());
             }
         }
         else
@@ -5891,7 +5894,8 @@ public class MaplePacketCreator
         return mplew.getPacket();
     }
 
-    public static byte[] giveForeignPirateBuff(int cid, int buffid, int time, List<Pair<MapleBuffStat, Integer>> statups)
+    public static byte[] giveForeignPirateBuff(int cid, int buffid, int time, List<Pair<MapleBuffStat, Integer>>
+            statups)
     {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         boolean infusion = buffid == Buccaneer.SPEED_INFUSION || buffid == ThunderBreaker.SPEED_INFUSION || buffid == Corsair.SPEED_INFUSION;
@@ -7568,7 +7572,8 @@ public class MaplePacketCreator
         addCashItemInformation(mplew, item, accountId, null);
     }
 
-    public static void addCashItemInformation(final MaplePacketLittleEndianWriter mplew, Item item, int accountId, String giftMessage)
+    public static void addCashItemInformation(final MaplePacketLittleEndianWriter mplew, Item item,
+                                              int accountId, String giftMessage)
     {
         boolean isGift = giftMessage != null;
         boolean isRing = false;

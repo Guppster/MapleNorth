@@ -55,12 +55,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Server implements Runnable
 {
     private static final Map<Integer, Integer> couponRates = new LinkedHashMap<>();
     private static final List<Integer> activeCoupons = new LinkedList<>();
     public static long uptime = System.currentTimeMillis();
+    private final Lock shutdownLock = new ReentrantLock();
     private static Server instance = null;
     private final Properties subnetInfo = new Properties();
     private final Map<Integer, MapleGuild> guilds = new LinkedHashMap<>();
@@ -94,17 +97,6 @@ public class Server implements Runnable
     public List<Pair<Integer, String>> worldRecommendedList()
     {
         return worldRecommendedList;
-    }
-
-    public void removeChannel(int worldid, int channel)
-    {
-        channels.remove(channel);
-
-        World world = worlds.get(worldid);
-        if (world != null)
-        {
-            world.removeChannel(channel);
-        }
     }
 
     public Channel getChannel(int world, int channel)
@@ -866,63 +858,73 @@ public class Server implements Runnable
     {
         return () ->
         {
-            System.out.println((restart ? "Restarting" : "Shutting down") + " the server!\r\n");
+            shutdownLock.lock();
 
-            //Already shutdown
-            if (getWorlds() == null) return;
-
-            for (World w : getWorlds())
+            try
             {
-                w.shutdown();
-            }
-
-            TimerManager.getInstance().purge();
-            TimerManager.getInstance().stop();
-
-            for (Channel ch : getAllChannels())
-            {
-                while (!ch.finishedShutdown())
+                System.out.println((restart ? "Restarting" : "Shutting down") + " the server!\r\n");
+                if (getWorlds() == null) return;//already shutdown
+                for (World w : getWorlds())
                 {
+                    w.shutdown();
+                }
+                TimerManager.getInstance().purge();
+                TimerManager.getInstance().stop();
+
+                for (Channel ch : getAllChannels())
+                {
+                    while (!ch.finishedShutdown())
+                    {
+                        try
+                        {
+                            Thread.sleep(1000);
+                        }
+                        catch (InterruptedException ie)
+                        {
+                            ie.printStackTrace();
+                            System.err.println("FUCK MY LIFE");
+                        }
+                    }
+                }
+
+                worlds.clear();
+                worlds = null;
+                channels.clear();
+                channels = null;
+                worldRecommendedList.clear();
+                worldRecommendedList = null;
+
+                System.out.println("Worlds + Channels are offline.");
+                acceptor.unbind();
+                acceptor = null;
+
+                if (!restart)
+                {
+                    System.exit(0);
+                }
+                else
+                {
+                    System.out.println("\r\nRestarting the server....\r\n");
+
                     try
                     {
-                        Thread.sleep(1000);
+                        instance.finalize();
                     }
-                    catch (InterruptedException ie)
+                    catch (Throwable ex)
                     {
-                        ie.printStackTrace();
+                        ex.printStackTrace();
                     }
+
+                    instance = null;
+                    System.gc();
+                    getInstance().run();
                 }
             }
-            worlds.clear();
-            worlds = null;
-            channels.clear();
-            channels = null;
-            worldRecommendedList.clear();
-            worldRecommendedList = null;
-
-            System.out.println("Worlds + Channels are offline.");
-
-            acceptor.unbind();
-            acceptor = null;
-            if (!restart)
+            finally
             {
-                System.exit(0);
-            }
-            else
-            {
-                System.out.println("\r\nRestarting the server....\r\n");
-                try
-                {
-                    instance.finalize();
-                }
-                catch (Throwable ex)
-                {
-                    ex.printStackTrace();
-                }
-                instance = null;
-                System.gc();
-                getInstance().run();
+                shutdownLock.unlock();
             }
         };
     }
 }
+

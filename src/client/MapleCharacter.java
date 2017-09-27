@@ -3835,7 +3835,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         buffExpires.put(sourceid, expirationtime);
     }
 
-    private void removeEffectFromItemEffectHolder(Integer sourceid, MapleBuffStat buffStat)
+    private boolean removeEffectFromItemEffectHolder(Integer sourceid, MapleBuffStat buffStat)
     {
         Map<MapleBuffStat, MapleBuffStatValueHolder> lbe = buffEffects.get(sourceid);
 
@@ -3848,7 +3848,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                 buffEffects.remove(sourceid);
                 buffExpires.remove(sourceid);
             }
+
+            return true;
         }
+
+        return false;
     }
 
     private void removeItemEffectHolder(Integer sourceid)
@@ -3909,12 +3913,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
     private void extractBuffValue(int sourceid, MapleBuffStat stat)
     {
         chrLock.lock();
+
         try
         {
-            if (buffEffects.get(sourceid).remove(stat) != null)
-            {
-                buffEffectsCount.put(stat, (byte) (buffEffectsCount.get(stat) - 1));
-            }
+            removeEffectFromItemEffectHolder(sourceid, stat);
         }
         finally
         {
@@ -4071,7 +4073,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
             {
                 int sourceid = stat.getValue().getEffect().getBuffSourceId();
 
-                if (buffEffects.get(sourceid) == null)
+                if (!buffEffects.containsKey(sourceid))
                 {
                     buffExpires.remove(sourceid);
                 }
@@ -8571,12 +8573,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
 
     public void addMerchantMesos(int add)
     {
+        int newAmount = 0;
+
         try
         {
             Connection con = DatabaseConnection.getConnection();
             try (PreparedStatement ps = con.prepareStatement("UPDATE characters SET MerchantMesos = ? WHERE id = ?", Statement.RETURN_GENERATED_KEYS))
             {
-                ps.setInt(1, merchantmeso + add);
+                ps.setInt(1, newAmount);
                 ps.setInt(2, id);
                 ps.executeUpdate();
             }
@@ -8588,7 +8592,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
             e.printStackTrace();
             return;
         }
-        merchantmeso += add;
+        merchantmeso = newAmount;
     }
 
     public void setHp(int newhp, boolean silent)

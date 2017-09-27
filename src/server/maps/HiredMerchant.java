@@ -147,6 +147,14 @@ public class HiredMerchant extends AbstractMapleMapObject
         return true;
     }
 
+    public void broadcastToVisitorsThreadsafe(final byte[] packet)
+    {
+        synchronized (visitors)
+        {
+            broadcastToVisitors(packet);
+        }
+    }
+
     public void broadcastToVisitors(final byte[] packet)
     {
         for (MapleCharacter visitor : visitors)
@@ -160,28 +168,45 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public void addVisitor(MapleCharacter visitor)
     {
-        int i = this.getFreeSlot();
-        if (i > -1)
+        synchronized (visitors)
         {
-            visitors[i] = visitor;
-            broadcastToVisitors(MaplePacketCreator.hiredMerchantVisitorAdd(visitor, i + 1));
+            int i = this.getFreeSlot();
+            if (i > -1)
+            {
+                visitors[i] = visitor;
+                broadcastToVisitors(MaplePacketCreator.hiredMerchantVisitorAdd(visitor, i + 1));
+            }
         }
     }
 
     public void removeVisitor(MapleCharacter visitor)
     {
-        int slot = getVisitorSlot(visitor);
-        if (slot < 0)
-        { //Not found
-            return;
-        }
-        if (visitors[slot] != null && visitors[slot].getId() == visitor.getId())
+        synchronized (visitors)
         {
-            visitors[slot] = null;
-            if (slot != -1)
-            {
-                broadcastToVisitors(MaplePacketCreator.hiredMerchantVisitorLeave(slot + 1));
+            int slot = getVisitorSlot(visitor);
+
+            if (slot < 0)
+            { //Not found
+                return;
             }
+
+            if (visitors[slot] != null && visitors[slot].getId() == visitor.getId())
+            {
+                visitors[slot] = null;
+
+                if (slot != -1)
+                {
+                    broadcastToVisitors(MaplePacketCreator.hiredMerchantVisitorLeave(slot + 1));
+                }
+            }
+        }
+    }
+
+    public int getVisitorSlotThreadsafe(MapleCharacter visitor)
+    {
+        synchronized (visitors)
+        {
+            return getVisitorSlot(visitor);
         }
     }
 
@@ -199,26 +224,31 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public void removeAllVisitors(String message)
     {
-        for (int i = 0; i < 3; i++)
+        synchronized (visitors)
         {
-            if (visitors[i] != null)
+            for (int i = 0; i < 3; i++)
             {
-                visitors[i].setHiredMerchant(null);
-                visitors[i].getClient().announce(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));
-                if (message.length() > 0)
+                if (visitors[i] != null)
                 {
-                    visitors[i].dropMessage(1, message);
+                    visitors[i].setHiredMerchant(null);
+                    visitors[i].getClient().announce(MaplePacketCreator.leaveHiredMerchant(i + 1, 0x11));
+
+                    if (message.length() > 0)
+                    {
+                        visitors[i].dropMessage(1, message);
+                    }
+                    visitors[i] = null;
                 }
-                visitors[i] = null;
             }
         }
     }
 
-    public void buy(MapleClient c, int item, short quantity)
+    public void buy(MapleClient client, int item, short quantity)
     {
-        MaplePlayerShopItem pItem = items.get(item);
         synchronized (items)
         {
+            MaplePlayerShopItem pItem = items.get(item);
+
             Item newItem = pItem.getItem().copy();
             newItem.setQuantity((short) ((pItem.getItem().getQuantity() * quantity)));
             if ((newItem.getFlag() & ItemConstants.KARMA) == ItemConstants.KARMA)
@@ -227,26 +257,31 @@ public class HiredMerchant extends AbstractMapleMapObject
             }
             if (quantity < 1 || pItem.getBundles() < 1 || !pItem.isExist() || pItem.getBundles() < quantity)
             {
-                c.announce(MaplePacketCreator.enableActions());
+                client.announce(MaplePacketCreator.enableActions());
                 return;
             }
             else if (newItem.getType() == 1 && newItem.getQuantity() > 1)
             {
-                c.announce(MaplePacketCreator.enableActions());
+                client.announce(MaplePacketCreator.enableActions());
                 return;
             }
             else if (!pItem.isExist())
             {
-                c.announce(MaplePacketCreator.enableActions());
+                client.announce(MaplePacketCreator.enableActions());
                 return;
             }
-            int price = pItem.getPrice() * quantity;
-            if (c.getPlayer().getMeso() >= price)
+            int price = (int) Math.min((long) pItem.getPrice() * quantity, Integer.MAX_VALUE);
+            if (client.getPlayer().getMeso() >= price)
             {
-                if (MapleInventoryManipulator.addFromDrop(c, newItem, true))
+                if (MapleInventoryManipulator.addFromDrop(client, newItem, true))
                 {
-                    c.getPlayer().gainMeso(-price, false);
-                    sold.add(new SoldItem(c.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price));
+                    client.getPlayer().gainMeso(-price, false);
+
+                    synchronized (sold)
+                    {
+                        sold.add(new SoldItem(client.getPlayer().getName(), pItem.getItem().getItemId(), quantity, price));
+                    }
+
                     pItem.setBundles((short) (pItem.getBundles() - quantity));
                     if (pItem.getBundles() < 1)
                     {
@@ -279,12 +314,12 @@ public class HiredMerchant extends AbstractMapleMapObject
                 }
                 else
                 {
-                    c.getPlayer().dropMessage(1, "Your inventory is full. Please clean a slot before buying this item.");
+                    client.getPlayer().dropMessage(1, "Your inventory is full. Please clean a slot before buying this item.");
                 }
             }
             else
             {
-                c.getPlayer().dropMessage(1, "You do not have enough mesos.");
+                client.getPlayer().dropMessage(1, "You do not have enough mesos.");
             }
             try
             {
@@ -304,7 +339,11 @@ public class HiredMerchant extends AbstractMapleMapObject
         try
         {
             saveItems(true);
-            items.clear();
+
+            synchronized (items)
+            {
+                items.clear();
+            }
         }
         catch (SQLException ex)
         {
@@ -366,9 +405,11 @@ public class HiredMerchant extends AbstractMapleMapObject
                 con.close();
             }
 
-            if (check(client.getPlayer(), getItems()) && !timeout)
+            List<MaplePlayerShopItem> copyItems = getItems();
+
+            if (check(client.getPlayer(), copyItems) && !timeout)
             {
-                for (MaplePlayerShopItem mpsi : getItems())
+                for (MaplePlayerShopItem mpsi : copyItems)
                 {
                     if (mpsi.isExist() && (mpsi.getItem().getType() == MapleInventoryType.EQUIP.getType()))
                     {
@@ -379,7 +420,11 @@ public class HiredMerchant extends AbstractMapleMapObject
                         MapleInventoryManipulator.addById(client, mpsi.getItem().getItemId(), (short) (mpsi.getBundles() * mpsi.getItem().getQuantity()), null, -1, mpsi.getItem().getFlag(), mpsi.getItem().getExpiration());
                     }
                 }
-                items.clear();
+
+                synchronized (items)
+                {
+                    items.clear();
+                }
             }
 
             try
@@ -391,7 +436,10 @@ public class HiredMerchant extends AbstractMapleMapObject
                 e.printStackTrace();
             }
 
-            items.clear();
+            synchronized (items)
+            {
+                items.clear();
+            }
         }
         catch (Exception e)
         {
@@ -408,7 +456,10 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public void clearItems()
     {
-        items.clear();
+        synchronized (items)
+        {
+            items.clear();
+        }
     }
 
     public int getOwnerId()
@@ -428,17 +479,30 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public MapleCharacter[] getVisitors()
     {
-        return visitors;
+        synchronized (visitors)
+        {
+            MapleCharacter[] copy = new MapleCharacter[3];
+            System.arraycopy(visitors, 0, copy, 0, visitors.length);
+
+            return copy;
+        }
     }
 
     public List<MaplePlayerShopItem> getItems()
     {
-        return Collections.unmodifiableList(items);
+        synchronized (items)
+        {
+            return Collections.unmodifiableList(items);
+        }
     }
 
     public void addItem(MaplePlayerShopItem item)
     {
-        items.add(item);
+        synchronized (items)
+        {
+            items.add(item);
+        }
+
         try
         {
             this.saveItems(false);
@@ -451,7 +515,11 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public void removeFromSlot(int slot)
     {
-        items.remove(slot);
+        synchronized (items)
+        {
+            items.remove(slot);
+        }
+
         try
         {
             this.saveItems(false);
@@ -462,7 +530,27 @@ public class HiredMerchant extends AbstractMapleMapObject
         }
     }
 
-    public int getFreeSlot()
+    public int getFreeSlotThreadSafe()
+    {
+        synchronized (visitors)
+        {
+            return getFreeSlot();
+        }
+    }
+
+    public void sendMessage(MapleCharacter chr, String msg)
+    {
+        String message = chr.getName() + " : " + msg;
+        byte slot = (byte) (getVisitorSlot(chr) + 1);
+
+        synchronized (messages)
+        {
+            messages.add(new Pair<>(message, slot));
+        }
+        broadcastToVisitors(MaplePacketCreator.hiredMerchantChat(message, slot));
+    }
+
+    private int getFreeSlot()
     {
         for (int i = 0; i < 3; i++)
         {
@@ -497,27 +585,40 @@ public class HiredMerchant extends AbstractMapleMapObject
     public void saveItems(boolean shutdown) throws SQLException
     {
         List<Pair<Item, MapleInventoryType>> itemsWithType = new ArrayList<>();
+        List<Short> bundles = new ArrayList<>();
 
-        for (MaplePlayerShopItem pItems : items)
+        for (MaplePlayerShopItem pItems : getItems())
         {
             Item newItem = pItems.getItem();
+
+            short newBundle = pItems.getBundles();
+
             if (shutdown)
             {
-                newItem.setQuantity((short) (pItems.getItem().getQuantity() * pItems.getBundles()));
+                newItem.setQuantity(pItems.getItem().getQuantity());
             }
             else
             {
                 newItem.setQuantity(pItems.getItem().getQuantity());
             }
-            if (pItems.getBundles() > 0)
+
+            if (newBundle > 0)
             {
                 itemsWithType.add(new Pair<>(newItem, MapleInventoryType.getByType(newItem.getType())));
             }
         }
 
         Connection con = DatabaseConnection.getConnection();
-        ItemFactory.MERCHANT.saveItems(itemsWithType, this.ownerId, con);
+        ItemFactory.MERCHANT.saveItems(itemsWithType, bundles, this.ownerId, con);
         con.close();
+    }
+
+    public void clearMessages()
+    {
+        synchronized (messages)
+        {
+            messages.clear();
+        }
     }
 
     public int getChannel()
@@ -532,7 +633,13 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public List<Pair<String, Byte>> getMessages()
     {
-        return messages;
+        synchronized (messages)
+        {
+            List<Pair<String, Byte>> msgList = new LinkedList<>();
+            msgList.addAll(messages);
+
+            return msgList;
+        }
     }
 
     public int getMapId()
@@ -542,7 +649,10 @@ public class HiredMerchant extends AbstractMapleMapObject
 
     public List<SoldItem> getSold()
     {
-        return sold;
+        synchronized (sold)
+        {
+            return Collections.unmodifiableList(sold);
+        }
     }
 
     public int getMesos()

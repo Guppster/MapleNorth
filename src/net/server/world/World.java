@@ -83,7 +83,6 @@ public class World
     private long petUpdate;
 
     private Map<HiredMerchant, Byte> activeMerchants = new LinkedHashMap<>();
-    private ScheduledFuture<?> MerchantsSchedule;
     private long merchantUpdate;
 
     private Map<Integer, Byte> activeMounts = new LinkedHashMap<>();

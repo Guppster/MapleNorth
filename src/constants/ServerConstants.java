@@ -22,6 +22,8 @@ public class ServerConstants {
     public static final boolean USE_MTS = false;
     public static final boolean USE_FAMILY_SYSTEM = false;
     public static final boolean USE_DUEY = false;
+    public static final boolean USE_ENFORCE_UNMERCHABLE_PET = true; //Forces players to not sell pets via merchants. (since non-named pets gets dirty name and other possible DB-related issues)
+    public static final boolean USE_MERCHANT_ANYWHERE = true;       //Enables player shops and hired merchants outside FM rooms (except FM entrance).
     public static final boolean USE_ITEM_SORT = true;
     public static final boolean USE_ITEM_SORT_BY_NAME = false;      //Item sorting based on name rather than id.
     public static final boolean USE_PARTY_SEARCH = false;
