@@ -44,8 +44,6 @@ public final class CancelBuffHandler extends AbstractMaplePacketHandler implemen
     {
         int sourceid = slea.readInt();
 
-        if (sourceid < 0) sourceid = -sourceid;
-
         switch (sourceid)
         {
             case FPArchMage.BIG_BANG:

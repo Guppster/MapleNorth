@@ -112,11 +112,13 @@ import server.maps.MapleMapItem;
 
 public class MapleCharacter extends AbstractAnimatedMapleMapObject
 {
+    private static NumberFormat numberFormat = new DecimalFormat("#,###,###,###");
     private static final String LEVEL_200 = "[Congrats] %s has reached Level 200! Congratulate %s on such an amazing achievement!";
 
     private static final String[] BLOCKED_NAMES = {"admin", "owner", "moderator", "intern", "donor", "administrator", "help", "helper", "alert", "notice", "maplestory", "Solaxia", "fuck", "wizet", "fucking", "negro", "fuk", "fuc", "penis", "pussy", "asshole", "gay",
             "nigger", "homo", "suck", "cum", "shit", "shitty", "condom", "security", "official", "rape", "nigga", "sex", "tit", "boner", "orgy", "clit", "asshole", "fatass", "bitch", "support", "gamemaster", "cock", "gaay", "gm",
             "operate", "master", "sysop", "party", "GameMaster", "community", "message", "event", "test", "meso", "Scania", "renewal", "yata", "AsiaSoft", "henesys"};
+
     private static String[] ariantroomleader = new String[3];
     private static int[] ariantroomslot = new int[3];
     private final Map<Short, MapleQuestStatus> quests;
@@ -223,7 +225,6 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
     private Lock chrLock = new ReentrantLock();
     private Lock effLock = new ReentrantLock();
     private Lock petLock = new ReentrantLock();
-    private NumberFormat nf = new DecimalFormat("#,###,###,###");
     private Map<Integer, Set<Integer>> excluded = new LinkedHashMap<>();
     private Set<Integer> excludedItems = new LinkedHashSet<>();
     private List<MapleRing> crushRings = new ArrayList<>();
@@ -2351,7 +2352,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                         return true;       //protection from cold
                     }
                     else //breathing underwater
+                    {
                         return value == 2 && (thisMap.getReturnMapId() == 211000000 || thisMap.getReturnMapId() == 230000000);
+                    }
                 }
             }
         }
@@ -3122,13 +3125,25 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         {
             buffExpireTask = TimerManager.getInstance().register(() ->
             {
-                Set<Entry<Integer, Long>> es;
+                Set<Entry<Integer, Long>> entrySet;
+
+                List<MapleBuffStatValueHolder> toCancel = new ArrayList<>();
 
                 effLock.lock();
                 chrLock.lock();
                 try
                 {
-                    es = new LinkedHashSet<>(buffExpires.entrySet());
+                    entrySet = new LinkedHashSet<>(buffExpires.entrySet());
+
+                    long currentTime = System.currentTimeMillis();
+
+                    for (Entry<Integer, Long> bel : entrySet)
+                    {
+                        if (currentTime >= bel.getValue())
+                        {
+                            toCancel.add(buffEffects.get(bel.getKey()).entrySet().iterator().next().getValue());    //rofl
+                        }
+                    }
                 }
                 finally
                 {
@@ -3136,14 +3151,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                     effLock.unlock();
                 }
 
-                long curTime = System.currentTimeMillis();
-                for (Entry<Integer, Long> bel : es)
+                for (MapleBuffStatValueHolder valueHolder : toCancel)
                 {
-                    if (curTime >= bel.getValue())
-                    {
-                        MapleBuffStatValueHolder mbsvh = buffEffects.get(bel.getKey()).entrySet().iterator().next().getValue(); // rofl
-                        cancelEffect(mbsvh.getEffect(), false, mbsvh.getStartTime());
-                    }
+                    cancelEffect(valueHolder.getEffect(), false, valueHolder.getStartTime());
                 }
             }, 1500);
         }
@@ -3274,7 +3284,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
 
     public String emblemCost()
     {
-        return nf.format(MapleGuild.CHANGE_EMBLEM_COST);
+        return numberFormat.format(MapleGuild.CHANGE_EMBLEM_COST);
     }
 
     public List<ScheduledFuture<?>> getTimers()
@@ -3370,9 +3380,26 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                             {
                                 client.announce(MaplePacketCreator.itemExpired(item.getItemId()));
                                 toberemove.add(item);
+
                                 if (ItemConstants.isRateCoupon(item.getItemId()))
                                 {
                                     deletedCoupon = true;
+                                }
+
+                                if (!ItemConstants.isPet(item.getItemId()) || ServerConstants.USE_ERASE_PET_ON_EXPIRATION)
+                                {
+                                    client.announce(MaplePacketCreator.itemExpired(item.getItemId()));
+                                    toberemove.add(item);
+
+                                    if (ItemConstants.isRateCoupon(item.getItemId()))
+                                    {
+                                        deletedCoupon = true;
+                                    }
+                                }
+                                else
+                                {
+                                    item.setExpiration(-1);
+                                    forceUpdateItem(item);
                                 }
                             }
                         }
@@ -3687,9 +3714,10 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
     {
         effLock.lock();
         chrLock.lock();
+
         try
         {
-            return buffEffects.keySet();
+            return new LinkedHashSet<>(buffEffects.keySet());
         }
         finally
         {
@@ -3719,13 +3747,22 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         }
     }
 
+
+    /**
+     * buff values will be stored in an arbitrary order
+     *
+     * @return
+     */
     public List<PlayerBuffValueHolder> getAllBuffs()
-    {  // buff values will be stored in an arbitrary order
+    {
+
         effLock.lock();
         chrLock.lock();
         try
         {
+            long curtime = System.currentTimeMillis();
             Map<Integer, PlayerBuffValueHolder> ret = new LinkedHashMap<>();
+
             for (Map<MapleBuffStat, MapleBuffStatValueHolder> bel : buffEffects.values())
             {
                 for (MapleBuffStatValueHolder mbsvh : bel.values())
@@ -3733,7 +3770,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                     int srcid = mbsvh.getEffect().getBuffSourceId();
                     if (!ret.containsKey(srcid))
                     {
-                        ret.put(srcid, new PlayerBuffValueHolder(mbsvh.getStartTime(), mbsvh.getEffect()));
+                        ret.put(srcid, new PlayerBuffValueHolder((int) (curtime - mbsvh.getStartTime()), mbsvh.getEffect()));
                     }
                 }
             }
@@ -4145,6 +4182,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         try
         {
             Map<Integer, Pair<MapleStatEffect, Long>> retrievedEffects = new LinkedHashMap<>();
+            Map<MapleBuffStat, Pair<Integer, Integer>> maxStatups = new LinkedHashMap<>();
 
             for (Entry<Integer, Map<MapleBuffStat, MapleBuffStatValueHolder>> bel : buffEffects.entrySet())
             {
@@ -4152,12 +4190,33 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
                 {
                     if (removedStats.contains(belv.getKey()))
                     {
-                        retrievedEffects.put(bel.getKey(), new Pair<>(belv.getValue().getEffect(), belv.getValue().getStartTime()));
+                        if (!retrievedEffects.containsKey(bel.getKey()))
+                        {
+                            retrievedEffects.put(bel.getKey(), new Pair<>(belv.getValue().getEffect(), belv.getValue().getStartTime()));
+                        }
+
+                        Pair<Integer, Integer> thisStat = maxStatups.get(belv.getKey());
+
+                        if (thisStat == null || belv.getValue().getValue() > thisStat.getRight())
+                        {
+                            maxStatups.put(belv.getKey(), new Pair<>(bel.getKey(), belv.getValue().getValue()));
+                        }
                     }
                 }
             }
 
-            for (Entry<Integer, Pair<MapleStatEffect, Long>> lmse : retrievedEffects.entrySet())
+            Map<Integer, Pair<MapleStatEffect, Long>> bestEffects = new LinkedHashMap<>();
+
+            for (Entry<MapleBuffStat, Pair<Integer, Integer>> lmse : maxStatups.entrySet())
+            {
+                Integer srcid = lmse.getValue().getLeft();
+                if (!bestEffects.containsKey(srcid))
+                {
+                    bestEffects.put(srcid, retrievedEffects.get(srcid));
+                }
+            }
+
+            for (Entry<Integer, Pair<MapleStatEffect, Long>> lmse : bestEffects.entrySet())
             {
                 lmse.getValue().getLeft().updateBuffEffect(this, getActiveStatupsFromSourceid(lmse.getKey()), lmse.getValue().getRight());
             }
@@ -4339,7 +4398,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
             Map<MapleBuffStat, MapleBuffStatValueHolder> stats = new LinkedHashMap<>();
             Map<MapleBuffStat, MapleBuffStatValueHolder> buffList = buffEffects.remove(effect.getBuffSourceId());
 
-            if(buffList != null)
+            if (buffList != null)
             {
                 buffList.forEach((key, value) ->
                 {
@@ -6149,7 +6208,7 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
 
     public String guildCost()
     {
-        return nf.format(MapleGuild.CREATE_GUILD_COST);
+        return numberFormat.format(MapleGuild.CREATE_GUILD_COST);
     }
 
     private void guildUpdate()
@@ -8836,11 +8895,12 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         setHp(getHp(), true);
     }
 
-    public void silentGiveBuffs(List<PlayerBuffValueHolder> buffs)
+    public void silentGiveBuffs(List<Pair<Long, PlayerBuffValueHolder>> buffs)
     {
-        for (PlayerBuffValueHolder mbsvh : buffs)
+        for (Pair<Long, PlayerBuffValueHolder> mbsv : buffs)
         {
-            mbsvh.getEffect().silentApplyBuff(this, mbsvh.getStartTime());
+            PlayerBuffValueHolder mbsvh = mbsv.getRight();
+            mbsvh.getEffect().silentApplyBuff(this, mbsv.getLeft());
         }
     }
 

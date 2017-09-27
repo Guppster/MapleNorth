@@ -184,6 +184,7 @@ public enum RecvOpcode
     USE_ITEMUI(0xED),
     MTS_OPERATION(0xFD),
     USE_MAPLELIFE(0xFE),
+    WATER_OF_LIFE(0x75),
     USE_HAMMER(0x104);
     private int code = -2;
 

@@ -92,19 +92,17 @@ function action(mode, type, selection) {
                     cm.dispose();
                 }
 
-                /*if (name.equals(MapleItemInformationProvider.getInstance().getName(id))) {
-     name = MapleItemInformationProvider.getInstance().getName(after);
-}*/
-
                 cm.gainItem(5380000, -1);
                 cm.evolvePet(i, after);
 
                 cm.sendOk("Your dragon has now evolved!! It used to be a #i" + id + "##t" + id + "#, and now it's a #i" + after + "##t" + after + "#!");
                 cm.dispose();
             }
-        } else if (status == 2) {
-            if (selection == 0) {
-                MapleInventoryManipulator.removeFromSlot(cm.getC(), MapleInventoryType.CASH, 1, 1, true);
+        } else if (status == 2)
+        {
+            if (selection == 0)
+            {
+                MapleInventoryManipulator.removeFromSlot(cm.getClient(), MapleInventoryType.CASH, 1, 1, true);
                 cm.sendOk("Your cash first slot is removed.");
             } else if (selection == 1) {
                 if (cm.haveItem(5000029, 2)) {

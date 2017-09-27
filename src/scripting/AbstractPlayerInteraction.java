@@ -67,7 +67,6 @@ import tools.Pair;
 
 public class AbstractPlayerInteraction
 {
-
     public MapleClient c;
 
     public AbstractPlayerInteraction(MapleClient c)
@@ -169,6 +168,26 @@ public class AbstractPlayerInteraction
             }
         }
         return chars;
+    }
+
+    public List<MaplePet> getDriedPets()
+    {
+        List<MaplePet> list = new LinkedList<>();
+
+        long curTime = System.currentTimeMillis();
+        for (Item it : getPlayer().getInventory(MapleInventoryType.CASH).list())
+        {
+            if (ItemConstants.isPet(it.getItemId()) && it.getExpiration() < curTime)
+            {
+                MaplePet pet = it.getPet();
+                if (pet != null)
+                {
+                    list.add(pet);
+                }
+            }
+        }
+
+        return list;
     }
 
     public MapleMap getWarpMap(int map)
