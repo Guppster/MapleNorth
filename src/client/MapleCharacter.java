@@ -256,11 +256,13 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
     private int banishMap = -1;
     private int banishSp = -1;
     private long banishTime = 0;
+
     //EVENTS
     private byte team = 0;
     private MapleFitness fitness;
     private MapleOla ola;
     private long snowballattack;
+
     //Monster Carnival
     private int cp = 0;
     private int obtainedcp = 0;
@@ -2186,6 +2188,11 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         if (getEventInstance() != null) getEventInstance().changedMap(this, map);
     }
 
+    private void eventAfterChangedMap(int map)
+    {
+        if (getEventInstance() != null) getEventInstance().afterChangedMap(this, map);
+    }
+
     public boolean canRecoverLastBanish()
     {
         return System.currentTimeMillis() - this.banishTime < 5 * 60 * 1000;
@@ -2307,6 +2314,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
 
         canWarpCounter--;
         if (canWarpCounter == 0) canWarpMap = true;
+
+        eventAfterChangedMap(this.getMapId());
     }
 
     public void changeMap(final MapleMap target, final Point pos)
@@ -4329,10 +4338,14 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject
         {
             Map<MapleBuffStat, MapleBuffStatValueHolder> stats = new LinkedHashMap<>();
             Map<MapleBuffStat, MapleBuffStatValueHolder> buffList = buffEffects.remove(effect.getBuffSourceId());
-            for (Entry<MapleBuffStat, MapleBuffStatValueHolder> stateffect : buffList.entrySet())
+
+            if(buffList != null)
             {
-                stats.put(stateffect.getKey(), stateffect.getValue());
-                buffEffectsCount.put(stateffect.getKey(), (byte) (buffEffectsCount.get(stateffect.getKey()) - 1));
+                buffList.forEach((key, value) ->
+                {
+                    stats.put(key, value);
+                    buffEffectsCount.put(key, (byte) (buffEffectsCount.get(key)));
+                });
             }
 
             return stats;

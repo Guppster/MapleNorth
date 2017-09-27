@@ -651,7 +651,7 @@ public class EventManager
                          + " and HAS JUST STARTED THE STRATEGY PHASE. After 3 minutes, no more guild members will be allowed to join the effort."
                          + " Check out Shuang at the excavation site in Perion for more info.";
 
-        mg.dropMessage(0, callout);
+        mg.dropMessage(6, callout);
     }
 
     private void exportMovedQueueToGuild(Integer guildId, int place)
@@ -660,7 +660,7 @@ public class EventManager
         String callout = "[Guild Quest] Your guild has been registered to attend to the Sharenian Guild Quest at channel " + this.getChannelServer().getId()
                          + " and is currently on the " + ordinal(place) + " place on the waiting queue.";
 
-        mg.dropMessage(0, callout);
+        mg.dropMessage(6, callout);
     }
 
     private List<Integer> getNextGuildQueue()
