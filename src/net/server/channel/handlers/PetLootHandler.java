@@ -96,37 +96,5 @@ public final class PetLootHandler extends AbstractMaplePacketHandler
                 }
             }
         }
-
-        Item petVacItem = character.getInventory(MapleInventoryType.ETC).findById(4000047);
-
-        if (petVacItem != null)
-        {
-            List<MapleMapObject> itemList = character.getMap().getMapObjectsInRange(character.getPosition(), Double.POSITIVE_INFINITY, Collections.singletonList(MapleMapObjectType.ITEM));
-
-            List<MapleMapItem> excludedItems = new ArrayList<>();
-
-            for (MapleMapObject item : itemList)
-            {
-                MapleMapItem mapItem = (MapleMapItem) item;
-
-                if (excludedItems.contains(mapItem)) continue;
-
-                int ownerId = mapItem.getOwner();
-
-                if (ownerId <= 0 ||
-                    character.getId() == ownerId ||
-                    character.isPartyMember(ownerId) ||
-                    System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000)
-                {
-                    if (!character.pickupItem(item, petIndex))
-                    {
-                        excludedItems.add(mapItem);
-                    }
-                }
-            }
-            return;
-        }
-
-        character.pickupItem(ob, petIndex);
     }
 }

@@ -617,9 +617,9 @@ public class MapleMap
             return;
         }
 
-
-        Item idrop;
+        Item idrop = null;
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+
         final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : character.getParty() != null ? 1 : 0);
         final int mobpos = mob.getPosition().x;
         int chRate = character.getDropRate();
@@ -681,7 +681,9 @@ public class MapleMap
                 d++;
             }
         }
+
         final List<MonsterGlobalDropEntry> globalEntry = mi.getGlobalDrop();
+
         // Global Drops
         for (final MonsterGlobalDropEntry de : globalEntry)
         {
@@ -711,32 +713,6 @@ public class MapleMap
             }
         }
 
-    //    checkPetVac(character);
-    }
-
-    private void checkPetVac(MapleCharacter character)
-    {
-        Item petVacItem = character.getInventory(MapleInventoryType.ETC).findById(4000047);
-
-        if(petVacItem == null) return;
-
-        List<MapleMapObject> itemList = this.getMapObjectsInRange(character.getPosition(), Double.POSITIVE_INFINITY, Collections.singletonList(MapleMapObjectType.ITEM));
-
-        for (MapleMapObject item : itemList)
-        {
-            MapleMapItem mapItem = (MapleMapItem) item;
-
-            int ownerId = mapItem.getOwner();
-
-            if ((ownerId <= 0 ||
-                character.getId() == ownerId ||
-                character.isPartyMember(ownerId) ||
-                System.currentTimeMillis() - mapItem.getDropTime() >= 15 * 1000) &&
-                character.getPets().length > 0)
-            {
-                character.pickupItem(item, character.getPets()[0].getPetId());
-            }
-        }
     }
 
     public void dropFromReactor(final MapleCharacter chr, final MapleReactor reactor, Item drop, Point dropPos, short questid)
@@ -776,30 +752,26 @@ public class MapleMap
         chrWLock.lock();
         try
         {
-            itemMonitor = TimerManager.getInstance().register(new Runnable()
+            itemMonitor = TimerManager.getInstance().register(() ->
             {
-                @Override
-                public void run()
+                if (getCharacters().isEmpty())
                 {
-                    if (getCharacters().isEmpty())
+                    if (itemMonitorTimeout == 0)
                     {
-                        if (itemMonitorTimeout == 0)
-                        {
-                            stopItemMonitor();
-                            return;
-                        }
-                        else
-                        {
-                            itemMonitorTimeout--;
-                        }
+                        stopItemMonitor();
+                        return;
                     }
                     else
                     {
-                        itemMonitorTimeout = 1;
+                        itemMonitorTimeout--;
                     }
-
-                    if (!registeredDrops.isEmpty()) cleanItemMonitor();
                 }
+                else
+                {
+                    itemMonitorTimeout = 1;
+                }
+
+                if (!registeredDrops.isEmpty()) cleanItemMonitor();
             }, ServerConstants.ITEM_MONITOR_TIME, ServerConstants.ITEM_MONITOR_TIME);
 
             itemMonitorTimeout = 1;
@@ -823,7 +795,7 @@ public class MapleMap
         }
     }
 
-    private void registerItemDrop(MapleMapItem mdrop)
+    private void registerItemDrop(MapleMapItem mdrop, MapleCharacter character)
     {
         if (droppedItemCount.get() >= ServerConstants.ITEM_LIMIT_ON_MAP)
         {
@@ -854,7 +826,7 @@ public class MapleMap
         objectWLock.lock();
         try
         {
-            registeredDrops.add(new WeakReference<>((MapleMapObject) mdrop));
+            registeredDrops.add(new WeakReference<>(mdrop));
         }
         finally
         {
@@ -862,6 +834,22 @@ public class MapleMap
         }
 
         droppedItemCount.incrementAndGet();
+        checkPetVac(mdrop, character);
+    }
+
+    private void checkPetVac(MapleMapItem mdrop, MapleCharacter character)
+    {
+        Item petVacItem = character.getInventory(MapleInventoryType.ETC).findById(4000047);
+
+        if(petVacItem == null) return;
+
+        //Filter out people that cant pickup this item (non party members or non owners)
+        if(mdrop.getOwner() != character.getId() || !character.isPartyMember(mdrop.getItemId())) return;
+
+        if(character.getPets().length > 0)
+        {
+            character.pickupItem(mdrop, character.getPets()[0].getPetId());
+        }
     }
 
     public void pickItemDrop(byte[] pickupPacket, MapleMapItem mdrop)
@@ -877,19 +865,15 @@ public class MapleMap
     {
         final MapleMapItem mdrop = new MapleMapItem(idrop, dropPos, dropper, chr, droptype, false, questid);
         mdrop.setDropTime(System.currentTimeMillis());
-        spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation()
+        spawnAndAddRangedMapObject(mdrop, c ->
         {
-            @Override
-            public void sendPackets(MapleClient c)
+            if (questid <= 0 || (c.getPlayer().getQuestStatus(questid) == 1 && c.getPlayer().needQuestItem(questid, idrop.getItemId())))
             {
-                if (questid <= 0 || (c.getPlayer().getQuestStatus(questid) == 1 && c.getPlayer().needQuestItem(questid, idrop.getItemId())))
-                {
-                    c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), dropPos, (byte) 1));
-                }
+                c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), dropPos, (byte) 1));
             }
         }, null);
 
-        registerItemDrop(mdrop);
+        registerItemDrop(mdrop, chr);
         activateItemReactors(mdrop, chr.getClient());
     }
 
@@ -901,7 +885,7 @@ public class MapleMap
 
         spawnAndAddRangedMapObject(mdrop, c -> c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1)), null);
 
-        registerItemDrop(mdrop);
+        registerItemDrop(mdrop, owner);
     }
 
     public final void disappearingItemDrop(final MapleMapObject dropper, final MapleCharacter owner, final Item item, final Point pos)
@@ -1420,14 +1404,7 @@ public class MapleMap
 
         if (reactor.getDelay() > 0)
         {
-            tMan.schedule(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    respawnReactor(reactor);
-                }
-            }, reactor.getDelay());
+            tMan.schedule(() -> respawnReactor(reactor), reactor.getDelay());
         }
     }
 
@@ -1799,20 +1776,16 @@ public class MapleMap
 
     private void monsterItemDrop(final MapleMonster m, final Item item, long delay)
     {
-        final ScheduledFuture<?> monsterItemDrop = TimerManager.getInstance().register(new Runnable()
+        final ScheduledFuture<?> monsterItemDrop = TimerManager.getInstance().register(() ->
         {
-            @Override
-            public void run()
+            if (m.isAlive() && !MapleMap.this.getPlayers().isEmpty())
             {
-                if (m.isAlive() && !MapleMap.this.getPlayers().isEmpty())
+                if (item.getItemId() == 4001101)
                 {
-                    if (item.getItemId() == 4001101)
-                    {
-                        MapleMap.this.riceCakes++;
-                        MapleMap.this.broadcastMessage(MaplePacketCreator.serverNotice(6, "The Moon Bunny made rice cake number " + (MapleMap.this.riceCakes)));
-                    }
-                    spawnItemDrop(m, (MapleCharacter) getPlayers().get(0), item, m.getPosition(), false, false);
+                    MapleMap.this.riceCakes++;
+                    MapleMap.this.broadcastMessage(MaplePacketCreator.serverNotice(6, "The Moon Bunny made rice cake number " + (MapleMap.this.riceCakes)));
                 }
+                spawnItemDrop(m, (MapleCharacter) getPlayers().get(0), item, m.getPosition(), false, false);
             }
         }, delay, delay);
         if (!m.isAlive())
@@ -2196,17 +2169,10 @@ public class MapleMap
         final MapleMapItem mdrop = new MapleMapItem(item, droppos, dropper, owner, dropType, playerDrop);
         mdrop.setDropTime(System.currentTimeMillis());
 
-        spawnAndAddRangedMapObject(mdrop, new DelayedPacketCreation()
-        {
-            @Override
-            public void sendPackets(MapleClient c)
-            {
-                c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1));
-            }
-        }, null);
+        spawnAndAddRangedMapObject(mdrop, c -> c.announce(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 1)), null);
         broadcastMessage(MaplePacketCreator.dropItemFromMapObject(mdrop, dropper.getPosition(), droppos, (byte) 0));
 
-        registerItemDrop(mdrop);
+        registerItemDrop(mdrop, owner);
         activateItemReactors(mdrop, owner.getClient());
     }
 
